@@ -4,9 +4,11 @@ use std::str::FromStr;
 
 use clap::{App, Arg, SubCommand};
 
-use crate::color::Color;
+use crate::color::RGB;
+use crate::contrast::wcag_contrast_ratio;
 
 mod color;
+mod contrast;
 
 fn main() {
     let matches = App::new("Colo.rs")
@@ -23,8 +25,8 @@ fn main() {
 
     match matches.subcommand_matches("contrast") {
         Some(matches) => {
-            let color_1 = Color::from_str(matches.value_of("color_1").unwrap()).unwrap();
-            let color_2 = Color::from_str(matches.value_of("color_2").unwrap()).unwrap();
+            let color_1 = RGB::from_str(matches.value_of("color_1").unwrap()).unwrap();
+            let color_2 = RGB::from_str(matches.value_of("color_2").unwrap()).unwrap();
             print_contrast(&color_1, &color_2)
         }
         None => {
@@ -33,6 +35,7 @@ fn main() {
     }
 }
 
-fn print_contrast(color_1: &Color, color_2: &Color) {
-    println!("Calculating contrast for '{}' to '{}'.", color_1, color_2)
+fn print_contrast(color_1: &RGB, color_2: &RGB) {
+    let contrast = wcag_contrast_ratio(color_1, color_2);
+    println!("WCAG 2.0 contrast ratio for '{}' to '{}' is {}.", color_1, color_2, contrast)
 }
