@@ -1,6 +1,6 @@
 use termcolor::{Color, StandardStream, ColorSpec, WriteColor, ColorChoice};
 use crate::core::color::{RGB};
-use crate::core::contrast::{contrast_ratio};
+use crate::core::contrast::{contrast_ratio_val};
 use std::io::Write;
 
 fn rgb_as_term_color(color: &RGB) -> Color {
@@ -17,7 +17,7 @@ fn get_best_contrast<'a>
     let mut best_contrast_ratio_color: &RGB = initial_color; // Default value only matters if all options have zero contrast, so they should be the same as initial_color anyways.
 
     for color_option in color_options {
-        let contrast_ratio = contrast_ratio(initial_color, color_option);
+        let contrast_ratio = contrast_ratio_val(initial_color, color_option);
         if contrast_ratio > best_contrast_ratio {
             best_contrast_ratio = contrast_ratio;
             best_contrast_ratio_color = color_option;
@@ -39,7 +39,7 @@ fn print_rgb(stdout: &mut StandardStream, color: &RGB) {
 }
 
 pub fn print_contrast(color_1: &RGB, color_2: &RGB) {
-    let contrast = contrast_ratio(color_1, color_2);
+    let contrast = contrast_ratio_val(color_1, color_2);
 
     let mut stdout = StandardStream::stdout(ColorChoice::Auto);
     write!(&mut stdout, "WCAG 2.0 contrast ratio for ");
