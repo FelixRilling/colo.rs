@@ -1,13 +1,12 @@
-use std::collections::HashSet;
+use crate::core::color::{RGB};
 
-use crate::color::RGB;
 
 /// Calculates the WCAG color ratio of two colors.
 /// The same color inputs will produce the same output regardless of position.
 // https://css-tricks.com/understanding-web-accessibility-color-contrast-guidelines-and-ratios/
 // https://www.w3.org/TR/WCAG20-TECHS/G18.html#G18-tests
 // https://github.com/tmcw/wcag-contrast/blob/master/index.js
-pub fn wcag_contrast_ratio(color_1: &RGB, color_2: &RGB) -> f32 {
+pub fn contrast_ratio(color_1: &RGB, color_2: &RGB) -> f32 {
     let color_1_luminance = relative_luminance(color_1);
     let color_2_luminance = relative_luminance(color_2);
 
@@ -37,21 +36,4 @@ fn transform_color_value(rgb_val: u8) -> f32 {
     } else {
         ((adapted_val + 0.055) / 1.055).powf(2.4)
     }
-}
-
-/// Finds and returns the `color_options` value that has the best contrast to `initial_color`.
-pub fn get_best_contrast<'a>
-(initial_color: &'a RGB, color_options: &'a Vec<&RGB>) -> &'a RGB {
-    let mut best_contrast_ratio: f32 = 0.0;
-    let mut best_contrast_ratio_color: &RGB = initial_color; // Default value only matters if all options have zero contrast, so they should be the same as initial_color anyways.
-
-    for color_option in color_options {
-        let contrast_ratio = wcag_contrast_ratio(initial_color, color_option);
-        if contrast_ratio > best_contrast_ratio {
-            best_contrast_ratio = contrast_ratio;
-            best_contrast_ratio_color = color_option;
-        }
-    }
-
-    best_contrast_ratio_color
 }

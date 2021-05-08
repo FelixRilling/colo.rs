@@ -1,16 +1,18 @@
 extern crate clap;
 
-use std::io::Write;
 use std::str::FromStr;
 
 use clap::{App, Arg, SubCommand};
-use termcolor::{Color, ColorChoice, ColorSpec, StandardStream, WriteColor};
 
-use crate::color::RGB;
-use crate::contrast::{get_best_contrast, wcag_contrast_ratio};
+use crate::cli::print_contrast;
+use crate::core::color::RGB;
 
-mod color;
-mod contrast;
+mod core {
+    pub(crate) mod color;
+    pub(crate) mod contrast;
+}
+
+mod cli;
 
 fn main() {
     let matches = App::new("Colo.rs")
@@ -35,33 +37,4 @@ fn main() {
             panic!("TODO!")
         }
     }
-}
-
-const BLACK: RGB = RGB { r: 0, g: 0, b: 0 };
-const WHITE: RGB = RGB { r: 255, g: 255, b: 255 };
-
-fn rgb_as_term_color(color: &RGB) -> Color {
-    Color::Rgb(color.r, color.g, color.b)
-}
-
-/// Prints colored color value to stream. Stream color is reset afterwards.
-fn print_rgb(stdout: &mut StandardStream, color: &RGB) {
-    let foreground_color_options = vec![&BLACK, &WHITE];
-    let foreground_color = get_best_contrast(color, &foreground_color_options);
-    stdout.set_color(ColorSpec::new()
-        .set_bg(Some(rgb_as_term_color(color)))
-        .set_fg(Some(rgb_as_term_color(foreground_color))));
-    write!(stdout, "{}", color);
-    stdout.set_color(&ColorSpec::default());
-}
-
-fn print_contrast(color_1: &RGB, color_2: &RGB) {
-    let contrast = wcag_contrast_ratio(color_1, color_2);
-
-    let mut stdout = StandardStream::stdout(ColorChoice::Auto);
-    write!(&mut stdout, "WCAG 2.0 contrast ratio for ");
-    print_rgb(&mut stdout, color_1);
-    write!(&mut stdout, " to ");
-    print_rgb(&mut stdout, color_2);
-    writeln!(&mut stdout, " is {}. ", contrast);
 }
