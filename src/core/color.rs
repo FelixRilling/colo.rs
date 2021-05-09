@@ -1,8 +1,8 @@
-use std::str::FromStr;
-use std::fmt::Display;
 use std::fmt;
+use std::fmt::Display;
+use std::str::FromStr;
 
-#[derive(Debug)]
+#[derive(PartialEq, Eq, Debug)]
 pub struct RGB {
     pub(crate) r: u8,
     pub(crate) g: u8,
@@ -28,6 +28,6 @@ impl FromStr for RGB {
 
 impl Display for RGB {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_fmt(format_args!("#{:x}{:x}{:x}", self.r, self.g, self.b))
+        f.write_fmt(format_args!("#{:X}{:X}{:X}", self.r, self.g, self.b))
     }
 }

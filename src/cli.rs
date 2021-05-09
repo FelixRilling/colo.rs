@@ -1,7 +1,11 @@
-use termcolor::{Color, StandardStream, ColorSpec, WriteColor, ColorChoice};
-use crate::core::color::{RGB};
-use crate::core::contrast::{contrast_ratio_val};
+use std::collections::HashSet;
 use std::io::Write;
+use std::iter::FromIterator;
+
+use termcolor::{Color, ColorChoice, ColorSpec, StandardStream, WriteColor};
+
+use crate::core::color::RGB;
+use crate::core::contrast::{contrast_ratio_levels_reached, contrast_ratio_val, ContrastLevel};
 
 fn rgb_as_term_color(color: &RGB) -> Color {
     Color::Rgb(color.r, color.g, color.b)
@@ -38,13 +42,31 @@ fn print_rgb(stdout: &mut StandardStream, color: &RGB) {
     stdout.set_color(&ColorSpec::default());
 }
 
+fn set_as_ordered_vec(contrast_levels_reached: HashSet<ContrastLevel>) -> Vec<ContrastLevel> {
+    let mut contrast_levels_reached_vec: Vec<ContrastLevel> = Vec::from_iter(contrast_levels_reached.into_iter());
+    contrast_levels_reached_vec.sort();
+    contrast_levels_reached_vec
+}
+
 pub fn print_contrast(color_1: &RGB, color_2: &RGB) {
-    let contrast = contrast_ratio_val(color_1, color_2);
+    let contrast_ratio_val = contrast_ratio_val(color_1, color_2);
+    let contrast_levels_reached = contrast_ratio_levels_reached(color_1, color_2);
 
     let mut stdout = StandardStream::stdout(ColorChoice::Auto);
+
     write!(&mut stdout, "WCAG 2.0 contrast ratio for ");
     print_rgb(&mut stdout, color_1);
     write!(&mut stdout, " to ");
     print_rgb(&mut stdout, color_2);
-    writeln!(&mut stdout, " is {}. ", contrast);
+    writeln!(&mut stdout, " is {}.", contrast_ratio_val);
+
+    let contrast_levels_reached_string: String = if contrast_levels_reached.is_empty() {
+        String::from("None")
+    } else {
+        set_as_ordered_vec(contrast_levels_reached)
+            .iter()
+            .map(|level| level.to_string())
+            .collect::<Vec<String>>().join(", ")
+    };
+    writeln!(&mut stdout, "Contrast level(s) reached: {}.", contrast_levels_reached_string);
 }

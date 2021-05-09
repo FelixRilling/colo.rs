@@ -1,41 +1,58 @@
 use std::collections::HashSet;
+use std::fmt;
+use std::fmt::Display;
 
 use crate::core::color::RGB;
 
 /// Contrast target values based on
 /// https://www.w3.org/TR/2008/REC-WCAG20-20081211/#visual-audio-contrast-contrast.
-#[derive(Hash, Eq, PartialEq, Debug)]
-pub enum ContrastTarget {
+#[derive(Hash, PartialEq, Eq, PartialOrd, Ord, Debug)]
+pub enum ContrastLevel {
     /// Enhanced contrast for text.
     AAA,
+
     /// Enhanced contrast for large text.
     LargeAAA,
+
     /// Minimum contrast for text.
     AA,
+
     /// Minimum contrast for large text.
     LargeAA,
 }
 
-/// Checks which WCAG contrast ratio targets this combination of colors reach.
-/// An empty set means no target is reached.
+impl Display for ContrastLevel {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(match &self {
+            ContrastLevel::AAA => "AAA",
+            ContrastLevel::LargeAAA => "AAA (Large Text)",
+            ContrastLevel::AA => "AA",
+            ContrastLevel::LargeAA => "AA (Large Text)",
+        })
+    }
+}
+
+
+/// Checks which WCAG contrast ratio levels this combination of colors reach.
+/// An empty set means no level is reached.
 /// See https://www.w3.org/TR/2008/REC-WCAG20-20081211/#visual-audio-contrast-contrast for details.
 // https://webaim.org/resources/contrastchecker/
-pub fn contrast_ratio_targets_reached(color_1: &RGB, color_2: &RGB) -> HashSet<ContrastTarget> {
+pub fn contrast_ratio_levels_reached(color_1: &RGB, color_2: &RGB) -> HashSet<ContrastLevel> {
     let ratio = contrast_ratio_val(color_1, color_2);
 
-    let mut targets_reached = HashSet::new();
+    let mut reached = HashSet::new();
     // TODO: Use match here or something.
     if ratio.ge(&3.0) {
-        targets_reached.insert(ContrastTarget::LargeAA);
+        reached.insert(ContrastLevel::LargeAA);
         if ratio.ge(&4.5) {
-            targets_reached.insert(ContrastTarget::AA);
-            targets_reached.insert(ContrastTarget::LargeAAA);
+            reached.insert(ContrastLevel::AA);
+            reached.insert(ContrastLevel::LargeAAA);
             if ratio.ge(&7.0) {
-                targets_reached.insert(ContrastTarget::AAA);
+                reached.insert(ContrastLevel::AAA);
             }
         }
     }
-    targets_reached
+    reached
 }
 
 /// Calculates the WCAG color ratio of two colors.
@@ -83,86 +100,86 @@ mod tests {
     use float_cmp::approx_eq;
 
     use crate::core::color::RGB;
-    use crate::core::contrast::ContrastTarget;
+    use crate::core::contrast::ContrastLevel;
 
-    use super::{contrast_ratio_targets_reached, contrast_ratio_val};
+    use super::{contrast_ratio_levels_reached, contrast_ratio_val};
 
     #[test]
-    fn contrast_ratio_targets_reached_same_color() {
+    fn contrast_ratio_levels_reached_same_color() {
         let black = RGB::from_str("#000000").unwrap();
 
-        let actual = contrast_ratio_targets_reached(&black, &black);
+        let actual = contrast_ratio_levels_reached(&black, &black);
         assert!(actual.is_empty());
     }
 
     #[test]
-    fn contrast_ratio_targets_reached_max_contrast() {
+    fn contrast_ratio_levels_reached_max_contrast() {
         let black = RGB::from_str("#000000").unwrap();
         let white = RGB::from_str("#FFFFFF").unwrap();
 
-        let actual = contrast_ratio_targets_reached(&black, &white);
-        assert!(actual.contains(&ContrastTarget::AAA));
-        assert!(actual.contains(&ContrastTarget::LargeAAA));
-        assert!(actual.contains(&ContrastTarget::AA));
-        assert!(actual.contains(&ContrastTarget::LargeAA));
+        let actual = contrast_ratio_levels_reached(&black, &white);
+        assert!(actual.contains(&ContrastLevel::AAA));
+        assert!(actual.contains(&ContrastLevel::LargeAAA));
+        assert!(actual.contains(&ContrastLevel::AA));
+        assert!(actual.contains(&ContrastLevel::LargeAA));
     }
 
     #[test]
-    fn contrast_ratio_targets_reached_ignores_order() {
+    fn contrast_ratio_levels_reached_ignores_order() {
         let a = RGB::from_str("#90B5AC").unwrap();
         let b = RGB::from_str("#662270").unwrap();
 
-        let actual_1 = contrast_ratio_targets_reached(&a, &b);
-        let actual_2 = contrast_ratio_targets_reached(&b, &a);
+        let actual_1 = contrast_ratio_levels_reached(&a, &b);
+        let actual_2 = contrast_ratio_levels_reached(&b, &a);
         assert_eq!(actual_1, actual_2)
     }
 
     // https://webaim.org/resources/contrastchecker/?fcolor=000000&bcolor=171717
     #[test]
-    fn contrast_ratio_targets_reached_lowest() {
+    fn contrast_ratio_levels_reached_lowest() {
         let a = RGB::from_str("#000000").unwrap();
         let b = RGB::from_str("#171717").unwrap();
 
-        let actual = contrast_ratio_targets_reached(&a, &b);
+        let actual = contrast_ratio_levels_reached(&a, &b);
         assert!(actual.is_empty())
     }
 
     // https://webaim.org/resources/contrastchecker/?fcolor=000000&bcolor=5C5C5C
     #[test]
-    fn contrast_ratio_targets_reached_low() {
+    fn contrast_ratio_levels_reached_low() {
         let a = RGB::from_str("#000000").unwrap();
         let b = RGB::from_str("#5C5C5C").unwrap();
 
-        let actual = contrast_ratio_targets_reached(&a, &b);
+        let actual = contrast_ratio_levels_reached(&a, &b);
         assert_eq!(actual.len(), 1);
-        assert!(actual.contains(&ContrastTarget::LargeAA))
+        assert!(actual.contains(&ContrastLevel::LargeAA))
     }
 
     // https://webaim.org/resources/contrastchecker/?fcolor=000000&bcolor=757575
     #[test]
-    fn contrast_ratio_targets_reached_average() {
+    fn contrast_ratio_levels_reached_average() {
         let a = RGB::from_str("#000000").unwrap();
         let b = RGB::from_str("#757575").unwrap();
 
-        let actual = contrast_ratio_targets_reached(&a, &b);
+        let actual = contrast_ratio_levels_reached(&a, &b);
         assert_eq!(actual.len(), 3);
-        assert!(actual.contains(&ContrastTarget::LargeAA));
-        assert!(actual.contains(&ContrastTarget::AA));
-        assert!(actual.contains(&ContrastTarget::LargeAAA));
+        assert!(actual.contains(&ContrastLevel::LargeAA));
+        assert!(actual.contains(&ContrastLevel::AA));
+        assert!(actual.contains(&ContrastLevel::LargeAAA));
     }
 
     // https://webaim.org/resources/contrastchecker/?fcolor=000000&bcolor=969696
     #[test]
-    fn contrast_ratio_targets_reached_high() {
+    fn contrast_ratio_levels_reached_high() {
         let a = RGB::from_str("#000000").unwrap();
         let b = RGB::from_str("#969696").unwrap();
 
-        let actual = contrast_ratio_targets_reached(&a, &b);
+        let actual = contrast_ratio_levels_reached(&a, &b);
         assert_eq!(actual.len(), 4);
-        assert!(actual.contains(&ContrastTarget::LargeAA));
-        assert!(actual.contains(&ContrastTarget::AA));
-        assert!(actual.contains(&ContrastTarget::LargeAAA));
-        assert!(actual.contains(&ContrastTarget::AAA));
+        assert!(actual.contains(&ContrastLevel::LargeAA));
+        assert!(actual.contains(&ContrastLevel::AA));
+        assert!(actual.contains(&ContrastLevel::LargeAAA));
+        assert!(actual.contains(&ContrastLevel::AAA));
     }
 
 
