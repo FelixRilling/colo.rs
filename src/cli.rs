@@ -35,11 +35,13 @@ fn get_best_contrast<'a>
 fn print_rgb(stdout: &mut StandardStream, color: &RGB) {
     let foreground_color_options = vec![&BLACK, &WHITE];
     let foreground_color = get_best_contrast(color, &foreground_color_options);
+
     stdout.set_color(ColorSpec::new()
         .set_bg(Some(rgb_as_term_color(color)))
-        .set_fg(Some(rgb_as_term_color(foreground_color))));
-    write!(stdout, "{}", color);
-    stdout.set_color(&ColorSpec::default());
+        .set_fg(Some(rgb_as_term_color(foreground_color))))
+        .expect("Could not set stdout color.");
+    write!(stdout, "{}", color).expect("Could not write color to stdout.");
+    stdout.set_color(&ColorSpec::default()).expect("Could not reset stdout color.");
 }
 
 fn set_as_ordered_vec(contrast_levels_reached: HashSet<ContrastLevel>) -> Vec<ContrastLevel> {
@@ -48,17 +50,17 @@ fn set_as_ordered_vec(contrast_levels_reached: HashSet<ContrastLevel>) -> Vec<Co
     contrast_levels_reached_vec
 }
 
-pub fn print_contrast(color_1: &RGB, color_2: &RGB) {
+pub fn print_contrast(color_1: &RGB, color_2: &RGB)  {
     let contrast_ratio_val = contrast_ratio_val(color_1, color_2);
     let contrast_levels_reached = contrast_ratio_levels_reached(color_1, color_2);
 
     let mut stdout = StandardStream::stdout(ColorChoice::Auto);
 
-    write!(&mut stdout, "WCAG 2.0 contrast ratio for ");
+    write!(&mut stdout, "WCAG 2.0 contrast ratio for ").unwrap();
     print_rgb(&mut stdout, color_1);
-    write!(&mut stdout, " to ");
+    write!(&mut stdout, " to ").unwrap();
     print_rgb(&mut stdout, color_2);
-    writeln!(&mut stdout, " is {}.", contrast_ratio_val);
+    writeln!(&mut stdout, " is {}.", contrast_ratio_val).unwrap();
 
     let contrast_levels_reached_string: String = if contrast_levels_reached.is_empty() {
         String::from("None")
@@ -68,5 +70,5 @@ pub fn print_contrast(color_1: &RGB, color_2: &RGB) {
             .map(|level| level.to_string())
             .collect::<Vec<String>>().join(", ")
     };
-    writeln!(&mut stdout, "Contrast level(s) reached: {}.", contrast_levels_reached_string);
+    writeln!(&mut stdout, "Contrast level(s) reached: {}.", contrast_levels_reached_string).unwrap();
 }
