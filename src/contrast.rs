@@ -2,7 +2,7 @@ use std::collections::HashSet;
 use std::fmt;
 use std::fmt::Display;
 
-use crate::core::color::RGB;
+use crate::color::RGB;
 
 /// Contrast target values based on
 /// https://www.w3.org/TR/2008/REC-WCAG20-20081211/#visual-audio-contrast-contrast.
@@ -99,8 +99,8 @@ mod tests {
 
     use float_cmp::approx_eq;
 
-    use crate::core::color::RGB;
-    use crate::core::contrast::ContrastLevel;
+    use crate::color::RGB;
+    use crate::contrast::ContrastLevel;
 
     use super::{contrast_ratio_levels_reached, contrast_ratio_val};
 

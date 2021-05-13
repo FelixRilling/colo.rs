@@ -4,9 +4,9 @@ use std::str::FromStr;
 
 #[derive(PartialEq, Eq, Debug)]
 pub struct RGB {
-    pub(crate) r: u8,
-    pub(crate) g: u8,
-    pub(crate) b: u8,
+    pub r: u8,
+    pub g: u8,
+    pub b: u8,
 }
 
 // https://rust-lang-nursery.github.io/rust-cookbook/text/string_parsing.html
