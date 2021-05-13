@@ -9,13 +9,9 @@ use termcolor::{Color, ColorChoice, ColorSpec, StandardStream, WriteColor};
 use colo_rs::color::RGB;
 use colo_rs::contrast::{contrast_ratio_levels_reached, contrast_ratio_val, ContrastLevel};
 
-
 fn rgb_as_term_color(color: &RGB) -> Color {
     Color::Rgb(color.r, color.g, color.b)
 }
-
-const BLACK: RGB = RGB { r: 255, g: 255, b: 255 };
-const WHITE: RGB = RGB { r: 255, g: 255, b: 255 };
 
 /// Finds and returns the `color_options` value that has the best contrast to `initial_color`.
 fn get_best_contrast<'a>
@@ -33,6 +29,10 @@ fn get_best_contrast<'a>
 
     best_contrast_ratio_color
 }
+
+
+const BLACK: RGB = RGB { r: 0, g: 0, b: 0 };
+const WHITE: RGB = RGB { r: 255, g: 255, b: 255 };
 
 /// Prints colored color value to stream. Stream color is reset afterwards.
 fn print_rgb(stdout: &mut StandardStream, color: &RGB) {
@@ -101,3 +101,26 @@ fn print_contrast(color_1: &RGB, color_2: &RGB) {
     writeln!(&mut stdout, "Contrast level(s) reached: {}.", contrast_levels_reached_string).unwrap();
 }
 
+
+#[cfg(test)]
+mod tests {
+    use std::str::FromStr;
+
+    use colo_rs::color::RGB;
+
+    use crate::{BLACK, get_best_contrast, WHITE};
+
+    #[test]
+    fn get_best_contrast_finds_result() {
+        let bright_color = RGB::from_str("#ABCDEF").unwrap();
+        let dark_color = RGB::from_str("#696969").unwrap();
+
+        let options = vec![&BLACK, &WHITE];
+
+        let bright_color_best_contrast_actual = get_best_contrast(&bright_color, &options);
+        assert_eq!(bright_color_best_contrast_actual, &BLACK);
+
+        let dark_color_best_contrast_actual = get_best_contrast(&dark_color, &options);
+        assert_eq!(dark_color_best_contrast_actual, &WHITE);
+    }
+}
