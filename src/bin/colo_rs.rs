@@ -7,7 +7,7 @@ use clap::{App, Arg, SubCommand};
 use termcolor::{Color, ColorChoice, ColorSpec, StandardStream, WriteColor};
 
 use colo_rs::color::RGB;
-use colo_rs::contrast::{contrast_ratio_levels_reached, contrast_ratio_val, ContrastLevel};
+use colo_rs::contrast::{contrast_ratio_levels_reached, contrast_ratio_val};
 
 fn rgb_as_term_color(color: &RGB) -> Color {
     Color::Rgb(color.r, color.g, color.b)
@@ -47,10 +47,10 @@ fn print_rgb(stdout: &mut StandardStream, color: &RGB) {
     stdout.set_color(&ColorSpec::default()).expect("Could not reset stdout color.");
 }
 
-fn set_as_ordered_vec(contrast_levels_reached: HashSet<ContrastLevel>) -> Vec<ContrastLevel> {
-    let mut contrast_levels_reached_vec: Vec<ContrastLevel> = Vec::from_iter(contrast_levels_reached.into_iter());
-    contrast_levels_reached_vec.sort();
-    contrast_levels_reached_vec
+fn set_as_ordered_vec<T: Ord>(hash_set: HashSet<T>) -> Vec<T> {
+    let mut set_copy_vec: Vec<T> = Vec::from_iter(hash_set.into_iter());
+    set_copy_vec.sort();
+    set_copy_vec
 }
 
 fn main() {

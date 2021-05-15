@@ -61,6 +61,7 @@ pub fn contrast_ratio_levels_reached(color_1: &RGB, color_2: &RGB) -> HashSet<Co
 /// The result is the number on the left side of the WCAG color ratio display syntax.
 /// E.g. an result of "4.5" would be written "4.5:1".
 // https://www.w3.org/TR/WCAG20-TECHS/G18.html#G18-tests
+// TODO: use bigint based values instead of floats
 pub fn contrast_ratio_val(color_1: &RGB, color_2: &RGB) -> f32 {
     let color_1_luminance = relative_luminance(color_1);
     let color_2_luminance = relative_luminance(color_2);
