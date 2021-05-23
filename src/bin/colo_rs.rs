@@ -1,7 +1,6 @@
 use std::collections::HashSet;
 use std::io::Write;
 use std::iter::FromIterator;
-use std::str::FromStr;
 
 use clap::{App, Arg, SubCommand};
 use termcolor::{Color, ColorChoice, ColorSpec, StandardStream, WriteColor};
@@ -17,7 +16,8 @@ fn rgb_as_term_color(color: &RGB) -> Color {
 fn get_best_contrast<'a>
 (initial_color: &'a RGB, color_options: &'a Vec<&RGB>) -> &'a RGB {
     let mut best_contrast_ratio: f32 = 0.0;
-    let mut best_contrast_ratio_color: &RGB = initial_color; // Default value only matters if all options have zero contrast, so they should be the same as initial_color anyways.
+    // Default value only matters if all options have zero contrast, so they should be the same as initial_color anyways.
+    let mut best_contrast_ratio_color: &RGB = initial_color;
 
     for color_option in color_options {
         let contrast_ratio = contrast_ratio_val(initial_color, color_option);
@@ -68,8 +68,8 @@ fn main() {
 
     match matches.subcommand_matches("contrast") {
         Some(matches) => {
-            let color_1 = RGB::from_str(matches.value_of("color_1").unwrap()).unwrap();
-            let color_2 = RGB::from_str(matches.value_of("color_2").unwrap()).unwrap();
+            let color_1 = RGB::from_hex_str(matches.value_of("color_1").unwrap()).unwrap();
+            let color_2 = RGB::from_hex_str(matches.value_of("color_2").unwrap()).unwrap();
             print_contrast(&color_1, &color_2)
         }
         None => {

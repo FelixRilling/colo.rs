@@ -96,8 +96,6 @@ fn transform_color_value(rgb_val: u8) -> f32 {
 
 #[cfg(test)]
 mod tests {
-    use std::str::FromStr;
-
     use float_cmp::approx_eq;
 
     use crate::color::RGB;
@@ -107,7 +105,7 @@ mod tests {
 
     #[test]
     fn contrast_ratio_levels_reached_same_color() {
-        let black = RGB::from_str("#000000").unwrap();
+        let black = RGB::from_hex_str("#000000").unwrap();
 
         let actual = contrast_ratio_levels_reached(&black, &black);
         assert!(actual.is_empty());
@@ -115,8 +113,8 @@ mod tests {
 
     #[test]
     fn contrast_ratio_levels_reached_max_contrast() {
-        let black = RGB::from_str("#000000").unwrap();
-        let white = RGB::from_str("#FFFFFF").unwrap();
+        let black = RGB::from_hex_str("#000000").unwrap();
+        let white = RGB::from_hex_str("#FFFFFF").unwrap();
 
         let actual = contrast_ratio_levels_reached(&black, &white);
         assert!(actual.contains(&ContrastLevel::AAA));
@@ -127,8 +125,8 @@ mod tests {
 
     #[test]
     fn contrast_ratio_levels_reached_ignores_order() {
-        let a = RGB::from_str("#90B5AC").unwrap();
-        let b = RGB::from_str("#662270").unwrap();
+        let a = RGB::from_hex_str("#90B5AC").unwrap();
+        let b = RGB::from_hex_str("#662270").unwrap();
 
         let actual_1 = contrast_ratio_levels_reached(&a, &b);
         let actual_2 = contrast_ratio_levels_reached(&b, &a);
@@ -138,8 +136,8 @@ mod tests {
     // https://webaim.org/resources/contrastchecker/?fcolor=000000&bcolor=171717
     #[test]
     fn contrast_ratio_levels_reached_lowest() {
-        let a = RGB::from_str("#000000").unwrap();
-        let b = RGB::from_str("#171717").unwrap();
+        let a = RGB::from_hex_str("#000000").unwrap();
+        let b = RGB::from_hex_str("#171717").unwrap();
 
         let actual = contrast_ratio_levels_reached(&a, &b);
         assert!(actual.is_empty())
@@ -148,8 +146,8 @@ mod tests {
     // https://webaim.org/resources/contrastchecker/?fcolor=000000&bcolor=5C5C5C
     #[test]
     fn contrast_ratio_levels_reached_low() {
-        let a = RGB::from_str("#000000").unwrap();
-        let b = RGB::from_str("#5C5C5C").unwrap();
+        let a = RGB::from_hex_str("#000000").unwrap();
+        let b = RGB::from_hex_str("#5C5C5C").unwrap();
 
         let actual = contrast_ratio_levels_reached(&a, &b);
         assert_eq!(actual.len(), 1);
@@ -159,8 +157,8 @@ mod tests {
     // https://webaim.org/resources/contrastchecker/?fcolor=000000&bcolor=757575
     #[test]
     fn contrast_ratio_levels_reached_average() {
-        let a = RGB::from_str("#000000").unwrap();
-        let b = RGB::from_str("#757575").unwrap();
+        let a = RGB::from_hex_str("#000000").unwrap();
+        let b = RGB::from_hex_str("#757575").unwrap();
 
         let actual = contrast_ratio_levels_reached(&a, &b);
         assert_eq!(actual.len(), 3);
@@ -172,8 +170,8 @@ mod tests {
     // https://webaim.org/resources/contrastchecker/?fcolor=000000&bcolor=969696
     #[test]
     fn contrast_ratio_levels_reached_high() {
-        let a = RGB::from_str("#000000").unwrap();
-        let b = RGB::from_str("#969696").unwrap();
+        let a = RGB::from_hex_str("#000000").unwrap();
+        let b = RGB::from_hex_str("#969696").unwrap();
 
         let actual = contrast_ratio_levels_reached(&a, &b);
         assert_eq!(actual.len(), 4);
@@ -186,7 +184,7 @@ mod tests {
 
     #[test]
     fn contrast_ratio_val_same_color() {
-        let black = RGB::from_str("#000000").unwrap();
+        let black = RGB::from_hex_str("#000000").unwrap();
 
         let expected: f32 = 1.0;
         let actual = contrast_ratio_val(&black, &black);
@@ -195,8 +193,8 @@ mod tests {
 
     #[test]
     fn contrast_ratio_val_max_contrast() {
-        let black = RGB::from_str("#000000").unwrap();
-        let white = RGB::from_str("#FFFFFF").unwrap();
+        let black = RGB::from_hex_str("#000000").unwrap();
+        let white = RGB::from_hex_str("#FFFFFF").unwrap();
 
         let expected: f32 = 21.0;
         let actual = contrast_ratio_val(&black, &white);
@@ -205,8 +203,8 @@ mod tests {
 
     #[test]
     fn contrast_ratio_val_ignores_order() {
-        let a = RGB::from_str("#90B5AC").unwrap();
-        let b = RGB::from_str("#662270").unwrap();
+        let a = RGB::from_hex_str("#90B5AC").unwrap();
+        let b = RGB::from_hex_str("#662270").unwrap();
 
         let actual_1 = contrast_ratio_val(&a, &b);
         let actual_2 = contrast_ratio_val(&b, &a);
