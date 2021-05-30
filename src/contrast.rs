@@ -80,9 +80,9 @@ pub fn contrast_ratio_val(color_1: &RGB, color_2: &RGB) -> f32 {
 }
 
 fn relative_luminance(color: &RGB) -> f32 {
-    return 0.2126 * transform_color_value(color.r)
-        + 0.7152 * transform_color_value(color.g)
-        + 0.0722 * transform_color_value(color.b);
+    return 0.2126 * transform_color_value(color.red_value())
+        + 0.7152 * transform_color_value(color.green_value())
+        + 0.0722 * transform_color_value(color.blue_value());
 }
 
 fn transform_color_value(rgb_val: u8) -> f32 {

@@ -47,11 +47,24 @@ impl From<ParseIntError> for ParsingError<'_> {
     }
 }
 
+
 #[derive(PartialEq, Eq, Debug)]
 pub struct RGB {
-    pub r: u8,
-    pub g: u8,
-    pub b: u8,
+    r: u8,
+    g: u8,
+    b: u8,
+}
+
+impl RGB {
+    pub(crate) fn red_value(&self) -> u8 {
+        self.r
+    }
+    pub(crate) fn green_value(&self) -> u8 {
+        self.g
+    }
+    pub(crate) fn blue_value(&self) -> u8 {
+        self.b
+    }
 }
 
 impl RGB {
@@ -91,6 +104,7 @@ impl Display for RGB {
         f.write_str(&self.to_hex_str())
     }
 }
+
 
 #[cfg(test)]
 mod tests {
