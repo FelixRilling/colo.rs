@@ -41,6 +41,12 @@ impl Display for ParsingError<'_> {
 
 impl Error for ParsingError<'_> {}
 
+impl From<ParseIntError> for ParsingError<'_> {
+    fn from(e: ParseIntError) -> Self {
+        ParsingError { kind: ParsingErrorKind::ConversionFailed { cause: e } }
+    }
+}
+
 #[derive(PartialEq, Eq, Debug)]
 pub struct RGB {
     pub r: u8,
@@ -55,20 +61,24 @@ impl RGB {
             return Err(ParsingError { kind: ParsingErrorKind::InvalidSyntax { details: "Missing '#'" } });
         }
         let hex_digits = &hex_str[1..];
-        if hex_digits.len() == 6 {
-            let r = RGB::parse_hex_str(&hex_digits[0..2])?;
-            let g = RGB::parse_hex_str(&hex_digits[2..4])?;
-            let b = RGB::parse_hex_str(&hex_digits[4..6])?;
+        match hex_digits.len() {
+            3 => {
+                // In the shorthand notation, the hex digit is simply repeated, so e.g "F" becomes "FF".
+                let r = u8::from_str_radix(&hex_digits[0..1].repeat(2), 16)?;
+                let g = u8::from_str_radix(&hex_digits[1..2].repeat(2), 16)?;
+                let b = u8::from_str_radix(&hex_digits[2..3].repeat(2), 16)?;
 
-            Ok(RGB { r, g, b })
-        } else {
-            Err(ParsingError { kind: ParsingErrorKind::InvalidSyntax { details: "Unexpected length" } })
+                Ok(RGB { r, g, b })
+            }
+            6 => {
+                let r = u8::from_str_radix(&hex_digits[0..2], 16)?;
+                let g = u8::from_str_radix(&hex_digits[2..4], 16)?;
+                let b = u8::from_str_radix(&hex_digits[4..6], 16)?;
+
+                Ok(RGB { r, g, b })
+            }
+            _ => Err(ParsingError { kind: ParsingErrorKind::InvalidSyntax { details: "Unexpected length" } })
         }
-    }
-
-    fn parse_hex_str(hex_digits: &str) -> Result<u8, ParsingError> {
-        u8::from_str_radix(hex_digits, 16)
-            .map_err(|e| ParsingError { kind: ParsingErrorKind::ConversionFailed { cause: e } })
     }
 
     pub fn to_hex_str(&self) -> String {
@@ -87,7 +97,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn from_hex_str_panics_for_no_hash() {
+    fn from_hex_str_errors_for_no_hash() {
         let result = RGB::from_hex_str("112233");
 
         assert!(result.is_err());
@@ -95,7 +105,7 @@ mod tests {
     }
 
     #[test]
-    fn from_hex_str_long_notation_invalid_chars() {
+    fn from_hex_str_invalid_chars() {
         let result = RGB::from_hex_str("#XX2233");
 
         assert!(result.is_err());
@@ -103,16 +113,32 @@ mod tests {
     }
 
     #[test]
-    fn from_hex_str_long_notation_invalid_length() {
-        let result = RGB::from_hex_str("#1111111111111111111111");
+    fn from_hex_str_invalid_length() {
+        let result_too_long = RGB::from_hex_str("#1111111111111111111111");
+        assert!(result_too_long.is_err());
+        assert_eq!(result_too_long.err().unwrap().kind(), &ParsingErrorKind::InvalidSyntax { details: "Unexpected length" });
 
-        assert!(result.is_err());
-        assert_eq!(result.err().unwrap().kind(), &ParsingErrorKind::InvalidSyntax { details: "Unexpected length" });
+        let result_between_short_and_long = RGB::from_hex_str("#11223");
+        assert!(result_between_short_and_long.is_err());
+        assert_eq!(result_between_short_and_long.err().unwrap().kind(), &ParsingErrorKind::InvalidSyntax { details: "Unexpected length" });
+
+        let result_between_too_short = RGB::from_hex_str("#11");
+        assert!(result_between_too_short.is_err());
+        assert_eq!(result_between_too_short.err().unwrap().kind(), &ParsingErrorKind::InvalidSyntax { details: "Unexpected length" });
     }
 
     #[test]
     fn from_hex_str_long_notation() {
         let color = RGB::from_hex_str("#112233").unwrap();
+
+        assert_eq!(color.r, u8::from_str_radix("11", 16).unwrap());
+        assert_eq!(color.g, u8::from_str_radix("22", 16).unwrap());
+        assert_eq!(color.b, u8::from_str_radix("33", 16).unwrap());
+    }
+
+    #[test]
+    fn from_hex_str_short_notation() {
+        let color = RGB::from_hex_str("#123").unwrap();
 
         assert_eq!(color.r, u8::from_str_radix("11", 16).unwrap());
         assert_eq!(color.g, u8::from_str_radix("22", 16).unwrap());
