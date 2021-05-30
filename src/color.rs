@@ -56,13 +56,13 @@ pub struct RGB {
 }
 
 impl RGB {
-    pub(crate) fn red_value(&self) -> u8 {
+    pub(crate) fn red(&self) -> u8 {
         self.r
     }
-    pub(crate) fn green_value(&self) -> u8 {
+    pub(crate) fn green(&self) -> u8 {
         self.g
     }
-    pub(crate) fn blue_value(&self) -> u8 {
+    pub(crate) fn blue(&self) -> u8 {
         self.b
     }
 }
