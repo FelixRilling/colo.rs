@@ -68,13 +68,19 @@ fn main() {
 
     match matches.subcommand_matches("contrast") {
         Some(matches) => {
-            let color_1 = RGB::from_hex_str(matches.value_of("color_1").unwrap()).unwrap();
-            let color_2 = RGB::from_hex_str(matches.value_of("color_2").unwrap()).unwrap();
-            print_contrast(&color_1, &color_2)
+            let color_1_str = matches.value_of("color_1").unwrap();
+            let color_2_str = matches.value_of("color_2").unwrap();
+            match RGB::from_hex_str(color_1_str) {
+                Err(e) => eprintln!("Could not parse color 1: {}.", e),
+                Ok(color_1) => match RGB::from_hex_str(color_2_str) {
+                    Err(e) => eprintln!("Could not parse color 2: {}.", e),
+                    Ok(color_2) => {
+                        print_contrast(&color_1, &color_2)
+                    }
+                },
+            }
         }
-        None => {
-            panic!("TODO!")
-        }
+        None => eprintln!("No subcommand provided. See --help.")
     }
 }
 
