@@ -128,11 +128,16 @@ impl RGB {
                     _ => unreachable!()
                 }
             }
-            _ => Err(ParsingError { kind: ParsingErrorKind::InvalidSyntax { details: "Unexpected length" } })
+            _ => Err(ParsingError {
+                kind: ParsingErrorKind::InvalidSyntax {
+                    details: "Unexpected length. String must have either 3, 4, 6, or 8 hexadecimal digits"
+                }
+            })
         }
     }
 
     pub fn to_hex_str(&self) -> String {
+        // TODO support custom output format (uppercase/lowercase and/or short notation)
         match self.alpha {
             u8::MAX => format!("#{:02X}{:02X}{:02X}", self.red, self.green, self.blue),
             _ => format!("#{:02X}{:02X}{:02X}{:02X}", self.red, self.green, self.blue, self.alpha),
@@ -169,17 +174,19 @@ mod tests {
 
     #[test]
     fn from_hex_str_invalid_length() {
+        let expected_error = ParsingErrorKind::InvalidSyntax { details: "Unexpected length. String must have either 3, 4, 6, or 8 hexadecimal digits" };
+
         let result_too_long = RGB::from_hex_str("#1111111111111111111111");
         assert!(result_too_long.is_err());
-        assert_eq!(result_too_long.err().unwrap().kind(), &ParsingErrorKind::InvalidSyntax { details: "Unexpected length" });
+        assert_eq!(result_too_long.err().unwrap().kind(), &expected_error);
 
         let result_between_short_and_long = RGB::from_hex_str("#11223");
         assert!(result_between_short_and_long.is_err());
-        assert_eq!(result_between_short_and_long.err().unwrap().kind(), &ParsingErrorKind::InvalidSyntax { details: "Unexpected length" });
+        assert_eq!(result_between_short_and_long.err().unwrap().kind(), &expected_error);
 
         let result_between_too_short = RGB::from_hex_str("#11");
         assert!(result_between_too_short.is_err());
-        assert_eq!(result_between_too_short.err().unwrap().kind(), &ParsingErrorKind::InvalidSyntax { details: "Unexpected length" });
+        assert_eq!(result_between_too_short.err().unwrap().kind(), &expected_error);
     }
 
 
