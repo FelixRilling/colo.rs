@@ -9,7 +9,7 @@ use colo_rs::color::RGB;
 use colo_rs::contrast::{contrast_ratio_levels_reached, contrast_ratio_val};
 
 fn rgb_as_term_color(color: &RGB) -> Color {
-    Color::Rgb(color.r, color.g, color.b)
+    Color::Rgb(color.red(), color.green(), color.blue())
 }
 
 /// Finds and returns the `color_options` value that has the best contrast to `initial_color`.
@@ -31,12 +31,12 @@ fn get_best_contrast<'a>
 }
 
 
-const BLACK: RGB = RGB { r: 0, g: 0, b: 0 };
-const WHITE: RGB = RGB { r: 255, g: 255, b: 255 };
 
 /// Prints colored color value to stream. Stream color is reset afterwards.
 fn print_rgb(stdout: &mut StandardStream, color: &RGB) {
-    let foreground_color_options = vec![&BLACK, &WHITE];
+    let black = RGB::from_rgb(0, 0, 0);
+    let white = RGB::from_rgb(255, 255, 255);
+    let foreground_color_options = vec![&black, &white];
     let foreground_color = get_best_contrast(color, &foreground_color_options);
 
     stdout.set_color(ColorSpec::new()

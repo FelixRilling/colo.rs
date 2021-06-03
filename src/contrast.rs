@@ -5,7 +5,7 @@ use std::fmt::Display;
 use crate::color::RGB;
 
 /// Contrast target values based on
-/// https://www.w3.org/TR/2008/REC-WCAG20-20081211/#visual-audio-contrast-contrast.
+/// <https://www.w3.org/TR/2008/REC-WCAG20-20081211/#visual-audio-contrast-contrast>.
 #[derive(Hash, PartialEq, Eq, PartialOrd, Ord, Debug)]
 pub enum ContrastLevel {
     /// Enhanced contrast for text.
@@ -35,7 +35,7 @@ impl Display for ContrastLevel {
 
 /// Checks which WCAG contrast ratio levels this combination of colors reach.
 /// An empty set means no level is reached.
-/// See https://www.w3.org/TR/2008/REC-WCAG20-20081211/#visual-audio-contrast-contrast for details.
+/// See <https://www.w3.org/TR/2008/REC-WCAG20-20081211/#visual-audio-contrast-contrast> for details.
 // https://webaim.org/resources/contrastchecker/
 pub fn contrast_ratio_levels_reached(color_1: &RGB, color_2: &RGB) -> HashSet<ContrastLevel> {
     let ratio = contrast_ratio_val(color_1, color_2);
@@ -86,11 +86,11 @@ fn relative_luminance(color: &RGB) -> f32 {
 }
 
 fn transform_color_value(rgb_val: u8) -> f32 {
-    let adapted_val = f32::from(rgb_val) / 255.0;
-    if adapted_val <= 0.03928 {
-        adapted_val / 12.92
+    let rgbs_val = f32::from(rgb_val) / 255.0;
+    if rgbs_val <= 0.03928 {
+        rgbs_val / 12.92
     } else {
-        ((adapted_val + 0.055) / 1.055).powf(2.4)
+        ((rgbs_val + 0.055) / 1.055).powf(2.4)
     }
 }
 
