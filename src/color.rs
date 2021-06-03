@@ -134,8 +134,8 @@ impl RGB {
 
     pub fn to_hex_str(&self) -> String {
         match self.alpha {
-            u8::MAX => format!("#{:X}{:X}{:X}", self.red, self.green, self.blue),
-            _ => format!("#{:X}{:X}{:X}{:X}", self.red, self.green, self.blue, self.alpha),
+            u8::MAX => format!("#{:02X}{:02X}{:02X}", self.red, self.green, self.blue),
+            _ => format!("#{:02X}{:02X}{:02X}{:02X}", self.red, self.green, self.blue, self.alpha),
         }
     }
 }
