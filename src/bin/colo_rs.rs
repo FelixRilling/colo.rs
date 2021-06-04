@@ -110,23 +110,22 @@ fn print_contrast(color_1: &RGB, color_2: &RGB) {
 
 #[cfg(test)]
 mod tests {
-    use std::str::FromStr;
-
     use colo_rs::color::RGB;
 
-    use crate::{BLACK, get_best_contrast, WHITE};
+    use crate::get_best_contrast;
 
     #[test]
     fn get_best_contrast_finds_result() {
-        let bright_color = RGB::from_str("#ABCDEF").unwrap();
-        let dark_color = RGB::from_str("#696969").unwrap();
+        let black = RGB::from_rgb(0, 0, 0);
+        let white = RGB::from_rgb(255, 255, 255);
+        let options = vec![&black, &white];
 
-        let options = vec![&BLACK, &WHITE];
-
+        let bright_color = RGB::from_hex_str("#ABCDEF").unwrap();
         let bright_color_best_contrast_actual = get_best_contrast(&bright_color, &options);
-        assert_eq!(bright_color_best_contrast_actual, &BLACK);
+        assert_eq!(bright_color_best_contrast_actual, &black);
 
+        let dark_color = RGB::from_hex_str("#696969").unwrap();
         let dark_color_best_contrast_actual = get_best_contrast(&dark_color, &options);
-        assert_eq!(dark_color_best_contrast_actual, &WHITE);
+        assert_eq!(dark_color_best_contrast_actual, &white);
     }
 }
