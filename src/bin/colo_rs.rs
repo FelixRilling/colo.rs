@@ -53,16 +53,24 @@ fn set_as_ordered_vec<T: Ord>(hash_set: HashSet<T>) -> Vec<T> {
     set_copy_vec
 }
 
+const COLOR_ARG_HELP: &str = "Hexadecimal color value, e.g. '#00FF11'.";
+
 fn main() {
     let matches = App::new("Colo.rs")
-        .subcommand(SubCommand::with_name("contrast")
-            .arg(
-                Arg::with_name("color_1")
-                    .required(true)
-            ).arg(
-            Arg::with_name("color_2")
-                .required(true)
-        ))
+        .subcommand(
+            SubCommand::with_name("contrast")
+                .about("Calculate WCAG contrast of two colors.")
+                .arg(
+                    Arg::with_name("color_1")
+                        .required(true)
+                        .help(COLOR_ARG_HELP)
+                )
+                .arg(
+                    Arg::with_name("color_2")
+                        .required(true)
+                        .help(COLOR_ARG_HELP)
+                )
+        )
         .get_matches();
 
 
