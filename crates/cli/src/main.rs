@@ -7,8 +7,8 @@ use rug::Float;
 use rug::float::Round;
 use termcolor::{Color, ColorChoice, ColorSpec, StandardStream, WriteColor};
 
-use colo_rs::color::RGB;
-use colo_rs::contrast::{contrast_ratio_levels_reached, contrast_ratio_val};
+use colo_rs_lib::contrast::{contrast_ratio_levels_reached, contrast_ratio_val};
+use colo_rs_lib::color::RGB;
 
 fn rgb_as_term_color(color: &RGB) -> Color {
     Color::Rgb(color.red(), color.green(), color.blue())
