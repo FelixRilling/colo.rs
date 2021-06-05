@@ -4,11 +4,11 @@ use std::iter::FromIterator;
 
 use clap::{App, Arg, SubCommand};
 use rug::Float;
+use rug::float::Round;
 use termcolor::{Color, ColorChoice, ColorSpec, StandardStream, WriteColor};
 
 use colo_rs::color::RGB;
 use colo_rs::contrast::{contrast_ratio_levels_reached, contrast_ratio_val};
-use rug::float::Round;
 
 fn rgb_as_term_color(color: &RGB) -> Color {
     Color::Rgb(color.red(), color.green(), color.blue())
@@ -95,7 +95,7 @@ fn main() {
                 Ok(color_1) => match RGB::from_hex_str(color_2_str) {
                     Err(e) => eprintln!("Could not parse color 2: {}.", e),
                     Ok(color_2) => {
-                        print_contrast(&color_1, &color_2)
+                        print_contrast(&color_1, &color_2, &options)
                     }
                 },
             }
@@ -104,8 +104,14 @@ fn main() {
     }
 }
 
-fn print_contrast(color_1: &RGB, color_2: &RGB) {
-    let contrast_ratio_val = contrast_ratio_val(color_1, color_2).to_f64_round(Round::Down);
+fn floor_n_decimals(val: Float, n: u32) -> Float {
+    let factor = 10_i32.pow(n);
+    let tmp = val * factor;
+    tmp.floor() / factor
+}
+
+fn print_contrast(color_1: &RGB, color_2: &RGB, options: &Options) {
+    let contrast_ratio_val = contrast_ratio_val(color_1, color_2);
     let contrast_levels_reached = contrast_ratio_levels_reached(color_1, color_2);
 
     let mut stdout = StandardStream::stdout(ColorChoice::Auto);
@@ -114,7 +120,15 @@ fn print_contrast(color_1: &RGB, color_2: &RGB) {
     print_rgb(&mut stdout, color_1);
     write!(&mut stdout, " to ").unwrap();
     print_rgb(&mut stdout, color_2);
-    writeln!(&mut stdout, " is {}.", contrast_ratio_val).unwrap();
+    match options.verbosity {
+        verbosity if verbosity >= 1 => writeln!(&mut stdout, " is {}.", contrast_ratio_val).unwrap(),
+        _ => {
+            // Usually only displaying the last 2 digits is enough.
+            // Note that we cannot use the rounding provided by the formatter as contrast values may not be rounded up.
+            let floored = floor_n_decimals(contrast_ratio_val, 2).to_f64_round(Round::Down);
+            writeln!(&mut stdout, " is {:.2}.", floored).unwrap()
+        }
+    };
 
     let contrast_levels_reached_string: String = if contrast_levels_reached.is_empty() {
         String::from("None")
