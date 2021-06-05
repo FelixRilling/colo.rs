@@ -3,10 +3,12 @@ use std::io::Write;
 use std::iter::FromIterator;
 
 use clap::{App, Arg, SubCommand};
+use rug::Float;
 use termcolor::{Color, ColorChoice, ColorSpec, StandardStream, WriteColor};
 
 use colo_rs::color::RGB;
 use colo_rs::contrast::{contrast_ratio_levels_reached, contrast_ratio_val};
+use rug::float::Round;
 
 fn rgb_as_term_color(color: &RGB) -> Color {
     Color::Rgb(color.red(), color.green(), color.blue())
@@ -15,7 +17,7 @@ fn rgb_as_term_color(color: &RGB) -> Color {
 /// Finds and returns the `color_options` value that has the best contrast to `initial_color`.
 fn get_best_contrast<'a>
 (initial_color: &'a RGB, color_options: &'a Vec<&RGB>) -> &'a RGB {
-    let mut best_contrast_ratio: f32 = 0.0;
+    let mut best_contrast_ratio: Float = Float::with_val(32, 0.0);
     // Default value only matters if all options have zero contrast, so they should be the same as initial_color anyways.
     let mut best_contrast_ratio_color: &RGB = initial_color;
 
@@ -103,7 +105,7 @@ fn main() {
 }
 
 fn print_contrast(color_1: &RGB, color_2: &RGB) {
-    let contrast_ratio_val = contrast_ratio_val(color_1, color_2);
+    let contrast_ratio_val = contrast_ratio_val(color_1, color_2).to_f64_round(Round::Down);
     let contrast_levels_reached = contrast_ratio_levels_reached(color_1, color_2);
 
     let mut stdout = StandardStream::stdout(ColorChoice::Auto);

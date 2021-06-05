@@ -2,6 +2,10 @@ use std::collections::HashSet;
 use std::fmt;
 use std::fmt::Display;
 
+use rug::Float;
+use rug::float::Round;
+use rug::ops::Pow;
+
 use crate::color::RGB;
 
 /// Contrast target values based on
@@ -61,8 +65,7 @@ pub fn contrast_ratio_levels_reached(color_1: &RGB, color_2: &RGB) -> HashSet<Co
 /// The result is the number on the left side of the WCAG color ratio display syntax.
 /// E.g. an result of "4.5" would be written "4.5:1".
 // https://www.w3.org/TR/WCAG20-TECHS/G18.html#G18-tests
-// TODO: use bigint based values instead of floats
-pub fn contrast_ratio_val(color_1: &RGB, color_2: &RGB) -> f32 {
+pub fn contrast_ratio_val(color_1: &RGB, color_2: &RGB) -> Float {
     let color_1_luminance = relative_luminance(color_1);
     let color_2_luminance = relative_luminance(color_2);
 
@@ -79,27 +82,31 @@ pub fn contrast_ratio_val(color_1: &RGB, color_2: &RGB) -> f32 {
     (lighter_color_luminance + 0.05) / (darker_color_luminance + 0.05)
 }
 
-fn relative_luminance(color: &RGB) -> f32 {
+fn relative_luminance(color: &RGB) -> Float {
     return 0.2126 * transform_color_value(color.red())
         + 0.7152 * transform_color_value(color.green())
         + 0.0722 * transform_color_value(color.blue());
 }
 
-fn transform_color_value(rgb_val: u8) -> f32 {
-    let rgbs_val = f32::from(rgb_val) / 255.0;
+const PRECISION: u32 = 64;
+
+fn transform_color_value(rgb_val: u8) -> Float {
+    let (rbg_val_float, _) = Float::with_val_round(PRECISION, rgb_val, Round::Down);
+    let rgbs_val: Float = rbg_val_float / 255;
     if rgbs_val <= 0.03928 {
         rgbs_val / 12.92
     } else {
-        ((rgbs_val + 0.055) / 1.055).powf(2.4)
+        let tmp: Float = (rgbs_val + 0.055) / 1.055;
+        tmp.pow(2.4)
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use float_cmp::approx_eq;
+    use rug::float::Round;
 
     use crate::color::RGB;
-    use crate::contrast::ContrastLevel;
+    use crate::contrast::{ContrastLevel};
 
     use super::{contrast_ratio_levels_reached, contrast_ratio_val};
 
@@ -186,9 +193,9 @@ mod tests {
     fn contrast_ratio_val_same_color() {
         let black = RGB::from_hex_str("#000000").unwrap();
 
-        let expected: f32 = 1.0;
+        let expected: f64 = 1.0;
         let actual = contrast_ratio_val(&black, &black);
-        assert!(approx_eq!(f32, actual, expected, ulps = 2));
+        assert_eq!(actual.to_f64_round(Round::Down), expected)
     }
 
     #[test]
@@ -196,9 +203,9 @@ mod tests {
         let black = RGB::from_hex_str("#000000").unwrap();
         let white = RGB::from_hex_str("#FFFFFF").unwrap();
 
-        let expected: f32 = 21.0;
+        let expected: f64 = 21.0;
         let actual = contrast_ratio_val(&black, &white);
-        assert!(approx_eq!(f32, actual, expected, ulps = 2));
+        assert_eq!(actual.to_f64_round(Round::Down), expected)
     }
 
     #[test]
