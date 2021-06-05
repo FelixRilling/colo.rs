@@ -53,10 +53,20 @@ fn set_as_ordered_vec<T: Ord>(hash_set: HashSet<T>) -> Vec<T> {
     set_copy_vec
 }
 
-const COLOR_ARG_HELP: &str = "Hexadecimal color value, e.g. '#00FF11'.";
+const COLOR_ARG_HELP: &str = "CSS-like hexadecimal color value, e.g. '#00FF11'.";
+
+struct Options {
+    verbosity: u8,
+}
 
 fn main() {
     let matches = App::new("Colo.rs")
+        .arg(
+            Arg::with_name("v")
+                .short("v")
+                .multiple(true)
+                .help("Sets the level of verbosity.")
+        )
         .subcommand(
             SubCommand::with_name("contrast")
                 .about("Calculate WCAG contrast of two colors.")
@@ -73,7 +83,7 @@ fn main() {
         )
         .get_matches();
 
-
+    let options = Options { verbosity: matches.occurrences_of("v") as u8 };
     match matches.subcommand_matches("contrast") {
         Some(matches) => {
             let color_1_str = matches.value_of("color_1").unwrap();
