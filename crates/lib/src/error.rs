@@ -1,65 +1,63 @@
 use std::error::Error;
 use std::fmt;
 use std::fmt::{Debug, Display, Formatter};
-use std::num::{ParseFloatError, ParseIntError};
-
-#[derive(Debug, PartialEq, Eq)]
-pub enum ParsingErrorKind<'a> {
-    InvalidSyntax {
-        details: &'a str
-    },
-    ConversionFailed,
-    PatternMatchingFailed,
-}
-
-impl Display for ParsingErrorKind<'_> {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        match self {
-            ParsingErrorKind::InvalidSyntax { details } => f.write_str(details),
-            ParsingErrorKind::ConversionFailed => f.write_str("Value conversion failed"),
-            ParsingErrorKind::PatternMatchingFailed => f.write_str("Pattern matching failed"),
-        }
-    }
-}
+use std::option::Option::None;
 
 #[derive(Debug)]
-pub struct ParsingError<'a> {
-    pub(crate) kind: ParsingErrorKind<'a>,
-}
+pub enum ParsingError<'a> {
+    InvalidSyntax(&'a str),
 
-impl ParsingError<'_> {
-    pub fn kind(&self) -> &ParsingErrorKind {
-        &self.kind
-    }
+    IntegerConversionFailed(std::num::ParseIntError),
+    FloatConversionFailed(std::num::ParseFloatError),
+    ArbitraryPrecisionFloatConversionFailed(rug::float::ParseFloatError),
+    RegexFailed(regex::Error),
 }
 
 impl Display for ParsingError<'_> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        f.write_fmt(format_args!("Parsing Error: {}", self.kind))
+        match self {
+            ParsingError::InvalidSyntax(details) => f.write_str(details),
+            ParsingError::IntegerConversionFailed(err) => write!(f, "Integer conversion failed: {}", err),
+            ParsingError::FloatConversionFailed(err) => write!(f, "Float conversion failed: {}", err),
+            ParsingError::ArbitraryPrecisionFloatConversionFailed(err) => write!(f, "Arbitrary precision float conversion failed: {}", err),
+            ParsingError::RegexFailed(err) => write!(f, "Regex conversion failed: {}", err),
+        }
     }
 }
 
-impl Error for ParsingError<'_> {}
-
-impl From<ParseIntError> for ParsingError<'_> {
-    fn from(_: ParseIntError) -> Self {
-        ParsingError { kind: ParsingErrorKind::ConversionFailed }
+impl Error for ParsingError<'_> {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+        match self {
+            ParsingError::InvalidSyntax(_) => None,
+            ParsingError::IntegerConversionFailed(err) => Some(err),
+            ParsingError::FloatConversionFailed(err) => Some(err),
+            ParsingError::ArbitraryPrecisionFloatConversionFailed(err) => Some(err),
+            ParsingError::RegexFailed(err) => Some(err),
+        }
     }
 }
 
-impl From<ParseFloatError> for ParsingError<'_> {
-    fn from(_: ParseFloatError) -> Self {
-        ParsingError { kind: ParsingErrorKind::ConversionFailed }
+
+impl From<std::num::ParseFloatError> for ParsingError<'_> {
+    fn from(err: std::num::ParseFloatError) -> Self {
+        ParsingError::FloatConversionFailed(err)
     }
 }
+
+impl From<std::num::ParseIntError> for ParsingError<'_> {
+    fn from(err: std::num::ParseIntError) -> Self {
+        ParsingError::IntegerConversionFailed(err)
+    }
+}
+
 impl From<rug::float::ParseFloatError> for ParsingError<'_> {
-    fn from(_: rug::float::ParseFloatError) -> Self {
-        ParsingError { kind: ParsingErrorKind::ConversionFailed }
+    fn from(err: rug::float::ParseFloatError) -> Self {
+        ParsingError::ArbitraryPrecisionFloatConversionFailed(err)
     }
 }
 
 impl From<regex::Error> for ParsingError<'_> {
-    fn from(_: regex::Error) -> Self {
-        ParsingError { kind: ParsingErrorKind::PatternMatchingFailed }
+    fn from(err: regex::Error) -> Self {
+        ParsingError::RegexFailed(err)
     }
 }

@@ -6,7 +6,7 @@ use regex::Regex;
 use rug::Float;
 
 use crate::color::srgb::{SRGB_PRECISION, srgb_to_rgb};
-use crate::error::{ParsingError, ParsingErrorKind};
+use crate::error::ParsingError;
 
 /// Represents a single RGB color with an alpha channel.
 #[derive(PartialEq, Eq, Debug)]
@@ -54,7 +54,7 @@ impl RGB {
     /// - A length of the digit part not equal to 3, 4, 6 or 8.
     pub fn from_hex_str(hex_str: &str) -> Result<RGB, ParsingError> {
         if !hex_str.starts_with('#') {
-            return Err(ParsingError { kind: ParsingErrorKind::InvalidSyntax { details: "Missing '#'" } });
+            return Err(ParsingError::InvalidSyntax("Missing '#'"));
         }
         let hex_digits = &hex_str[1..];
         let len = hex_digits.len();
@@ -88,11 +88,7 @@ impl RGB {
                     _ => unreachable!()
                 }
             }
-            _ => Err(ParsingError {
-                kind: ParsingErrorKind::InvalidSyntax {
-                    details: "Unexpected length. String must have either 3, 4, 6, or 8 hexadecimal digits"
-                }
-            })
+            _ => Err(ParsingError::InvalidSyntax("Unexpected length. String must have either 3, 4, 6, or 8 hexadecimal digits"))
         }
     }
 
@@ -110,7 +106,7 @@ impl RGB {
         )?;
 
         match rgb_regex.captures(hex_str) {
-            None => Err(ParsingError { kind: ParsingErrorKind::InvalidSyntax { details: "Invalid RGB string" } }),
+            None => Err(ParsingError::InvalidSyntax("String did not match RGB pattern")),
             Some(captures) => {
                 let red = u8::from_str(captures.name("red").unwrap().as_str())?;
                 let green = u8::from_str(captures.name("green").unwrap().as_str())?;
@@ -154,7 +150,7 @@ mod tests {
         let result = RGB::from_hex_str("112233");
 
         assert!(result.is_err());
-        assert_eq!(result.err().unwrap().kind(), &ParsingErrorKind::InvalidSyntax { details: "Missing '#'" });
+        assert!(matches!(result.err().unwrap(), ParsingError::InvalidSyntax(..)))
     }
 
     #[test]
@@ -162,24 +158,22 @@ mod tests {
         let result = RGB::from_hex_str("#XX2233");
 
         assert!(result.is_err());
-        assert!(matches!(result.err().unwrap().kind(), &ParsingErrorKind::ConversionFailed { .. }))
+        assert!(matches!(result.err().unwrap(), ParsingError::IntegerConversionFailed ( .. )))
     }
 
     #[test]
     fn from_hex_str_invalid_length() {
-        let expected_error = ParsingErrorKind::InvalidSyntax { details: "Unexpected length. String must have either 3, 4, 6, or 8 hexadecimal digits" };
-
         let result_too_long = RGB::from_hex_str("#1111111111111111111111");
         assert!(result_too_long.is_err());
-        assert_eq!(result_too_long.err().unwrap().kind(), &expected_error);
+        assert!(matches!(result_too_long.err().unwrap(), ParsingError::InvalidSyntax ( .. )));
 
         let result_between_short_and_long = RGB::from_hex_str("#11223");
         assert!(result_between_short_and_long.is_err());
-        assert_eq!(result_between_short_and_long.err().unwrap().kind(), &expected_error);
+        assert!(matches!(result_between_short_and_long.err().unwrap(), ParsingError::InvalidSyntax ( .. )));
 
         let result_between_too_short = RGB::from_hex_str("#11");
         assert!(result_between_too_short.is_err());
-        assert_eq!(result_between_too_short.err().unwrap().kind(), &expected_error);
+        assert!(matches!(result_between_too_short.err().unwrap(), ParsingError::InvalidSyntax ( .. )));
     }
 
 
@@ -228,7 +222,7 @@ mod tests {
         let result = RGB::from_rgb_str("rgb(");
 
         assert!(result.is_err());
-        assert!(matches!(result.err().unwrap().kind(), &ParsingErrorKind::InvalidSyntax { .. }))
+        assert!(matches!(result.err().unwrap(), ParsingError::InvalidSyntax ( .. )));
     }
 
     #[test]
@@ -236,7 +230,7 @@ mod tests {
         let result = RGB::from_rgb_str("rgb(0 255 999)");
 
         assert!(result.is_err());
-        assert!(matches!(result.err().unwrap().kind(), &ParsingErrorKind::ConversionFailed { .. }))
+        assert!(matches!(result.err().unwrap(), ParsingError::IntegerConversionFailed ( .. )));
     }
 
     #[test]
