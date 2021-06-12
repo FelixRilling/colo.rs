@@ -1,6 +1,11 @@
 use std::fmt;
 use std::fmt::Display;
+use std::str::FromStr;
 
+use regex::Regex;
+use rug::Float;
+
+use crate::color::srgb::{SRGB_PRECISION, srgb_to_rgb};
 use crate::error::{ParsingError, ParsingErrorKind};
 
 /// Represents a single RGB color with an alpha channel.
@@ -91,6 +96,38 @@ impl RGB {
         }
     }
 
+    /// Parses a CSS-style RGB color.
+    /// For a list of supported formats, see <https://www.w3.org/TR/css-color-4/#rgb-functions>.
+    /// Color percentage values are currently not supported.
+    ///
+    /// # Errors
+    /// A malformed input will result in an error. This may include but is not limited to:
+    /// - Input not matching the shape of an RGB string.
+    /// - Out-of-range color values.
+    pub fn from_rgb_str(hex_str: &str) -> Result<RGB, ParsingError> {
+        let rgb_regex = Regex::new(
+            r"^rgb\((?P<red>\d{1,3}) (?P<green>\d{1,3}) (?P<blue>\d{1,3})(?: / (?P<alpha>\d(?:\.\d+)?))?\)$"
+        )?;
+
+        match rgb_regex.captures(hex_str) {
+            None => Err(ParsingError { kind: ParsingErrorKind::InvalidSyntax { details: "Invalid RGB string" } }),
+            Some(captures) => {
+                let red = u8::from_str(captures.name("red").unwrap().as_str())?;
+                let green = u8::from_str(captures.name("green").unwrap().as_str())?;
+                let blue = u8::from_str(captures.name("blue").unwrap().as_str())?;
+
+                match captures.name("alpha") {
+                    None => Ok(RGB::from_rgb(red, green, blue)),
+                    Some(alpha_match) => {
+                        let alpha_raw = Float::with_val(SRGB_PRECISION, Float::parse(alpha_match.as_str())?);
+                        let alpha = srgb_to_rgb(alpha_raw);
+                        Ok(RGB::from_rgba(red, green, blue, alpha))
+                    }
+                }
+            }
+        }
+    }
+
     pub fn to_hex_str(&self) -> String {
         // TODO support custom output format (uppercase/lowercase and/or short notation)
         match self.alpha {
@@ -99,6 +136,7 @@ impl RGB {
         }
     }
 }
+
 
 impl Display for RGB {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -124,7 +162,7 @@ mod tests {
         let result = RGB::from_hex_str("#XX2233");
 
         assert!(result.is_err());
-        matches!(result.err().unwrap().kind(), &ParsingErrorKind::ConversionFailed { .. });
+        assert!(matches!(result.err().unwrap().kind(), &ParsingErrorKind::ConversionFailed { .. }))
     }
 
     #[test]
@@ -183,5 +221,51 @@ mod tests {
         assert_eq!(color.green(), u8::from_str_radix("FF", 16).unwrap());
         assert_eq!(color.blue(), u8::from_str_radix("0A", 16).unwrap());
         assert_eq!(color.alpha(), u8::from_str_radix("D4", 16).unwrap());
+    }
+
+    #[test]
+    fn from_rgb_str_invalid_syntax() {
+        let result = RGB::from_rgb_str("rgb(");
+
+        assert!(result.is_err());
+        assert!(matches!(result.err().unwrap().kind(), &ParsingErrorKind::InvalidSyntax { .. }))
+    }
+
+    #[test]
+    fn from_rgb_str_invalid_numbers() {
+        let result = RGB::from_rgb_str("rgb(0 255 999)");
+
+        assert!(result.is_err());
+        assert!(matches!(result.err().unwrap().kind(), &ParsingErrorKind::ConversionFailed { .. }))
+    }
+
+    #[test]
+    fn from_rgb_str_regular() {
+        let color = RGB::from_rgb_str("rgb(0 255 128)").unwrap();
+
+        assert_eq!(color.red(), 0);
+        assert_eq!(color.green(), 255);
+        assert_eq!(color.blue(), 128);
+        assert_eq!(color.alpha(), u8::MAX);
+    }
+
+    #[test]
+    fn from_rgb_str_with_alpha() {
+        let color = RGB::from_rgb_str("rgb(0 255 128 / 1)").unwrap();
+
+        assert_eq!(color.red(), 0);
+        assert_eq!(color.green(), 255);
+        assert_eq!(color.blue(), 128);
+        assert_eq!(color.alpha(), 255);
+    }
+
+    #[test]
+    fn from_rgb_str_with_alpha_decimal() {
+        let color = RGB::from_rgb_str("rgb(0 255 128 / 0.5)").unwrap();
+
+        assert_eq!(color.red(), 0);
+        assert_eq!(color.green(), 255);
+        assert_eq!(color.blue(), 128);
+        assert_eq!(color.alpha(), 128);
     }
 }
