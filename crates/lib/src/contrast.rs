@@ -6,7 +6,7 @@ use rug::Float;
 use rug::float::Round;
 use rug::ops::Pow;
 
-use crate::color::RGB;
+use crate::color::rgb::RGB;
 
 /// Contrast target values based on
 /// <https://www.w3.org/TR/2008/REC-WCAG20-20081211/#visual-audio-contrast-contrast>.
@@ -59,6 +59,8 @@ pub fn contrast_ratio_levels_reached(color_1: &RGB, color_2: &RGB) -> HashSet<Co
     reached
 }
 
+const CONTRAST_RATIO_PRECISION: u32 = 64;
+
 /// Calculates the WCAG color ratio of two colors.
 /// The same color inputs will produce the same output regardless of position.
 ///
@@ -88,10 +90,8 @@ fn relative_luminance(color: &RGB) -> Float {
         + 0.0722 * transform_color_value(color.blue());
 }
 
-const PRECISION: u32 = 64;
-
 fn transform_color_value(rgb_val: u8) -> Float {
-    let (rbg_val_float, _) = Float::with_val_round(PRECISION, rgb_val, Round::Down);
+    let (rbg_val_float, _) = Float::with_val_round(CONTRAST_RATIO_PRECISION, rgb_val, Round::Down);
     let rgbs_val: Float = rbg_val_float / 255;
     if rgbs_val <= 0.03928 {
         rgbs_val / 12.92
@@ -105,10 +105,10 @@ fn transform_color_value(rgb_val: u8) -> Float {
 mod tests {
     use rug::float::Round;
 
-    use crate::color::RGB;
-    use crate::contrast::{ContrastLevel};
+    use crate::contrast::ContrastLevel;
+    use crate::color::rgb::RGB;
 
-    use super::{contrast_ratio_levels_reached, contrast_ratio_val};
+    use super::*;
 
     #[test]
     fn contrast_ratio_levels_reached_same_color() {
