@@ -27,7 +27,7 @@ fn parse_color_channel(seq: &str) -> Result<Float, ParsingError> {
     } else {
         channel_val = parse_number(seq)? / u8::MAX;
     }
-    Ok(channel_val)
+    Ok(channel_val.clamp(&0, &1))
 }
 
 // https://www.w3.org/TR/css-color-4/#typedef-alpha-value
@@ -40,8 +40,7 @@ fn parse_alpha_channel(seq: &str) -> Result<Float, ParsingError> {
         // When parsing the alpha channel, the value ranges from 0 to 1 already.
         channel_val = parse_number(seq)?;
     }
-
-    Ok(channel_val)
+    Ok(channel_val.clamp(&0, &1))
 }
 
 
@@ -245,5 +244,6 @@ mod tests {
         let result = RGB::from_rgb_str("rgb(255 100% 128)");
 
         assert!(result.is_err());
+        assert!(matches!(result.err().unwrap(), ParsingError::InvalidSyntax ( .. )));
     }
 }
