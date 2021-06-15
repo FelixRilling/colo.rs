@@ -52,9 +52,10 @@ impl RGB {
 
     pub fn to_hex_str(&self) -> String {
         // TODO support custom output format (uppercase/lowercase and/or short notation)
-        match self.alpha {
-            u8::MAX => format!("#{:02X}{:02X}{:02X}", self.red, self.green, self.blue),
-            _ => format!("#{:02X}{:02X}{:02X}{:02X}", self.red, self.green, self.blue, self.alpha),
+        if self.is_opaque() {
+            format!("#{:02X}{:02X}{:02X}", self.red(), self.green(), self.blue())
+        } else {
+            format!("#{:02X}{:02X}{:02X}{:02X}", self.red(), self.green(), self.blue(), self.alpha())
         }
     }
 }

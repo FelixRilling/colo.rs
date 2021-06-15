@@ -6,7 +6,7 @@ use rug::Float;
 use rug::ops::Pow;
 
 use crate::color::rgb::RGB;
-use crate::color::srgb::rgb_to_srgb;
+use crate::color::rgb::rgb_to_srgb;
 
 /// Contrast target values based on
 /// <https://www.w3.org/TR/2008/REC-WCAG20-20081211/#visual-audio-contrast-contrast>.

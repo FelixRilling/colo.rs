@@ -3,7 +3,7 @@ use rug::Float;
 use rug::float::Round;
 
 use crate::color::rgb::RGB;
-use crate::color::srgb::SRGB_PRECISION;
+use crate::color::rgb::SRGB_PRECISION;
 use crate::error::ParsingError;
 
 // https://www.w3.org/TR/css-values-3/#number
