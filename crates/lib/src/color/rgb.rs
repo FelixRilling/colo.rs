@@ -2,26 +2,28 @@ use std::fmt;
 use std::fmt::Display;
 
 use rug::Float;
-use rug::float::Round;
 
 mod rgb_str;
 mod hex_str;
 
-pub(crate) const SRGB_PRECISION: u32 = 64;
+const SRGB_PRECISION: u32 = 64;
 
-pub(crate) fn srgb_to_rgb(srgb_val: &Float) -> u8 {
-    let clone = srgb_val.clone();
-    let rgb_val_float = clone * u8::MAX;
-    rgb_val_float.to_f64_round(Round::Up).ceil() as u8
+fn srgb_to_rgb(srgb_val: &Float) -> u8 {
+    let rgb_val_float = srgb_val.clone() * u8::MAX;
+    rgb_val_float.to_f64().ceil() as u8
 }
 
-pub(crate) fn rgb_to_srgb(rgb_val: u8) -> Float {
-    let (rbg_val_float, _) = Float::with_val_round(SRGB_PRECISION, rgb_val, Round::Up);
+fn rgb_to_srgb(rgb_val: u8) -> Float {
+    let rbg_val_float = Float::with_val(SRGB_PRECISION, rgb_val);
     rbg_val_float / u8::MAX
 }
 
+fn srgb_max() -> Float {
+    Float::with_val(SRGB_PRECISION, 1)
+}
 
 /// Represents a single RGB color with an alpha channel.
+/// Note: internally stores values as sRGB channels which are not limited to 8 bits.
 #[derive(Debug)]
 pub struct RGB {
     red: Float,
@@ -66,7 +68,7 @@ impl RGB {
 
 
     pub fn is_opaque(&self) -> bool {
-        srgb_to_rgb(&self.alpha) == u8::MAX
+        self.alpha == srgb_max()
     }
 
 
@@ -77,7 +79,7 @@ impl RGB {
 
     /// Creates a RGB instance based on the given values. alpha channel is fully opaque.
     pub fn from_srgb(red: Float, green: Float, blue: Float) -> RGB {
-        RGB::from_srgb_with_alpha(red, green, blue, rgb_to_srgb(u8::MAX))
+        RGB::from_srgb_with_alpha(red, green, blue, srgb_max())
     }
 
     /// Creates a RGB instance with custom alpha channel based on the given values.
@@ -103,7 +105,10 @@ impl RGB {
 
 impl PartialEq for RGB {
     fn eq(&self, other: &Self) -> bool {
-        self.red == other.red && self.green == other.green && self.blue == other.blue && self.alpha == other.alpha
+        self.red == other.red &&
+            self.green == other.green &&
+            self.blue == other.blue &&
+            self.alpha == other.alpha
     }
 }
 
