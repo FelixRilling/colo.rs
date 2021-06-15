@@ -1,38 +1,88 @@
-use std::str::FromStr;
-
 use regex::Regex;
 use rug::Float;
+use rug::float::Round;
 
 use crate::color::rgb::RGB;
-use crate::color::srgb::{SRGB_PRECISION, srgb_to_rgb};
+use crate::color::srgb::SRGB_PRECISION;
 use crate::error::ParsingError;
+
+// https://www.w3.org/TR/css-values-3/#number
+fn parse_number(seq: &str) -> Result<Float, ParsingError> {
+    Ok(Float::with_val(SRGB_PRECISION, Float::parse(seq)?))
+}
+
+fn is_percentage(seq: &str) -> bool {
+    seq.ends_with('%')
+}
+
+// https://www.w3.org/TR/css-values-3/#percentage-value
+fn parse_percentage(seq: &str) -> Result<Float, ParsingError> {
+    parse_number(&seq[..seq.rfind('%').unwrap()])
+}
+
+fn parse_color_channel(seq: &str) -> Result<u8, ParsingError> {
+    let channel_val: Float;
+    if is_percentage(seq) {
+        let percentage_val = parse_percentage(&seq)?;
+        channel_val = percentage_val / 100 * u8::MAX;
+    } else {
+        channel_val = parse_number(seq)?;
+    }
+
+    let clamped = channel_val.clamp(&u8::MIN, &u8::MAX).to_f64_round(Round::Up);
+    Ok(clamped.ceil() as u8)
+}
+
+// https://www.w3.org/TR/css-color-4/#typedef-alpha-value
+fn parse_alpha_channel(seq: &str) -> Result<u8, ParsingError> {
+    let channel_val: Float;
+    if is_percentage(seq) {
+        let percentage_number = parse_percentage(&seq)?;
+        channel_val = percentage_number / 100 * u8::MAX;
+    } else {
+        // When parsing the alpha channel, the value ranges from 0 to 1 already.
+        channel_val = parse_number(seq)? * u8::MAX;
+    }
+
+    let clamped = channel_val.clamp(&u8::MIN, &u8::MAX).to_f64_round(Round::Up);
+    Ok(clamped.ceil() as u8)
+}
+
 
 impl RGB {
     /// Parses a CSS-style RGB color.
     /// For a list of supported formats, see <https://www.w3.org/TR/css-color-4/#rgb-functions>.
-    /// Color percentage values are currently not supported.
+    /// Note that according to the spec, values out-of-range are clamped.
     ///
     /// # Errors
     /// A malformed input will result in an error. This may include but is not limited to:
     /// - Input not matching the shape of an RGB string.
-    /// - Out-of-range color values.
-    pub fn from_rgb_str(hex_str: &str) -> Result<RGB, ParsingError> {
+    pub fn from_rgb_str(rgb_str: &str) -> Result<RGB, ParsingError> {
+        // https://regex101.com/r/ddQBTn/1
         let rgb_regex = Regex::new(
-            r"^rgb\((?P<red>\d{1,3}) (?P<green>\d{1,3}) (?P<blue>\d{1,3})(?: / (?P<alpha>\d(?:\.\d+)?))?\)$"
+            r"^rgb\((?P<red>[-+]?\d+%?) (?P<green>[-+]?\d+%?) (?P<blue>[-+]?\d+%?)(?: / (?P<alpha>[-+]?(?:\d+\.)?\d+%?))?\)$"
         )?;
 
-        match rgb_regex.captures(hex_str) {
+        match rgb_regex.captures(rgb_str) {
             None => Err(ParsingError::InvalidSyntax("String did not match RGB pattern")),
             Some(captures) => {
-                let red = u8::from_str(captures.name("red").unwrap().as_str())?;
-                let green = u8::from_str(captures.name("green").unwrap().as_str())?;
-                let blue = u8::from_str(captures.name("blue").unwrap().as_str())?;
+                let red_str = captures.name("red").unwrap().as_str();
+                let green_str = captures.name("green").unwrap().as_str();
+                let blue_str = captures.name("blue").unwrap().as_str();
+
+                if is_percentage(red_str) != is_percentage(green_str) ||
+                    is_percentage(red_str) != is_percentage(blue_str) {
+                    return Err(ParsingError::InvalidSyntax("Unexpected combination of percentage and absolute values"));
+                }
+
+                let red = parse_color_channel(red_str)?;
+                let green = parse_color_channel(green_str)?;
+                let blue = parse_color_channel(blue_str)?;
 
                 match captures.name("alpha") {
                     None => Ok(RGB::from_rgb(red, green, blue)),
                     Some(alpha_match) => {
-                        let alpha_raw = Float::with_val(SRGB_PRECISION, Float::parse(alpha_match.as_str())?);
-                        let alpha = srgb_to_rgb(alpha_raw);
+                        let alpha = parse_alpha_channel(alpha_match.as_str())?;
                         Ok(RGB::from_rgba(red, green, blue, alpha))
                     }
                 }
@@ -91,7 +141,7 @@ mod tests {
         assert_eq!(color.red(), 0);
         assert_eq!(color.green(), 255);
         assert_eq!(color.blue(), 128);
-        assert_eq!(color.alpha(), u8::MIN);
+        assert_eq!(color.alpha(), u8::MAX);
     }
 
     #[test]
@@ -115,7 +165,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
     fn from_rgb_str_integers_with_alpha_percentage_above_range() {
         let color = RGB::from_rgb_str("rgb(0 255 128 / 150%)").unwrap();
 
@@ -126,7 +175,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
     fn from_rgb_str_integers_with_alpha_percentage_below_range() {
         let color = RGB::from_rgb_str("rgb(0 255 128 / -50%)").unwrap();
 
@@ -137,7 +185,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
     fn from_rgb_str_integers_with_alpha_percentage() {
         let color = RGB::from_rgb_str("rgb(0 255 128 / 50%)").unwrap();
 
@@ -148,7 +195,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
     fn from_rgb_str_percentage_above_range() {
         let color = RGB::from_rgb_str("rgb(0% 100% 150%)").unwrap();
 
@@ -159,7 +205,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
     fn from_rgb_str_percentage_below_range() {
         let color = RGB::from_rgb_str("rgb(0% 100% -50%)").unwrap();
 
@@ -170,7 +215,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
     fn from_rgb_str_percentage() {
         let color = RGB::from_rgb_str("rgb(0% 100% 50%)").unwrap();
 
@@ -181,7 +225,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
     fn from_rgb_str_percentage_with_alpha_decimal() {
         let color = RGB::from_rgb_str("rgb(0% 100% 50% / 0.5)").unwrap();
 
@@ -192,7 +235,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
     fn from_rgb_str_percentage_with_alpha_percentage() {
         let color = RGB::from_rgb_str("rgb(0% 100% 50% / 50%)").unwrap();
 
@@ -203,7 +245,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
     fn from_rgb_str_disallow_number_mix() {
         let result = RGB::from_rgb_str("rgb(255 100% 128)");
 
