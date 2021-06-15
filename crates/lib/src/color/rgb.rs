@@ -47,9 +47,28 @@ impl RGB {
         srgb_to_rgb(&self.alpha)
     }
 
+
+    pub fn red_srgb(&self) -> &Float {
+        &self.red
+    }
+
+    pub fn green_srgb(&self) -> &Float {
+        &self.green
+    }
+
+    pub fn blue_srgb(&self) -> &Float {
+        &self.blue
+    }
+
+    pub fn alpha_srgb(&self) -> &Float {
+        &self.alpha
+    }
+
+
     pub fn is_opaque(&self) -> bool {
         srgb_to_rgb(&self.alpha) == u8::MAX
     }
+
 
     /// Creates a RGB instance with custom alpha channel based on the given values.
     pub fn from_rgba(red: u8, green: u8, blue: u8, alpha: u8) -> RGB {

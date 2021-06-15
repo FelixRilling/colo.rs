@@ -6,7 +6,6 @@ use rug::Float;
 use rug::ops::Pow;
 
 use crate::color::rgb::RGB;
-use crate::color::rgb::rgb_to_srgb;
 
 /// Contrast target values based on
 /// <https://www.w3.org/TR/2008/REC-WCAG20-20081211/#visual-audio-contrast-contrast>.
@@ -83,13 +82,12 @@ pub fn contrast_ratio_val(color_1: &RGB, color_2: &RGB) -> Float {
 }
 
 fn relative_luminance(color: &RGB) -> Float {
-    return 0.2126 * transform_color_value(color.red())
-        + 0.7152 * transform_color_value(color.green())
-        + 0.0722 * transform_color_value(color.blue());
+    return 0.2126 * transform_color_value(color.red_srgb().clone())
+        + 0.7152 * transform_color_value(color.green_srgb().clone())
+        + 0.0722 * transform_color_value(color.blue_srgb().clone());
 }
 
-fn transform_color_value(rgb_val: u8) -> Float {
-    let rgbs_val = rgb_to_srgb(rgb_val);
+fn transform_color_value(rgbs_val: Float) -> Float {
     if rgbs_val <= 0.03928 {
         rgbs_val / 12.92
     } else {
