@@ -6,20 +6,22 @@ use rug::Float;
 mod rgb_str;
 mod hex_str;
 
-const SRGB_PRECISION: u32 = 64;
+pub const DEFAULT_SRGB_PRECISION: u32 = 64;
 
 fn srgb_to_rgb(srgb_val: &Float) -> u8 {
+    debug_assert!(srgb_val >= &0 && srgb_val <= &1);
+
     let rgb_val_float = srgb_val.clone() * u8::MAX;
     rgb_val_float.to_f64().ceil() as u8
 }
 
 fn rgb_to_srgb(rgb_val: u8) -> Float {
-    let rbg_val_float = Float::with_val(SRGB_PRECISION, rgb_val);
+    let rbg_val_float = Float::with_val(DEFAULT_SRGB_PRECISION, rgb_val);
     rbg_val_float / u8::MAX
 }
 
 fn srgb_max() -> Float {
-    Float::with_val(SRGB_PRECISION, 1)
+    Float::with_val(DEFAULT_SRGB_PRECISION, 1)
 }
 
 /// Represents a single RGB color with an alpha channel.
@@ -77,7 +79,10 @@ impl RGB {
         RGB::from_rgb_with_alpha(red, green, blue, u8::MAX)
     }
 
-    /// Creates a RGB instance based on the given values. alpha channel is fully opaque.
+    /// Creates a RGB instance based on the given sRGB values. alpha channel is fully opaque.
+    ///
+    /// # Panics
+    /// If channel values are outside range 0 to 1.
     pub fn from_srgb(red: Float, green: Float, blue: Float) -> RGB {
         RGB::from_srgb_with_alpha(red, green, blue, srgb_max())
     }
@@ -92,8 +97,16 @@ impl RGB {
         )
     }
 
-    /// Creates a RGB instance with custom alpha channel based on the given values.
+    /// Creates a RGB instance with custom alpha channel based on the given sRGB values.
+    ///
+    /// # Panics
+    /// If channel values are outside range 0 to 1.
     pub fn from_srgb_with_alpha(red: Float, green: Float, blue: Float, alpha: Float) -> RGB {
+        assert!(red >= 0 && red <= 1);
+        assert!(green >= 0 && green <= 1);
+        assert!(blue >= 0 && blue <= 1);
+        assert!(alpha >= 0 && alpha <= 1);
+
         RGB {
             red,
             green,
@@ -117,5 +130,81 @@ impl Eq for RGB {}
 impl Display for RGB {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_str(&self.to_hex_str())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn outputs_internal_float_as_u8() {
+        let color = RGB::from_srgb_with_alpha(
+            Float::with_val(64, 0.5),
+            Float::with_val(64, 0),
+            Float::with_val(64, 1),
+            Float::with_val(64, 0.25),
+        );
+
+        assert_eq!(color.red(), 128);
+        assert_eq!(color.green(), 0);
+        assert_eq!(color.blue(), 255);
+        assert_eq!(color.alpha(), 64);
+    }
+
+    #[test]
+    fn is_opaque_true_for_opaque() {
+        assert!(RGB::from_rgb(
+            128,
+            64,
+            0,
+        ).is_opaque());
+
+        assert!(RGB::from_rgb_with_alpha(
+            128,
+            64,
+            0,
+            255,
+        ).is_opaque());
+    }
+
+    #[test]
+    fn is_opaque_false_for_transparent() {
+        assert!(!RGB::from_rgb_with_alpha(
+            128,
+            64,
+            0,
+            254,
+        ).is_opaque());
+
+        assert!(!RGB::from_rgb_with_alpha(
+            128,
+            64,
+            0,
+            128,
+        ).is_opaque());
+
+        assert!(!RGB::from_rgb_with_alpha(
+            128,
+            64,
+            0,
+            0,
+        ).is_opaque());
+    }
+
+    #[test]
+    fn eq_equal() {
+        let a = RGB::from_rgb_with_alpha(0, 128, 255, 255);
+        let b = RGB::from_rgb_with_alpha(0, 128, 255, 255);
+
+        assert_eq!(a, b);
+    }
+
+    #[test]
+    fn eq_not_equal() {
+        let a = RGB::from_rgb_with_alpha(0, 128, 255, 255);
+        let b = RGB::from_rgb_with_alpha(0, 128, 0, 255);
+
+        assert_ne!(a, b);
     }
 }

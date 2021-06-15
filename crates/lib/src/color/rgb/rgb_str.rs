@@ -1,13 +1,13 @@
 use regex::Regex;
 use rug::Float;
 
+use crate::color::rgb::DEFAULT_SRGB_PRECISION;
 use crate::color::rgb::RGB;
-use crate::color::rgb::SRGB_PRECISION;
 use crate::error::ParsingError;
 
 // https://www.w3.org/TR/css-values-3/#number
 fn parse_number(seq: &str) -> Result<Float, ParsingError> {
-    Ok(Float::with_val(SRGB_PRECISION, Float::parse(seq)?))
+    Ok(Float::with_val(DEFAULT_SRGB_PRECISION, Float::parse(seq)?))
 }
 
 fn is_percentage(seq: &str) -> bool {
