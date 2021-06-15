@@ -4,7 +4,6 @@ use std::iter::FromIterator;
 
 use clap::{App, Arg, SubCommand};
 use rug::Float;
-use rug::float::Round;
 use termcolor::{Color, ColorChoice, ColorSpec, StandardStream, WriteColor};
 
 use colo_rs_lib::color::rgb::RGB;
@@ -31,7 +30,6 @@ fn get_best_contrast<'a>
 
     best_contrast_ratio_color
 }
-
 
 
 /// Prints colored color value to stream. Stream color is reset afterwards.
@@ -125,7 +123,7 @@ fn print_contrast(color_1: &RGB, color_2: &RGB, options: &Options) {
         _ => {
             // Usually only displaying the last 2 digits is enough.
             // Note that we cannot use the rounding provided by the formatter as contrast values may not be rounded up.
-            let floored = floor_n_decimals(contrast_ratio_val, 2).to_f64_round(Round::Down);
+            let floored = floor_n_decimals(contrast_ratio_val, 2).to_f64();
             writeln!(&mut stdout, " is {:.2}.", floored).unwrap()
         }
     };
