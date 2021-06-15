@@ -70,19 +70,34 @@ impl RGB {
     }
 
 
-    /// Creates a RGB instance with custom alpha channel based on the given values.
-    pub fn from_rgba(red: u8, green: u8, blue: u8, alpha: u8) -> RGB {
-        RGB {
-            red: rgb_to_srgb(red),
-            green: rgb_to_srgb(green),
-            blue: rgb_to_srgb(blue),
-            alpha: rgb_to_srgb(alpha),
-        }
+    /// Creates a RGB instance based on the given values. alpha channel is fully opaque.
+    pub fn from_rgb(red: u8, green: u8, blue: u8) -> RGB {
+        RGB::from_rgb_with_alpha(red, green, blue, u8::MAX)
     }
 
     /// Creates a RGB instance based on the given values. alpha channel is fully opaque.
-    pub fn from_rgb(red: u8, green: u8, blue: u8) -> RGB {
-        RGB::from_rgba(red, green, blue, u8::MAX)
+    pub fn from_srgb(red: Float, green: Float, blue: Float) -> RGB {
+        RGB::from_srgb_with_alpha(red, green, blue, rgb_to_srgb(u8::MAX))
+    }
+
+    /// Creates a RGB instance with custom alpha channel based on the given values.
+    pub fn from_rgb_with_alpha(red: u8, green: u8, blue: u8, alpha: u8) -> RGB {
+        RGB::from_srgb_with_alpha(
+            rgb_to_srgb(red),
+            rgb_to_srgb(green),
+            rgb_to_srgb(blue),
+            rgb_to_srgb(alpha),
+        )
+    }
+
+    /// Creates a RGB instance with custom alpha channel based on the given values.
+    pub fn from_srgb_with_alpha(red: Float, green: Float, blue: Float, alpha: Float) -> RGB {
+        RGB {
+            red,
+            green,
+            blue,
+            alpha,
+        }
     }
 }
 

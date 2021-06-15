@@ -27,7 +27,7 @@ impl RGB {
                     3 => Ok(RGB::from_rgb(red, green, blue)),
                     4 => {
                         let alpha = u8::from_str_radix(&hex_digits[3..4].repeat(2), 16)?;
-                        Ok(RGB::from_rgba(red, green, blue, alpha))
+                        Ok(RGB::from_rgb_with_alpha(red, green, blue, alpha))
                     }
                     _ => unreachable!()
                 }
@@ -41,7 +41,7 @@ impl RGB {
                     6 => Ok(RGB::from_rgb(red, green, blue)),
                     8 => {
                         let alpha = u8::from_str_radix(&hex_digits[6..8], 16)?;
-                        Ok(RGB::from_rgba(red, green, blue, alpha))
+                        Ok(RGB::from_rgb_with_alpha(red, green, blue, alpha))
                     }
                     _ => unreachable!()
                 }

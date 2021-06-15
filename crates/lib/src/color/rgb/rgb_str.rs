@@ -1,6 +1,5 @@
 use regex::Regex;
 use rug::Float;
-use rug::float::Round;
 
 use crate::color::rgb::RGB;
 use crate::color::rgb::SRGB_PRECISION;
@@ -20,32 +19,29 @@ fn parse_percentage(seq: &str) -> Result<Float, ParsingError> {
     parse_number(&seq[..seq.rfind('%').unwrap()])
 }
 
-fn parse_color_channel(seq: &str) -> Result<u8, ParsingError> {
+fn parse_color_channel(seq: &str) -> Result<Float, ParsingError> {
     let channel_val: Float;
     if is_percentage(seq) {
         let percentage_val = parse_percentage(&seq)?;
-        channel_val = percentage_val / 100 * u8::MAX;
+        channel_val = percentage_val / 100;
     } else {
-        channel_val = parse_number(seq)?;
+        channel_val = parse_number(seq)? / u8::MAX;
     }
-
-    let clamped = channel_val.clamp(&u8::MIN, &u8::MAX).to_f64_round(Round::Up);
-    Ok(clamped.ceil() as u8)
+    Ok(channel_val)
 }
 
 // https://www.w3.org/TR/css-color-4/#typedef-alpha-value
-fn parse_alpha_channel(seq: &str) -> Result<u8, ParsingError> {
+fn parse_alpha_channel(seq: &str) -> Result<Float, ParsingError> {
     let channel_val: Float;
     if is_percentage(seq) {
         let percentage_number = parse_percentage(&seq)?;
-        channel_val = percentage_number / 100 * u8::MAX;
+        channel_val = percentage_number / 100;
     } else {
         // When parsing the alpha channel, the value ranges from 0 to 1 already.
-        channel_val = parse_number(seq)? * u8::MAX;
+        channel_val = parse_number(seq)?;
     }
 
-    let clamped = channel_val.clamp(&u8::MIN, &u8::MAX).to_f64_round(Round::Up);
-    Ok(clamped.ceil() as u8)
+    Ok(channel_val)
 }
 
 
@@ -80,10 +76,10 @@ impl RGB {
                 let blue = parse_color_channel(blue_str)?;
 
                 match captures.name("alpha") {
-                    None => Ok(RGB::from_rgb(red, green, blue)),
+                    None => Ok(RGB::from_srgb(red, green, blue)),
                     Some(alpha_match) => {
                         let alpha = parse_alpha_channel(alpha_match.as_str())?;
-                        Ok(RGB::from_rgba(red, green, blue, alpha))
+                        Ok(RGB::from_srgb_with_alpha(red, green, blue, alpha))
                     }
                 }
             }
