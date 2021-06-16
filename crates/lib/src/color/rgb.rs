@@ -26,7 +26,7 @@ fn srgb_max() -> Float {
 
 /// Represents a single RGB color with an alpha channel.
 /// Note: internally stores values as sRGB channels which are not limited to 8 bits.
-#[derive(Debug)]
+#[derive(Debug,PartialEq)]
 pub struct RGB {
     red: Float,
     green: Float,
@@ -116,17 +116,6 @@ impl RGB {
     }
 }
 
-impl PartialEq for RGB {
-    fn eq(&self, other: &Self) -> bool {
-        self.red == other.red &&
-            self.green == other.green &&
-            self.blue == other.blue &&
-            self.alpha == other.alpha
-    }
-}
-
-impl Eq for RGB {}
-
 impl Display for RGB {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_str(&self.to_hex_str())
@@ -190,21 +179,5 @@ mod tests {
             0,
             0,
         ).is_opaque());
-    }
-
-    #[test]
-    fn eq_equal() {
-        let a = RGB::from_rgb_with_alpha(0, 128, 255, 255);
-        let b = RGB::from_rgb_with_alpha(0, 128, 255, 255);
-
-        assert_eq!(a, b);
-    }
-
-    #[test]
-    fn eq_not_equal() {
-        let a = RGB::from_rgb_with_alpha(0, 128, 255, 255);
-        let b = RGB::from_rgb_with_alpha(0, 128, 0, 255);
-
-        assert_ne!(a, b);
     }
 }
