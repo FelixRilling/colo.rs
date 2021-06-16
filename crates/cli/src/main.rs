@@ -12,10 +12,16 @@ use color_printing::print_color;
 
 mod color_printing;
 
-const COLOR_ARG_HELP: &str = "CSS-like hexadecimal color value, e.g. '#00FF11'.";
+const COLOR_ARG_HELP: &str = "CSS-like color value, e.g. #00FF11 or 'rgb(255 128 0)'.";
 
 struct Options {
     verbosity: u8,
+}
+
+fn parse_color(slice: &str) -> Result<RGB, String> {
+    RGB::from_hex_str(slice)
+        .or_else(|_| RGB::from_rgb_str(slice))
+        .map_err(|_| format!("Could not parse '{}' as a color.", slice))
 }
 
 fn main() {
@@ -47,10 +53,10 @@ fn main() {
         Some(matches) => {
             let color_1_str = matches.value_of("color_1").unwrap();
             let color_2_str = matches.value_of("color_2").unwrap();
-            match RGB::from_hex_str(color_1_str) {
-                Err(e) => eprintln!("Could not parse color 1: {}.", e),
-                Ok(color_1) => match RGB::from_hex_str(color_2_str) {
-                    Err(e) => eprintln!("Could not parse color 2: {}.", e),
+            match parse_color(color_1_str) {
+                Err(e) => eprintln!("Color 1: {}", e),
+                Ok(color_1) => match parse_color(color_2_str) {
+                    Err(e) => eprintln!("Color 2: {}", e),
                     Ok(color_2) => {
                         print_contrast(&color_1, &color_2, &options)
                     }
