@@ -53,9 +53,9 @@ impl RGB {
     /// A malformed input will result in an error. This may include but is not limited to:
     /// - Input not matching the shape of an RGB string.
     pub fn from_rgb_str(rgb_str: &str) -> Result<RGB, ParsingError> {
-        // https://regex101.com/r/ddQBTn/1
+        // https://regex101.com/r/MZkxf8/1
         let rgb_regex = Regex::new(
-            r"^rgb\((?P<red>[-+]?\d+%?) (?P<green>[-+]?\d+%?) (?P<blue>[-+]?\d+%?)(?: / (?P<alpha>[-+]?(?:\d+\.)?\d+%?))?\)$"
+            r"^rgb\((?P<red>[-+]?(?:\d+\.)?\d+%?) (?P<green>[-+]?(?:\d+\.)?\d+%?) (?P<blue>[-+]?(?:\d+\.)?\d+%?)(?: / (?P<alpha>[-+]?(?:\d+\.)?\d+%?))?\)$"
         )?;
 
         match rgb_regex.captures(rgb_str) {
@@ -122,6 +122,16 @@ mod tests {
     #[test]
     fn from_rgb_str_integer() {
         let color = RGB::from_rgb_str("rgb(0 255 128)").unwrap();
+
+        assert_eq!(color.red(), 0);
+        assert_eq!(color.green(), 255);
+        assert_eq!(color.blue(), 128);
+        assert_eq!(color.alpha(), u8::MAX);
+    }
+
+    #[test]
+    fn from_rgb_str_integer_decimal() {
+        let color = RGB::from_rgb_str("rgb(0 255 127.99)").unwrap();
 
         assert_eq!(color.red(), 0);
         assert_eq!(color.green(), 255);
@@ -212,6 +222,16 @@ mod tests {
     #[test]
     fn from_rgb_str_percentage() {
         let color = RGB::from_rgb_str("rgb(0% 100% 50%)").unwrap();
+
+        assert_eq!(color.red(), 0);
+        assert_eq!(color.green(), 255);
+        assert_eq!(color.blue(), 128);
+        assert_eq!(color.alpha(), u8::MAX);
+    }
+
+    #[test]
+    fn from_rgb_str_percentage_decimal() {
+        let color = RGB::from_rgb_str("rgb(0% 100% 49.99%)").unwrap();
 
         assert_eq!(color.red(), 0);
         assert_eq!(color.green(), 255);
