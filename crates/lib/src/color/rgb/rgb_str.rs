@@ -16,6 +16,8 @@ fn is_percentage(seq: &str) -> bool {
 
 // https://www.w3.org/TR/css-values-3/#percentage-value
 fn parse_percentage(seq: &str) -> Result<Float, ParsingError> {
+    debug_assert!(is_percentage(seq));
+
     parse_number(&seq[..seq.rfind('%').unwrap()])
 }
 
