@@ -3,7 +3,7 @@ use std::fmt::Display;
 
 use rug::Float;
 
-use crate::color::rgb::hex_str::{LetterCase, OmitAlphaChannel, ShorthandNotation};
+pub use crate::color::rgb::hex_str::{LetterCase, ShorthandNotation};
 
 mod rgb_str;
 mod hex_str;
@@ -116,6 +116,13 @@ impl RGB {
             alpha,
         }
     }
+}
+
+/// The alpha channel can be omitted if its opaque.
+#[derive(Debug, PartialEq, Eq)]
+pub enum OmitAlphaChannel {
+    Never,
+    IfOpaque,
 }
 
 impl Display for RGB {

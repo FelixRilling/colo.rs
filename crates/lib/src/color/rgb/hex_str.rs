@@ -1,4 +1,4 @@
-use crate::color::rgb::RGB;
+use crate::color::rgb::{OmitAlphaChannel, RGB};
 use crate::error::ParsingError;
 
 /// Represents case of hexadecimal letters
@@ -6,13 +6,6 @@ use crate::error::ParsingError;
 pub enum LetterCase {
     Uppercase,
     Lowercase,
-}
-
-/// The alpha channel can be omitted if its opaque.
-#[derive(Debug, PartialEq, Eq)]
-pub enum OmitAlphaChannel {
-    Never,
-    IfOpaque,
 }
 
 /// The shorthand (single digit per channel) notation may be used if the double digit notation is the same digit two times.
