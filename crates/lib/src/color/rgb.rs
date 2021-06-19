@@ -3,6 +3,8 @@ use std::fmt::Display;
 
 use rug::Float;
 
+use crate::color::rgb::hex_str::{LetterCase, OmitAlphaChannel, ShorthandNotation};
+
 mod rgb_str;
 mod hex_str;
 
@@ -26,7 +28,7 @@ fn srgb_max() -> Float {
 
 /// Represents a single RGB color with an alpha channel.
 /// Note: internally stores values as sRGB channels which are not limited to 8 bits.
-#[derive(Debug,PartialEq)]
+#[derive(Debug, PartialEq)]
 pub struct RGB {
     red: Float,
     green: Float,
@@ -118,7 +120,7 @@ impl RGB {
 
 impl Display for RGB {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_str(&self.to_hex_str())
+        f.write_str(&self.to_hex_str(LetterCase::Uppercase, OmitAlphaChannel::IfOpaque, ShorthandNotation::Never))
     }
 }
 

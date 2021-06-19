@@ -6,7 +6,7 @@
 
 **WIP, use at your own risk!**
 
-This is a personal project that I use to learn the Rust language.
+This is a personal project that I use to learn the Rust programming language.
 
 ## Introduction
 

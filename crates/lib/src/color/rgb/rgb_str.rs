@@ -49,6 +49,8 @@ impl RGB {
     /// For a list of supported formats, see <https://www.w3.org/TR/css-color-4/#rgb-functions>.
     /// Note that according to the spec, values out-of-range are clamped.
     ///
+    /// Note that the legacy syntax with comma or the `rgba` function are not supported.
+    ///
     /// # Errors
     /// A malformed input will result in an error. This may include but is not limited to:
     /// - Input not matching the shape of an RGB string.
