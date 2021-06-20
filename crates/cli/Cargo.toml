@@ -1,13 +1,17 @@
 [package]
-name = "colo_rs-cli"
+name = "color-utils-cli"
 version = "0.1.0"
 authors = ["FelixRilling <contact@rilling.dev>"]
 edition = "2018"
 
+[[bin]]
+name = "colu"
+path = "src/main.rs"
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-colo_rs-lib = { version = "0.1.0", path = "../lib" }
+color-utils = { version = "0.1.0", path = "../lib" }
 rug = "1.12.0"
 clap = "2.33.3"
 termcolor = "1.1.2"

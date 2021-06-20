@@ -1,4 +1,4 @@
-# Colo.rs
+# Color-Utils
 
 > Command line application/library for color utilities written in Rust
 
@@ -16,7 +16,7 @@ This is a personal project that I use to learn the Rust programming language.
 
 ### Usage
 
-The command line application can be started via `colo_rs-cli`. Usage help can be viewed
-via `colo_rs-cli --help`.
+The command line application can be started via the `colu` binary. Usage help can be viewed
+via `colu --help`.
 
 

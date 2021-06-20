@@ -1,5 +1,5 @@
 [package]
-name = "colo_rs-lib"
+name = "color-utils"
 version = "0.1.0"
 authors = ["FelixRilling <contact@rilling.dev>"]
 edition = "2018"

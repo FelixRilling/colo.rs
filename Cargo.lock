@@ -59,21 +59,21 @@ dependencies = [
 ]
 
 [[package]]
-name = "colo_rs-cli"
-version = "0.1.0"
-dependencies = [
- "clap",
- "colo_rs-lib",
- "rug",
- "termcolor",
-]
-
-[[package]]
-name = "colo_rs-lib"
+name = "color-utils"
 version = "0.1.0"
 dependencies = [
  "regex",
  "rug",
+]
+
+[[package]]
+name = "color-utils-cli"
+version = "0.1.0"
+dependencies = [
+ "clap",
+ "color-utils",
+ "rug",
+ "termcolor",
 ]
 
 [[package]]

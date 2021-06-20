@@ -3,8 +3,8 @@ use std::io::Write;
 use rug::Float;
 use termcolor::{Color, ColorSpec, StandardStream, WriteColor};
 
-use colo_rs_lib::color::rgb::{DEFAULT_SRGB_PRECISION, RGB};
-use colo_rs_lib::contrast::contrast_ratio_val;
+use color_utils::color::rgb::{DEFAULT_SRGB_PRECISION, RGB};
+use color_utils::contrast::contrast_ratio_val;
 
 fn rgb_as_term_color(color: &RGB) -> Color {
     Color::Rgb(color.red(), color.green(), color.blue())
@@ -46,7 +46,7 @@ pub(crate) fn print_color(stdout: &mut StandardStream, color: &RGB) {
 
 #[cfg(test)]
 mod tests {
-    use colo_rs_lib::color::rgb::RGB;
+    use color_utils::color::rgb::RGB;
 
     use super::*;
 

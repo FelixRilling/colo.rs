@@ -6,9 +6,10 @@ use clap::{App, Arg, SubCommand};
 use rug::Float;
 use termcolor::{ColorChoice, StandardStream};
 
-use colo_rs_lib::color::rgb::RGB;
-use colo_rs_lib::contrast::{contrast_ratio_levels_reached, contrast_ratio_val};
-use color_printing::print_color;
+use color_utils::color::rgb::RGB;
+use color_utils::contrast::{contrast_ratio_levels_reached, contrast_ratio_val};
+
+use crate::color_printing::print_color;
 
 mod color_printing;
 
