@@ -9,7 +9,7 @@ use crate::color::rgb::RGB;
 
 /// Contrast target values based on
 /// <https://www.w3.org/TR/2008/REC-WCAG20-20081211/#visual-audio-contrast-contrast>.
-#[derive(Hash, PartialEq, Eq, PartialOrd, Ord, Debug)]
+#[derive(Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum ContrastLevel {
     /// Enhanced contrast for text.
     AAA,
@@ -44,7 +44,6 @@ pub fn contrast_ratio_levels_reached(color_1: &RGB, color_2: &RGB) -> HashSet<Co
     let ratio = contrast_ratio_val(color_1, color_2);
 
     let mut reached = HashSet::new();
-    // TODO: Use match here or something.
     if ratio.ge(&3.0) {
         reached.insert(ContrastLevel::LargeAA);
         if ratio.ge(&4.5) {
@@ -98,10 +97,7 @@ fn transform_color_value(rgbs_val: Float) -> Float {
 
 #[cfg(test)]
 mod tests {
-    use rug::float::Round;
-
     use crate::color::rgb::RGB;
-    use crate::contrast::ContrastLevel;
 
     use super::*;
 
@@ -190,7 +186,7 @@ mod tests {
 
         let expected: f64 = 1.0;
         let actual = contrast_ratio_val(&black, &black);
-        assert_eq!(actual.to_f64_round(Round::Down), expected)
+        assert_eq!(actual.to_f64(), expected)
     }
 
     #[test]
@@ -200,7 +196,7 @@ mod tests {
 
         let expected: f64 = 21.0;
         let actual = contrast_ratio_val(&black, &white);
-        assert_eq!(actual.to_f64_round(Round::Down), expected)
+        assert_eq!(actual.to_f64(), expected)
     }
 
     #[test]

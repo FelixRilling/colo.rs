@@ -8,6 +8,8 @@ pub use crate::color::rgb::hex_str::{LetterCase, ShorthandNotation};
 mod rgb_str;
 mod hex_str;
 
+/// Floating point precision used when creating floats internally.
+/// Chosen arbitrarily, but the current value seems to work based on most exploration tests.
 pub const DEFAULT_SRGB_PRECISION: u32 = 64;
 
 fn srgb_to_rgb(srgb_val: &Float) -> u8 {
@@ -76,12 +78,12 @@ impl RGB {
     }
 
 
-    /// Creates a RGB instance based on the given values. alpha channel is fully opaque.
+    /// Creates a RGB instance based on the given values. Alpha channel is fully opaque.
     pub fn from_rgb(red: u8, green: u8, blue: u8) -> RGB {
         RGB::from_rgb_with_alpha(red, green, blue, u8::MAX)
     }
 
-    /// Creates a RGB instance based on the given sRGB values. alpha channel is fully opaque.
+    /// Creates a RGB instance based on the given sRGB values. Alpha channel is fully opaque.
     ///
     /// # Panics
     /// If channel values are outside range 0 to 1.

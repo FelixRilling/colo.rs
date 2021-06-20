@@ -5,27 +5,31 @@ use crate::color::rgb::DEFAULT_SRGB_PRECISION;
 use crate::color::rgb::RGB;
 use crate::error::ParsingError;
 
+/// Parses a CSS number (e.g. '1.2' as a float 1.2).
 // https://www.w3.org/TR/css-values-3/#number
 fn parse_number(seq: &str) -> Result<Float, ParsingError> {
     Ok(Float::with_val(DEFAULT_SRGB_PRECISION, Float::parse(seq)?))
 }
 
+/// Checks if something can be parsed as a CSS percentage.
 fn is_percentage(seq: &str) -> bool {
     seq.ends_with('%')
 }
 
+/// Parses a CSS percentage (e.g. '60%' as a float 0.6).
 // https://www.w3.org/TR/css-values-3/#percentage-value
 fn parse_percentage(seq: &str) -> Result<Float, ParsingError> {
     debug_assert!(is_percentage(seq));
 
-    parse_number(&seq[..seq.rfind('%').unwrap()])
+    let index_of_percentage_sign = seq.rfind('%').unwrap();
+    let percentage_number = parse_number(&seq[..index_of_percentage_sign])?;
+    Ok(percentage_number / 100)
 }
 
 fn parse_color_channel(seq: &str) -> Result<Float, ParsingError> {
     let channel_val: Float;
     if is_percentage(seq) {
-        let percentage_val = parse_percentage(&seq)?;
-        channel_val = percentage_val / 100;
+        channel_val = parse_percentage(&seq)?;
     } else {
         channel_val = parse_number(seq)? / u8::MAX;
     }
@@ -36,8 +40,7 @@ fn parse_color_channel(seq: &str) -> Result<Float, ParsingError> {
 fn parse_alpha_channel(seq: &str) -> Result<Float, ParsingError> {
     let channel_val: Float;
     if is_percentage(seq) {
-        let percentage_number = parse_percentage(&seq)?;
-        channel_val = percentage_number / 100;
+        channel_val = parse_percentage(&seq)?;
     } else {
         // When parsing the alpha channel, the value ranges from 0 to 1 already.
         channel_val = parse_number(seq)?;
@@ -47,11 +50,11 @@ fn parse_alpha_channel(seq: &str) -> Result<Float, ParsingError> {
 
 
 impl RGB {
-    /// Parses a CSS-style RGB color.
+    /// Parses a CSS-style RGB string representation of an RGB color.
     /// For a list of supported formats, see <https://www.w3.org/TR/css-color-4/#rgb-functions>.
     /// Note that according to the spec, values out-of-range are clamped.
     ///
-    /// Note that the legacy syntax with comma or the `rgba` function are not supported.
+    /// Note that the legacy syntax with comma or the `rgba` function are *not* supported.
     ///
     /// # Errors
     /// A malformed input will result in an error. This may include but is not limited to:

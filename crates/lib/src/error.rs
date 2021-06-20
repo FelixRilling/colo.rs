@@ -3,6 +3,7 @@ use std::fmt;
 use std::fmt::{Debug, Display, Formatter};
 use std::option::Option::None;
 
+/// Kinds of errors than may happen during color parsing.
 #[derive(Debug)]
 pub enum ParsingError<'a> {
     InvalidSyntax(&'a str),

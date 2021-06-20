@@ -3,7 +3,7 @@ use std::io::Write;
 use rug::Float;
 use termcolor::{Color, ColorSpec, StandardStream, WriteColor};
 
-use colo_rs_lib::color::rgb::RGB;
+use colo_rs_lib::color::rgb::{DEFAULT_SRGB_PRECISION, RGB};
 use colo_rs_lib::contrast::contrast_ratio_val;
 
 fn rgb_as_term_color(color: &RGB) -> Color {
@@ -13,7 +13,7 @@ fn rgb_as_term_color(color: &RGB) -> Color {
 /// Finds and returns the `color_options` value that has the best contrast to `initial_color`.
 fn get_best_contrast<'a>
 (initial_color: &'a RGB, color_options: &'a Vec<&RGB>) -> &'a RGB {
-    let mut best_contrast_ratio: Float = Float::with_val(32, 0.0);
+    let mut best_contrast_ratio: Float = Float::with_val(DEFAULT_SRGB_PRECISION, 0.0);
     // Default value only matters if all options have zero contrast, so they should be the same as initial_color anyways.
     let mut best_contrast_ratio_color: &RGB = initial_color;
 

@@ -15,7 +15,7 @@ pub enum ShorthandNotation {
     IfPossible,
 }
 
-fn can_be_shorthand_channel(channel_hex_str: &str) -> bool {
+fn can_shorthand_channel(channel_hex_str: &str) -> bool {
     debug_assert!(channel_hex_str.len() == 2);
 
     channel_hex_str[0..1] == channel_hex_str[1..2]
@@ -23,7 +23,7 @@ fn can_be_shorthand_channel(channel_hex_str: &str) -> bool {
 
 fn shorthand_channel(channel_hex_str: &str) -> String {
     debug_assert!(channel_hex_str.len() == 2);
-    debug_assert!(can_be_shorthand_channel(channel_hex_str));
+    debug_assert!(can_shorthand_channel(channel_hex_str));
 
     String::from(&channel_hex_str[0..1])
 }
@@ -93,11 +93,11 @@ impl RGB {
         };
 
         if shorthand_notation == ShorthandNotation::IfPossible {
-            if can_be_shorthand_channel(&red)
-                && can_be_shorthand_channel(&green)
-                && can_be_shorthand_channel(&blue) {
+            if can_shorthand_channel(&red)
+                && can_shorthand_channel(&green)
+                && can_shorthand_channel(&blue) {
                 match alpha_opt.as_ref() {
-                    Some(alpha) => if can_be_shorthand_channel(alpha) {
+                    Some(alpha) => if can_shorthand_channel(alpha) {
                         red = shorthand_channel(&red);
                         green = shorthand_channel(&green);
                         blue = shorthand_channel(&blue);
