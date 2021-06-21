@@ -82,11 +82,11 @@ impl RGB {
     ///
     /// Note that values more precise than the 255 bit supported for the hexadecimal notation will lose precision in the output.
     /// RGB string notation should be used instead for these.
-    pub fn to_hex_str(&self, letter_case: LetterCase, alpha_channel: OmitAlphaChannel, shorthand_notation: ShorthandNotation) -> String {
+    pub fn to_hex_str(&self, omit_alpha_channel: OmitAlphaChannel, shorthand_notation: ShorthandNotation, letter_case: LetterCase) -> String {
         let mut red = format!("{:02X}", self.red());
         let mut green = format!("{:02X}", self.green());
         let mut blue = format!("{:02X}", self.blue());
-        let mut alpha_opt = if self.is_opaque() && alpha_channel == OmitAlphaChannel::IfOpaque {
+        let mut alpha_opt = if self.is_opaque() && omit_alpha_channel == OmitAlphaChannel::IfOpaque {
             None
         } else {
             Some(format!("{:02X}", self.alpha()))
@@ -197,37 +197,13 @@ mod tests {
     }
 
     #[test]
-    fn to_hex_str_uppercase() {
-        let color = RGB::from_hex_str("#11FF0A").unwrap();
-
-        let hex_string = color.to_hex_str(
-            LetterCase::Uppercase,
-            OmitAlphaChannel::IfOpaque,
-            ShorthandNotation::Never,
-        );
-        assert_eq!(hex_string, "#11FF0A");
-    }
-
-    #[test]
-    fn to_hex_str_lowercase() {
-        let color = RGB::from_hex_str("#11FF0A").unwrap();
-
-        let hex_string = color.to_hex_str(
-            LetterCase::Lowercase,
-            OmitAlphaChannel::IfOpaque,
-            ShorthandNotation::Never,
-        );
-        assert_eq!(hex_string, "#11ff0a");
-    }
-
-    #[test]
     fn to_hex_str_omit_alpha_channel_opaque() {
         let color = RGB::from_hex_str("#11FF0AFF").unwrap();
 
         let hex_string = color.to_hex_str(
-            LetterCase::Uppercase,
             OmitAlphaChannel::IfOpaque,
             ShorthandNotation::Never,
+            LetterCase::Uppercase,
         );
         assert_eq!(hex_string, "#11FF0A");
     }
@@ -237,9 +213,9 @@ mod tests {
         let color = RGB::from_hex_str("#11FF0A99").unwrap();
 
         let hex_string = color.to_hex_str(
-            LetterCase::Uppercase,
             OmitAlphaChannel::IfOpaque,
             ShorthandNotation::Never,
+            LetterCase::Uppercase,
         );
         assert_eq!(hex_string, "#11FF0A99");
     }
@@ -249,9 +225,9 @@ mod tests {
         let color = RGB::from_hex_str("#11FF0AFF").unwrap();
 
         let hex_string = color.to_hex_str(
-            LetterCase::Uppercase,
             OmitAlphaChannel::Never,
             ShorthandNotation::Never,
+            LetterCase::Uppercase,
         );
         assert_eq!(hex_string, "#11FF0AFF");
     }
@@ -261,9 +237,9 @@ mod tests {
         let color = RGB::from_hex_str("#11FF00").unwrap();
 
         let hex_string = color.to_hex_str(
-            LetterCase::Uppercase,
             OmitAlphaChannel::IfOpaque,
             ShorthandNotation::IfPossible,
+            LetterCase::Uppercase,
         );
         assert_eq!(hex_string, "#1F0");
     }
@@ -273,9 +249,9 @@ mod tests {
         let color = RGB::from_hex_str("#1BF701").unwrap();
 
         let hex_string = color.to_hex_str(
-            LetterCase::Uppercase,
             OmitAlphaChannel::IfOpaque,
             ShorthandNotation::IfPossible,
+            LetterCase::Uppercase,
         );
         assert_eq!(hex_string, "#1BF701");
     }
@@ -285,9 +261,9 @@ mod tests {
         let color = RGB::from_hex_str("#11FF00").unwrap();
 
         let hex_string = color.to_hex_str(
-            LetterCase::Uppercase,
             OmitAlphaChannel::IfOpaque,
             ShorthandNotation::Never,
+            LetterCase::Uppercase,
         );
         assert_eq!(hex_string, "#11FF00");
     }
@@ -297,9 +273,9 @@ mod tests {
         let color = RGB::from_hex_str("#11FF0066").unwrap();
 
         let hex_string = color.to_hex_str(
-            LetterCase::Uppercase,
             OmitAlphaChannel::IfOpaque,
             ShorthandNotation::IfPossible,
+            LetterCase::Uppercase,
         );
         assert_eq!(hex_string, "#1F06");
     }
@@ -309,10 +285,34 @@ mod tests {
         let color = RGB::from_hex_str("#11FF00AB").unwrap();
 
         let hex_string = color.to_hex_str(
-            LetterCase::Uppercase,
             OmitAlphaChannel::IfOpaque,
             ShorthandNotation::IfPossible,
+            LetterCase::Uppercase,
         );
         assert_eq!(hex_string, "#11FF00AB");
+    }
+
+    #[test]
+    fn to_hex_str_uppercase() {
+        let color = RGB::from_hex_str("#11FF0A").unwrap();
+
+        let hex_string = color.to_hex_str(
+            OmitAlphaChannel::IfOpaque,
+            ShorthandNotation::Never,
+            LetterCase::Uppercase,
+        );
+        assert_eq!(hex_string, "#11FF0A");
+    }
+
+    #[test]
+    fn to_hex_str_lowercase() {
+        let color = RGB::from_hex_str("#11FF0A").unwrap();
+
+        let hex_string = color.to_hex_str(
+            OmitAlphaChannel::IfOpaque,
+            ShorthandNotation::Never,
+            LetterCase::Lowercase,
+        );
+        assert_eq!(hex_string, "#11ff0a");
     }
 }

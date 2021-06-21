@@ -129,7 +129,7 @@ pub enum OmitAlphaChannel {
 
 impl Display for RGB {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_str(&self.to_hex_str(LetterCase::Uppercase, OmitAlphaChannel::IfOpaque, ShorthandNotation::Never))
+        f.write_str(&self.to_hex_str(OmitAlphaChannel::IfOpaque, ShorthandNotation::Never, LetterCase::Uppercase))
     }
 }
 
