@@ -86,11 +86,11 @@ fn relative_luminance(color: &RGB) -> Float {
         + 0.0722 * transform_color_value(color.blue_srgb().clone());
 }
 
-fn transform_color_value(rgbs_val: Float) -> Float {
-    if rgbs_val <= 0.03928 {
-        rgbs_val / 12.92
+fn transform_color_value(srgb_val: Float) -> Float {
+    if srgb_val <= 0.03928 {
+        srgb_val / 12.92
     } else {
-        let tmp: Float = (rgbs_val + 0.055) / 1.055;
+        let tmp: Float = (srgb_val + 0.055) / 1.055;
         tmp.pow(2.4)
     }
 }
