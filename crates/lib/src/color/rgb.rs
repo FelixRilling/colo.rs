@@ -6,7 +6,7 @@ use rug::Float;
 pub use crate::color::rgb::hex_str::{LetterCase, ShorthandNotation};
 pub use crate::color::rgb::rgb_str::ChannelUnit;
 use crate::color::rgb::srgb::{RGB_CHANNEL_MAX, SRGB_CHANNEL_MAX, SRGB_CHANNEL_MIN};
-pub use crate::color::rgb::srgb::DEFAULT_SRGB_PRECISION;
+pub use crate::color::rgb::srgb::{DEFAULT_SRGB_PRECISION, SrgbChannel};
 
 mod srgb;
 mod css_types;
@@ -17,50 +17,50 @@ mod hex_str;
 /// Note: internally stores values as sRGB channels which are not limited to 8 bits.
 #[derive(Debug, PartialEq)]
 pub struct RGB {
-    red: Float,
-    green: Float,
-    blue: Float,
-    alpha: Float,
+    red: SrgbChannel,
+    green: SrgbChannel,
+    blue: SrgbChannel,
+    alpha: SrgbChannel,
 }
 
 // TODO: Add method to check if color fits in RGB (8bit) channels and a method to round to the nearest one that can.
 impl RGB {
     pub fn red(&self) -> u8 {
-        srgb::srgb_to_rgb(&self.red)
+        self.red.to_u8()
     }
 
     pub fn green(&self) -> u8 {
-        srgb::srgb_to_rgb(&self.green)
+        self.green.to_u8()
     }
 
     pub fn blue(&self) -> u8 {
-        srgb::srgb_to_rgb(&self.blue)
+        self.blue.to_u8()
     }
 
     pub fn alpha(&self) -> u8 {
-        srgb::srgb_to_rgb(&self.alpha)
+        self.alpha.to_u8()
     }
 
 
     pub fn red_srgb(&self) -> &Float {
-        &self.red
+        self.red.value()
     }
 
     pub fn green_srgb(&self) -> &Float {
-        &self.green
+        self.green.value()
     }
 
     pub fn blue_srgb(&self) -> &Float {
-        &self.blue
+        self.blue.value()
     }
 
     pub fn alpha_srgb(&self) -> &Float {
-        &self.alpha
+        self.alpha.value()
     }
 
 
     pub fn is_opaque(&self) -> bool {
-        self.alpha == srgb::srgb_max()
+        *self.alpha.value() == srgb::srgb_max()
     }
 
 
@@ -98,10 +98,10 @@ impl RGB {
         assert!(alpha >= SRGB_CHANNEL_MIN && alpha <= SRGB_CHANNEL_MAX);
 
         RGB {
-            red,
-            green,
-            blue,
-            alpha,
+            red: SrgbChannel::with_val(red),
+            green: SrgbChannel::with_val(green),
+            blue: SrgbChannel::with_val(blue),
+            alpha: SrgbChannel::with_val(alpha),
         }
     }
 }

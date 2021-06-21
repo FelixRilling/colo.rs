@@ -24,3 +24,31 @@ pub(crate) fn rgb_to_srgb(rgb_val: u8) -> Float {
 pub(crate) fn srgb_max() -> Float {
     Float::with_val(DEFAULT_SRGB_PRECISION, SRGB_CHANNEL_MAX)
 }
+
+/// sRGB channel. Can hold value from 0 to 1.
+#[derive(Debug, PartialEq)]
+pub struct SrgbChannel {
+    value: Float,
+}
+
+impl SrgbChannel {
+    /// Creates a new channel with the given value.
+    pub fn with_val(value: Float) -> SrgbChannel {
+        SrgbChannel { value }
+    }
+
+    /// Creates a new channel based on the given RGB value.
+    pub fn from_u8(value: u8) -> SrgbChannel {
+        SrgbChannel::with_val(rgb_to_srgb(value))
+    }
+
+    /// Returns the channel value as-is.
+    pub fn value(&self) -> &Float {
+        &self.value
+    }
+
+    /// Returns the closest RGB value to the channel value. Note that precision may be lost.
+    pub fn to_u8(&self) -> u8 {
+        srgb_to_rgb(self.value())
+    }
+}
