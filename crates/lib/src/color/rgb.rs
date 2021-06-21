@@ -4,31 +4,14 @@ use std::fmt::Display;
 use rug::Float;
 
 pub use crate::color::rgb::hex_str::{LetterCase, ShorthandNotation};
-pub use crate::color::rgb::rgb_str::{ChannelUnit};
+pub use crate::color::rgb::rgb_str::ChannelUnit;
+use crate::color::rgb::srgb::{RGB_CHANNEL_MAX, SRGB_CHANNEL_MAX, SRGB_CHANNEL_MIN};
+pub use crate::color::rgb::srgb::DEFAULT_SRGB_PRECISION;
 
+mod srgb;
 mod css_types;
 mod rgb_str;
 mod hex_str;
-
-/// Floating point precision used when creating floats internally.
-/// Chosen arbitrarily, but the current value seems to work based on most exploration tests.
-pub const DEFAULT_SRGB_PRECISION: u32 = 64;
-
-fn srgb_to_rgb(srgb_val: &Float) -> u8 {
-    debug_assert!(srgb_val >= &0 && srgb_val <= &1);
-
-    let rgb_val_float = srgb_val.clone() * u8::MAX;
-    rgb_val_float.to_f32().ceil() as u8
-}
-
-fn rgb_to_srgb(rgb_val: u8) -> Float {
-    let rbg_val_float = Float::with_val(DEFAULT_SRGB_PRECISION, rgb_val);
-    rbg_val_float / u8::MAX
-}
-
-fn srgb_max() -> Float {
-    Float::with_val(DEFAULT_SRGB_PRECISION, 1)
-}
 
 /// Represents a single RGB color with an alpha channel.
 /// Note: internally stores values as sRGB channels which are not limited to 8 bits.
@@ -40,21 +23,22 @@ pub struct RGB {
     alpha: Float,
 }
 
+// TODO: Add method to check if color fits in RGB (8bit) channels and a method to round to the nearest one that can.
 impl RGB {
     pub fn red(&self) -> u8 {
-        srgb_to_rgb(&self.red)
+        srgb::srgb_to_rgb(&self.red)
     }
 
     pub fn green(&self) -> u8 {
-        srgb_to_rgb(&self.green)
+        srgb::srgb_to_rgb(&self.green)
     }
 
     pub fn blue(&self) -> u8 {
-        srgb_to_rgb(&self.blue)
+        srgb::srgb_to_rgb(&self.blue)
     }
 
     pub fn alpha(&self) -> u8 {
-        srgb_to_rgb(&self.alpha)
+        srgb::srgb_to_rgb(&self.alpha)
     }
 
 
@@ -76,13 +60,13 @@ impl RGB {
 
 
     pub fn is_opaque(&self) -> bool {
-        self.alpha == srgb_max()
+        self.alpha == srgb::srgb_max()
     }
 
 
     /// Creates a RGB instance based on the given values. Alpha channel is fully opaque.
     pub fn from_rgb(red: u8, green: u8, blue: u8) -> RGB {
-        RGB::from_rgb_with_alpha(red, green, blue, u8::MAX)
+        RGB::from_rgb_with_alpha(red, green, blue, RGB_CHANNEL_MAX)
     }
 
     /// Creates a RGB instance based on the given sRGB values. Alpha channel is fully opaque.
@@ -90,16 +74,16 @@ impl RGB {
     /// # Panics
     /// If channel values are outside range 0 to 1.
     pub fn from_srgb(red: Float, green: Float, blue: Float) -> RGB {
-        RGB::from_srgb_with_alpha(red, green, blue, srgb_max())
+        RGB::from_srgb_with_alpha(red, green, blue, srgb::srgb_max())
     }
 
     /// Creates a RGB instance with custom alpha channel based on the given values.
     pub fn from_rgb_with_alpha(red: u8, green: u8, blue: u8, alpha: u8) -> RGB {
         RGB::from_srgb_with_alpha(
-            rgb_to_srgb(red),
-            rgb_to_srgb(green),
-            rgb_to_srgb(blue),
-            rgb_to_srgb(alpha),
+            srgb::rgb_to_srgb(red),
+            srgb::rgb_to_srgb(green),
+            srgb::rgb_to_srgb(blue),
+            srgb::rgb_to_srgb(alpha),
         )
     }
 
@@ -108,10 +92,10 @@ impl RGB {
     /// # Panics
     /// If channel values are outside range 0 to 1.
     pub fn from_srgb_with_alpha(red: Float, green: Float, blue: Float, alpha: Float) -> RGB {
-        assert!(red >= 0 && red <= 1);
-        assert!(green >= 0 && green <= 1);
-        assert!(blue >= 0 && blue <= 1);
-        assert!(alpha >= 0 && alpha <= 1);
+        assert!(red >= SRGB_CHANNEL_MIN && red <= SRGB_CHANNEL_MAX);
+        assert!(green >= SRGB_CHANNEL_MIN && green <= SRGB_CHANNEL_MAX);
+        assert!(blue >= SRGB_CHANNEL_MIN && blue <= SRGB_CHANNEL_MAX);
+        assert!(alpha >= SRGB_CHANNEL_MIN && alpha <= SRGB_CHANNEL_MAX);
 
         RGB {
             red,

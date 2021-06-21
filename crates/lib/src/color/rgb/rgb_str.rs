@@ -4,6 +4,7 @@ use rug::Float;
 use crate::color::rgb::css_types::{format_number, format_percentage, is_percentage, parse_number, parse_percentage};
 use crate::color::rgb::OmitAlphaChannel;
 use crate::color::rgb::RGB;
+use crate::color::rgb::srgb::{RGB_CHANNEL_MAX, SRGB_CHANNEL_MAX, SRGB_CHANNEL_MIN};
 use crate::error::ParsingError;
 
 fn parse_color_channel(seq: &str) -> Result<Float, ParsingError> {
@@ -11,9 +12,9 @@ fn parse_color_channel(seq: &str) -> Result<Float, ParsingError> {
     if is_percentage(seq) {
         channel_val = parse_percentage(&seq)?;
     } else {
-        channel_val = parse_number(seq)? / u8::MAX;
+        channel_val = parse_number(seq)? / RGB_CHANNEL_MAX;
     }
-    Ok(channel_val.clamp(&0, &1))
+    Ok(channel_val.clamp(&SRGB_CHANNEL_MIN, &SRGB_CHANNEL_MAX))
 }
 
 // https://www.w3.org/TR/css-color-4/#typedef-alpha-value
@@ -25,13 +26,13 @@ fn parse_alpha_channel(seq: &str) -> Result<Float, ParsingError> {
         // When parsing the alpha channel, the value ranges from 0 to 1 already.
         channel_val = parse_number(seq)?;
     }
-    Ok(channel_val.clamp(&0, &1))
+    Ok(channel_val.clamp(&SRGB_CHANNEL_MIN, &SRGB_CHANNEL_MAX))
 }
 
 
 fn format_color_channel(color_channel: Float, unit: &ChannelUnit) -> String {
     match unit {
-        ChannelUnit::Number => format_number(color_channel * u8::MAX),
+        ChannelUnit::Number => format_number(color_channel * RGB_CHANNEL_MAX),
         ChannelUnit::Percentage => format_percentage(color_channel)
     }
 }
@@ -131,8 +132,8 @@ mod tests {
 
         assert_eq!(color.red(), 0);
         assert_eq!(color.green(), 255);
-        assert_eq!(color.blue(), u8::MAX);
-        assert_eq!(color.alpha(), u8::MAX);
+        assert_eq!(color.blue(), 255);
+        assert_eq!(color.alpha(), 255);
     }
 
     #[test]
@@ -141,8 +142,8 @@ mod tests {
 
         assert_eq!(color.red(), 0);
         assert_eq!(color.green(), 255);
-        assert_eq!(color.blue(), u8::MIN);
-        assert_eq!(color.alpha(), u8::MAX);
+        assert_eq!(color.blue(), 0);
+        assert_eq!(color.alpha(), 255);
     }
 
     #[test]
@@ -152,7 +153,7 @@ mod tests {
         assert_eq!(color.red(), 0);
         assert_eq!(color.green(), 255);
         assert_eq!(color.blue(), 128);
-        assert_eq!(color.alpha(), u8::MAX);
+        assert_eq!(color.alpha(), 255);
     }
 
     #[test]
@@ -162,7 +163,7 @@ mod tests {
         assert_eq!(color.red(), 0);
         assert_eq!(color.green(), 255);
         assert_eq!(color.blue(), 128);
-        assert_eq!(color.alpha(), u8::MAX);
+        assert_eq!(color.alpha(), 255);
     }
 
     #[test]
@@ -172,7 +173,7 @@ mod tests {
         assert_eq!(color.red(), 0);
         assert_eq!(color.green(), 255);
         assert_eq!(color.blue(), 128);
-        assert_eq!(color.alpha(), u8::MAX);
+        assert_eq!(color.alpha(), 255);
     }
 
     #[test]
@@ -182,7 +183,7 @@ mod tests {
         assert_eq!(color.red(), 0);
         assert_eq!(color.green(), 255);
         assert_eq!(color.blue(), 128);
-        assert_eq!(color.alpha(), u8::MIN);
+        assert_eq!(color.alpha(), 0);
     }
 
     #[test]
@@ -202,7 +203,7 @@ mod tests {
         assert_eq!(color.red(), 0);
         assert_eq!(color.green(), 255);
         assert_eq!(color.blue(), 128);
-        assert_eq!(color.alpha(), u8::MAX);
+        assert_eq!(color.alpha(), 255);
     }
 
     #[test]
@@ -212,7 +213,7 @@ mod tests {
         assert_eq!(color.red(), 0);
         assert_eq!(color.green(), 255);
         assert_eq!(color.blue(), 128);
-        assert_eq!(color.alpha(), u8::MIN);
+        assert_eq!(color.alpha(), 0);
     }
 
     #[test]
@@ -231,8 +232,8 @@ mod tests {
 
         assert_eq!(color.red(), 0);
         assert_eq!(color.green(), 255);
-        assert_eq!(color.blue(), u8::MAX);
-        assert_eq!(color.alpha(), u8::MAX);
+        assert_eq!(color.blue(), 255);
+        assert_eq!(color.alpha(), 255);
     }
 
     #[test]
@@ -241,8 +242,8 @@ mod tests {
 
         assert_eq!(color.red(), 0);
         assert_eq!(color.green(), 255);
-        assert_eq!(color.blue(), u8::MIN);
-        assert_eq!(color.alpha(), u8::MAX);
+        assert_eq!(color.blue(), 0);
+        assert_eq!(color.alpha(), 255);
     }
 
     #[test]
@@ -252,7 +253,7 @@ mod tests {
         assert_eq!(color.red(), 0);
         assert_eq!(color.green(), 255);
         assert_eq!(color.blue(), 128);
-        assert_eq!(color.alpha(), u8::MAX);
+        assert_eq!(color.alpha(), 255);
     }
 
     #[test]
@@ -262,7 +263,7 @@ mod tests {
         assert_eq!(color.red(), 0);
         assert_eq!(color.green(), 255);
         assert_eq!(color.blue(), 128);
-        assert_eq!(color.alpha(), u8::MAX);
+        assert_eq!(color.alpha(), 255);
     }
 
     #[test]

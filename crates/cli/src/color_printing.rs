@@ -3,7 +3,8 @@ use std::io::Write;
 use rug::Float;
 use termcolor::{Color, ColorSpec, StandardStream, WriteColor};
 
-use color_utils::color::rgb::{DEFAULT_SRGB_PRECISION, RGB};
+use color_utils::color::rgb::DEFAULT_SRGB_PRECISION;
+use color_utils::color::rgb::RGB;
 use color_utils::contrast::contrast_ratio_val;
 
 fn rgb_as_term_color(color: &RGB) -> Color {

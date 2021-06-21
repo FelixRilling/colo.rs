@@ -163,7 +163,7 @@ mod tests {
         assert_eq!(color.red(), u8::from_str_radix("11", 16).unwrap());
         assert_eq!(color.green(), u8::from_str_radix("FF", 16).unwrap());
         assert_eq!(color.blue(), u8::from_str_radix("AA", 16).unwrap());
-        assert_eq!(color.alpha(), u8::MAX);
+        assert_eq!(color.alpha(), 255);
     }
 
     #[test]
@@ -183,7 +183,7 @@ mod tests {
         assert_eq!(color.red(), u8::from_str_radix("11", 16).unwrap());
         assert_eq!(color.green(), u8::from_str_radix("FF", 16).unwrap());
         assert_eq!(color.blue(), u8::from_str_radix("0A", 16).unwrap());
-        assert_eq!(color.alpha(), u8::MAX);
+        assert_eq!(color.alpha(), 255);
     }
 
     #[test]
