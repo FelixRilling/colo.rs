@@ -11,8 +11,8 @@ mod css_types;
 mod rgb_str;
 mod hex_str;
 
-/// Represents a single RGB color with an alpha channel.
-/// Note: internally stores values as sRGB channels which are not limited to 8 bits.
+/// Represents a single [RGB](https://en.wikipedia.org/wiki/RGB_color_space) color with an alpha channel.
+/// Note: internally stores values as sRGB channels and are not limited to 8 bits.
 #[derive(Debug, PartialEq)]
 pub struct RGB {
     red: SrgbChannel,

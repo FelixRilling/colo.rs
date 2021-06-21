@@ -13,7 +13,7 @@ pub(crate) fn srgb_max() -> Float {
     Float::with_val(DEFAULT_SRGB_PRECISION, SRGB_CHANNEL_MAX)
 }
 
-/// sRGB channel. Can hold value from 0 to 1.
+/// [sRGB](https://en.wikipedia.org/wiki/SRGB) channel. Can hold value from 0 to 1.
 #[derive(Debug, PartialEq)]
 pub struct SrgbChannel {
     value: Float,
