@@ -4,7 +4,9 @@ use std::fmt::Display;
 use rug::Float;
 
 pub use crate::color::rgb::hex_str::{LetterCase, ShorthandNotation};
+pub use crate::color::rgb::rgb_str::{ChannelUnit};
 
+mod css_types;
 mod rgb_str;
 mod hex_str;
 
