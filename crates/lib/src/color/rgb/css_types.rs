@@ -11,7 +11,7 @@ pub(crate) fn parse_number(seq: &str) -> Result<Float, ParsingError> {
 
 /// Formats a float as a CSS number (e.g. 0.6 as '0.6').
 pub(crate) fn format_number(val: Float) -> String {
-    format!("{}", val.to_f64())
+    format!("{}", val.to_f32())
 }
 
 
@@ -33,5 +33,5 @@ pub(crate) fn parse_percentage(seq: &str) -> Result<Float, ParsingError> {
 /// Formats a float as a CSS percentage (e.g. 0.6 as '60%').
 pub(crate) fn format_percentage(val: Float) -> String {
     let tmp: Float = val * 100;
-    format!("{}%", tmp.to_f64())
+    format!("{}%", tmp.to_f32())
 }

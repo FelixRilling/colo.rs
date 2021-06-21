@@ -18,7 +18,7 @@ fn srgb_to_rgb(srgb_val: &Float) -> u8 {
     debug_assert!(srgb_val >= &0 && srgb_val <= &1);
 
     let rgb_val_float = srgb_val.clone() * u8::MAX;
-    rgb_val_float.to_f64().ceil() as u8
+    rgb_val_float.to_f32().ceil() as u8
 }
 
 fn rgb_to_srgb(rgb_val: u8) -> Float {

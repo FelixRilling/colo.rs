@@ -184,9 +184,9 @@ mod tests {
     fn contrast_ratio_val_same_color() {
         let black = RGB::from_hex_str("#000000").unwrap();
 
-        let expected: f64 = 1.0;
+        let expected = 1.0;
         let actual = contrast_ratio_val(&black, &black);
-        assert_eq!(actual.to_f64(), expected)
+        assert_eq!(actual.to_f32(), expected)
     }
 
     #[test]
@@ -194,9 +194,9 @@ mod tests {
         let black = RGB::from_hex_str("#000000").unwrap();
         let white = RGB::from_hex_str("#FFFFFF").unwrap();
 
-        let expected: f64 = 21.0;
+        let expected = 21.0;
         let actual = contrast_ratio_val(&black, &white);
-        assert_eq!(actual.to_f64(), expected)
+        assert_eq!(actual.to_f32(), expected)
     }
 
     #[test]
