@@ -9,12 +9,6 @@ pub(crate) fn parse_number(seq: &str) -> Result<Float, ParsingError> {
     Ok(Float::with_val(DEFAULT_SRGB_PRECISION, Float::parse(seq)?))
 }
 
-/// Formats a float as a CSS number (e.g. 0.6 as '0.6').
-pub(crate) fn format_number(val: Float) -> String {
-    format!("{}", val.to_f32())
-}
-
-
 /// Checks if something can be parsed as a CSS percentage.
 pub(crate) fn is_percentage(seq: &str) -> bool {
     seq.ends_with('%')
@@ -30,8 +24,15 @@ pub(crate) fn parse_percentage(seq: &str) -> Result<Float, ParsingError> {
     Ok(percentage_number / 100)
 }
 
+
+/// Formats a float as a CSS number (e.g. 0.6 as '0.6').
+pub(crate) fn format_number(val: &Float) -> String {
+    format!("{}", val.to_f32())
+}
+
+
 /// Formats a float as a CSS percentage (e.g. 0.6 as '60%').
-pub(crate) fn format_percentage(val: Float) -> String {
-    let tmp: Float = val * 100;
+pub(crate) fn format_percentage(val: &Float) -> String {
+    let tmp: Float = val.clone() * 100;
     format!("{}%", tmp.to_f32())
 }

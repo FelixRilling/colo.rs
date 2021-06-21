@@ -81,9 +81,9 @@ pub fn contrast_ratio_val(color_1: &RGB, color_2: &RGB) -> Float {
 }
 
 fn relative_luminance(color: &RGB) -> Float {
-    return 0.2126 * transform_color_value(color.red_srgb().clone())
-        + 0.7152 * transform_color_value(color.green_srgb().clone())
-        + 0.0722 * transform_color_value(color.blue_srgb().clone());
+    return 0.2126 * transform_color_value(color.red().value().clone())
+        + 0.7152 * transform_color_value(color.green().value().clone())
+        + 0.0722 * transform_color_value(color.blue().value().clone());
 }
 
 fn transform_color_value(srgb_val: Float) -> Float {

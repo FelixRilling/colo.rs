@@ -1,4 +1,4 @@
-use crate::color::rgb::{OmitAlphaChannel, RGB};
+use crate::color::rgb::{OmitAlphaChannel, RGB, SrgbChannel};
 use crate::error::ParsingError;
 
 /// Represents case of hexadecimal letters.
@@ -29,6 +29,16 @@ fn shorthand_channel(channel_hex_str: &str) -> String {
 }
 
 
+fn parse_shorthand_hexadecimal_channel(seq: &str) -> Result<SrgbChannel, ParsingError> {
+    let expanded_seq = seq.repeat(2);
+    Ok(SrgbChannel::from_u8(u8::from_str_radix(&expanded_seq, 16)?))
+}
+
+fn parse_hexadecimal_channel(seq: &str) -> Result<SrgbChannel, ParsingError> {
+    Ok(SrgbChannel::from_u8(u8::from_str_radix(seq, 16)?))
+}
+
+
 impl RGB {
     /// Parses a CSS-style hexadecimal representation of an RGB color.
     /// For a list of supported formats, see <https://www.w3.org/TR/css-color-4/#hex-notation>.
@@ -47,29 +57,29 @@ impl RGB {
         match len {
             3 | 4 => {
                 // In the shorthand notation, the hex digit is simply repeated, so e.g "F" becomes "FF".
-                let red = u8::from_str_radix(&hex_digits[0..1].repeat(2), 16)?;
-                let green = u8::from_str_radix(&hex_digits[1..2].repeat(2), 16)?;
-                let blue = u8::from_str_radix(&hex_digits[2..3].repeat(2), 16)?;
+                let red = parse_shorthand_hexadecimal_channel(&hex_digits[0..1])?;
+                let green = parse_shorthand_hexadecimal_channel(&hex_digits[1..2])?;
+                let blue = parse_shorthand_hexadecimal_channel(&hex_digits[2..3])?;
 
                 match len {
-                    3 => Ok(RGB::from_rgb(red, green, blue)),
+                    3 => Ok(RGB::from_channels(red, green, blue)),
                     4 => {
-                        let alpha = u8::from_str_radix(&hex_digits[3..4].repeat(2), 16)?;
-                        Ok(RGB::from_rgb_with_alpha(red, green, blue, alpha))
+                        let alpha = parse_shorthand_hexadecimal_channel(&hex_digits[3..4])?;
+                        Ok(RGB::from_channels_with_alpha(red, green, blue, alpha))
                     }
                     _ => unreachable!()
                 }
             }
             6 | 8 => {
-                let red = u8::from_str_radix(&hex_digits[0..2], 16)?;
-                let green = u8::from_str_radix(&hex_digits[2..4], 16)?;
-                let blue = u8::from_str_radix(&hex_digits[4..6], 16)?;
+                let red = parse_hexadecimal_channel(&hex_digits[0..2])?;
+                let green = parse_hexadecimal_channel(&hex_digits[2..4])?;
+                let blue = parse_hexadecimal_channel(&hex_digits[4..6])?;
 
                 match len {
-                    6 => Ok(RGB::from_rgb(red, green, blue)),
+                    6 => Ok(RGB::from_channels(red, green, blue)),
                     8 => {
-                        let alpha = u8::from_str_radix(&hex_digits[6..8], 16)?;
-                        Ok(RGB::from_rgb_with_alpha(red, green, blue, alpha))
+                        let alpha = parse_hexadecimal_channel(&hex_digits[6..8])?;
+                        Ok(RGB::from_channels_with_alpha(red, green, blue, alpha))
                     }
                     _ => unreachable!()
                 }
@@ -83,13 +93,13 @@ impl RGB {
     /// Note that values more precise than the 255 bit supported for the hexadecimal notation will lose precision in the output.
     /// RGB string notation should be used instead for these.
     pub fn to_hex_str(&self, omit_alpha_channel: OmitAlphaChannel, shorthand_notation: ShorthandNotation, letter_case: LetterCase) -> String {
-        let mut red = format!("{:02X}", self.red());
-        let mut green = format!("{:02X}", self.green());
-        let mut blue = format!("{:02X}", self.blue());
+        let mut red = format!("{:02X}", self.red().to_u8());
+        let mut green = format!("{:02X}", self.green().to_u8());
+        let mut blue = format!("{:02X}", self.blue().to_u8());
         let mut alpha_opt = if self.is_opaque() && omit_alpha_channel == OmitAlphaChannel::IfOpaque {
             None
         } else {
-            Some(format!("{:02X}", self.alpha()))
+            Some(format!("{:02X}", self.alpha().to_u8()))
         };
 
         if shorthand_notation == ShorthandNotation::IfPossible {
@@ -160,40 +170,40 @@ mod tests {
     fn from_hex_str_short_notation() {
         let color = RGB::from_hex_str("#1FA").unwrap();
 
-        assert_eq!(color.red(), u8::from_str_radix("11", 16).unwrap());
-        assert_eq!(color.green(), u8::from_str_radix("FF", 16).unwrap());
-        assert_eq!(color.blue(), u8::from_str_radix("AA", 16).unwrap());
-        assert_eq!(color.alpha(), 255);
+        assert_eq!(color.red().to_u8(), u8::from_str_radix("11", 16).unwrap());
+        assert_eq!(color.green().to_u8(), u8::from_str_radix("FF", 16).unwrap());
+        assert_eq!(color.blue().to_u8(), u8::from_str_radix("AA", 16).unwrap());
+        assert_eq!(color.alpha().to_u8(), 255);
     }
 
     #[test]
     fn from_hex_str_short_notation_alpha() {
         let color = RGB::from_hex_str("#1FAD").unwrap();
 
-        assert_eq!(color.red(), u8::from_str_radix("11", 16).unwrap());
-        assert_eq!(color.green(), u8::from_str_radix("FF", 16).unwrap());
-        assert_eq!(color.blue(), u8::from_str_radix("AA", 16).unwrap());
-        assert_eq!(color.alpha(), u8::from_str_radix("DD", 16).unwrap());
+        assert_eq!(color.red().to_u8(), u8::from_str_radix("11", 16).unwrap());
+        assert_eq!(color.green().to_u8(), u8::from_str_radix("FF", 16).unwrap());
+        assert_eq!(color.blue().to_u8(), u8::from_str_radix("AA", 16).unwrap());
+        assert_eq!(color.alpha().to_u8(), u8::from_str_radix("DD", 16).unwrap());
     }
 
     #[test]
     fn from_hex_str_long_notation() {
         let color = RGB::from_hex_str("#11FF0A").unwrap();
 
-        assert_eq!(color.red(), u8::from_str_radix("11", 16).unwrap());
-        assert_eq!(color.green(), u8::from_str_radix("FF", 16).unwrap());
-        assert_eq!(color.blue(), u8::from_str_radix("0A", 16).unwrap());
-        assert_eq!(color.alpha(), 255);
+        assert_eq!(color.red().to_u8(), u8::from_str_radix("11", 16).unwrap());
+        assert_eq!(color.green().to_u8(), u8::from_str_radix("FF", 16).unwrap());
+        assert_eq!(color.blue().to_u8(), u8::from_str_radix("0A", 16).unwrap());
+        assert_eq!(color.alpha().to_u8(), 255);
     }
 
     #[test]
     fn from_hex_str_long_notation_alpha() {
         let color = RGB::from_hex_str("#11FF0AD4").unwrap();
 
-        assert_eq!(color.red(), u8::from_str_radix("11", 16).unwrap());
-        assert_eq!(color.green(), u8::from_str_radix("FF", 16).unwrap());
-        assert_eq!(color.blue(), u8::from_str_radix("0A", 16).unwrap());
-        assert_eq!(color.alpha(), u8::from_str_radix("D4", 16).unwrap());
+        assert_eq!(color.red().to_u8(), u8::from_str_radix("11", 16).unwrap());
+        assert_eq!(color.green().to_u8(), u8::from_str_radix("FF", 16).unwrap());
+        assert_eq!(color.blue().to_u8(), u8::from_str_radix("0A", 16).unwrap());
+        assert_eq!(color.alpha().to_u8(), u8::from_str_radix("D4", 16).unwrap());
     }
 
     #[test]

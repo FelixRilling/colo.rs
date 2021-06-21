@@ -1,24 +1,24 @@
 use regex::Regex;
 use rug::Float;
 
+use crate::color::rgb::{OmitAlphaChannel, SrgbChannel};
 use crate::color::rgb::css_types::{format_number, format_percentage, is_percentage, parse_number, parse_percentage};
-use crate::color::rgb::OmitAlphaChannel;
 use crate::color::rgb::RGB;
 use crate::color::rgb::srgb::{RGB_CHANNEL_MAX, SRGB_CHANNEL_MAX, SRGB_CHANNEL_MIN};
 use crate::error::ParsingError;
 
-fn parse_color_channel(seq: &str) -> Result<Float, ParsingError> {
+fn parse_color_channel(seq: &str) -> Result<SrgbChannel, ParsingError> {
     let channel_val: Float;
     if is_percentage(seq) {
         channel_val = parse_percentage(&seq)?;
     } else {
         channel_val = parse_number(seq)? / RGB_CHANNEL_MAX;
     }
-    Ok(channel_val.clamp(&SRGB_CHANNEL_MIN, &SRGB_CHANNEL_MAX))
+    Ok(SrgbChannel::with_val(channel_val.clamp(&SRGB_CHANNEL_MIN, &SRGB_CHANNEL_MAX)))
 }
 
 // https://www.w3.org/TR/css-color-4/#typedef-alpha-value
-fn parse_alpha_channel(seq: &str) -> Result<Float, ParsingError> {
+fn parse_alpha_channel(seq: &str) -> Result<SrgbChannel, ParsingError> {
     let channel_val: Float;
     if is_percentage(seq) {
         channel_val = parse_percentage(&seq)?;
@@ -26,21 +26,21 @@ fn parse_alpha_channel(seq: &str) -> Result<Float, ParsingError> {
         // When parsing the alpha channel, the value ranges from 0 to 1 already.
         channel_val = parse_number(seq)?;
     }
-    Ok(channel_val.clamp(&SRGB_CHANNEL_MIN, &SRGB_CHANNEL_MAX))
+    Ok(SrgbChannel::with_val(channel_val.clamp(&SRGB_CHANNEL_MIN, &SRGB_CHANNEL_MAX)))
 }
 
 
-fn format_color_channel(color_channel: Float, unit: &ChannelUnit) -> String {
+fn format_color_channel(color_channel: &SrgbChannel, unit: &ChannelUnit) -> String {
     match unit {
-        ChannelUnit::Number => format_number(color_channel * RGB_CHANNEL_MAX),
-        ChannelUnit::Percentage => format_percentage(color_channel)
+        ChannelUnit::Number => format_number(&(color_channel.value().clone() * RGB_CHANNEL_MAX)),
+        ChannelUnit::Percentage => format_percentage(color_channel.value())
     }
 }
 
-fn format_alpha_channel(alpha_channel: Float, unit: &ChannelUnit) -> String {
+fn format_alpha_channel(alpha_channel: &SrgbChannel, unit: &ChannelUnit) -> String {
     match unit {
-        ChannelUnit::Number => format_number(alpha_channel),
-        ChannelUnit::Percentage => format_percentage(alpha_channel)
+        ChannelUnit::Number => format_number(alpha_channel.value()),
+        ChannelUnit::Percentage => format_percentage(alpha_channel.value())
     }
 }
 
@@ -86,10 +86,10 @@ impl RGB {
                 let blue = parse_color_channel(blue_str)?;
 
                 match captures.name("alpha") {
-                    None => Ok(RGB::from_srgb(red, green, blue)),
+                    None => Ok(RGB::from_channels(red, green, blue)),
                     Some(alpha_match) => {
                         let alpha = parse_alpha_channel(alpha_match.as_str())?;
-                        Ok(RGB::from_srgb_with_alpha(red, green, blue, alpha))
+                        Ok(RGB::from_channels_with_alpha(red, green, blue, alpha))
                     }
                 }
             }
@@ -98,13 +98,13 @@ impl RGB {
 
     /// Creates a CSS-style RGB string for this color.
     pub fn to_rgb_str(&self, omit_alpha_channel: OmitAlphaChannel, color_channel_unit: ChannelUnit, alpha_channel_unit: ChannelUnit) -> String {
-        let red = format_color_channel(self.red_srgb().clone(), &color_channel_unit);
-        let green = format_color_channel(self.green_srgb().clone(), &color_channel_unit);
-        let blue = format_color_channel(self.blue_srgb().clone(), &color_channel_unit);
+        let red = format_color_channel(self.red(), &color_channel_unit);
+        let green = format_color_channel(self.green(), &color_channel_unit);
+        let blue = format_color_channel(self.blue(), &color_channel_unit);
         let alpha_opt = if self.is_opaque() && omit_alpha_channel == OmitAlphaChannel::IfOpaque {
             None
         } else {
-            Some(format_alpha_channel(self.alpha_srgb().clone(), &alpha_channel_unit))
+            Some(format_alpha_channel(self.alpha(), &alpha_channel_unit))
         };
 
         alpha_opt.map_or_else(
@@ -130,160 +130,160 @@ mod tests {
     fn from_rgb_str_integer_above_range() {
         let color = RGB::from_rgb_str("rgb(0 255 999)").unwrap();
 
-        assert_eq!(color.red(), 0);
-        assert_eq!(color.green(), 255);
-        assert_eq!(color.blue(), 255);
-        assert_eq!(color.alpha(), 255);
+        assert_eq!(color.red().to_u8(), 0);
+        assert_eq!(color.green().to_u8(), 255);
+        assert_eq!(color.blue().to_u8(), 255);
+        assert_eq!(color.alpha().to_u8(), 255);
     }
 
     #[test]
     fn from_rgb_str_integer_below_range() {
         let color = RGB::from_rgb_str("rgb(0 255 -128)").unwrap();
 
-        assert_eq!(color.red(), 0);
-        assert_eq!(color.green(), 255);
-        assert_eq!(color.blue(), 0);
-        assert_eq!(color.alpha(), 255);
+        assert_eq!(color.red().to_u8(), 0);
+        assert_eq!(color.green().to_u8(), 255);
+        assert_eq!(color.blue().to_u8(), 0);
+        assert_eq!(color.alpha().to_u8(), 255);
     }
 
     #[test]
     fn from_rgb_str_integer() {
         let color = RGB::from_rgb_str("rgb(0 255 128)").unwrap();
 
-        assert_eq!(color.red(), 0);
-        assert_eq!(color.green(), 255);
-        assert_eq!(color.blue(), 128);
-        assert_eq!(color.alpha(), 255);
+        assert_eq!(color.red().to_u8(), 0);
+        assert_eq!(color.green().to_u8(), 255);
+        assert_eq!(color.blue().to_u8(), 128);
+        assert_eq!(color.alpha().to_u8(), 255);
     }
 
     #[test]
     fn from_rgb_str_integer_decimal() {
         let color = RGB::from_rgb_str("rgb(0 255 127.99)").unwrap();
 
-        assert_eq!(color.red(), 0);
-        assert_eq!(color.green(), 255);
-        assert_eq!(color.blue(), 128);
-        assert_eq!(color.alpha(), 255);
+        assert_eq!(color.red().to_u8(), 0);
+        assert_eq!(color.green().to_u8(), 255);
+        assert_eq!(color.blue().to_u8(), 128);
+        assert_eq!(color.alpha().to_u8(), 255);
     }
 
     #[test]
     fn from_rgb_str_integers_with_alpha_decimal_above_range() {
         let color = RGB::from_rgb_str("rgb(0 255 128 / 1.5)").unwrap();
 
-        assert_eq!(color.red(), 0);
-        assert_eq!(color.green(), 255);
-        assert_eq!(color.blue(), 128);
-        assert_eq!(color.alpha(), 255);
+        assert_eq!(color.red().to_u8(), 0);
+        assert_eq!(color.green().to_u8(), 255);
+        assert_eq!(color.blue().to_u8(), 128);
+        assert_eq!(color.alpha().to_u8(), 255);
     }
 
     #[test]
     fn from_rgb_str_integers_with_alpha_decimal_below_range() {
         let color = RGB::from_rgb_str("rgb(0 255 128 / -0.5)").unwrap();
 
-        assert_eq!(color.red(), 0);
-        assert_eq!(color.green(), 255);
-        assert_eq!(color.blue(), 128);
-        assert_eq!(color.alpha(), 0);
+        assert_eq!(color.red().to_u8(), 0);
+        assert_eq!(color.green().to_u8(), 255);
+        assert_eq!(color.blue().to_u8(), 128);
+        assert_eq!(color.alpha().to_u8(), 0);
     }
 
     #[test]
     fn from_rgb_str_integers_with_alpha_decimal() {
         let color = RGB::from_rgb_str("rgb(0 255 128 / 0.5)").unwrap();
 
-        assert_eq!(color.red(), 0);
-        assert_eq!(color.green(), 255);
-        assert_eq!(color.blue(), 128);
-        assert_eq!(color.alpha(), 128);
+        assert_eq!(color.red().to_u8(), 0);
+        assert_eq!(color.green().to_u8(), 255);
+        assert_eq!(color.blue().to_u8(), 128);
+        assert_eq!(color.alpha().to_u8(), 128);
     }
 
     #[test]
     fn from_rgb_str_integers_with_alpha_percentage_above_range() {
         let color = RGB::from_rgb_str("rgb(0 255 128 / 150%)").unwrap();
 
-        assert_eq!(color.red(), 0);
-        assert_eq!(color.green(), 255);
-        assert_eq!(color.blue(), 128);
-        assert_eq!(color.alpha(), 255);
+        assert_eq!(color.red().to_u8(), 0);
+        assert_eq!(color.green().to_u8(), 255);
+        assert_eq!(color.blue().to_u8(), 128);
+        assert_eq!(color.alpha().to_u8(), 255);
     }
 
     #[test]
     fn from_rgb_str_integers_with_alpha_percentage_below_range() {
         let color = RGB::from_rgb_str("rgb(0 255 128 / -50%)").unwrap();
 
-        assert_eq!(color.red(), 0);
-        assert_eq!(color.green(), 255);
-        assert_eq!(color.blue(), 128);
-        assert_eq!(color.alpha(), 0);
+        assert_eq!(color.red().to_u8(), 0);
+        assert_eq!(color.green().to_u8(), 255);
+        assert_eq!(color.blue().to_u8(), 128);
+        assert_eq!(color.alpha().to_u8(), 0);
     }
 
     #[test]
     fn from_rgb_str_integers_with_alpha_percentage() {
         let color = RGB::from_rgb_str("rgb(0 255 128 / 50%)").unwrap();
 
-        assert_eq!(color.red(), 0);
-        assert_eq!(color.green(), 255);
-        assert_eq!(color.blue(), 128);
-        assert_eq!(color.alpha(), 128);
+        assert_eq!(color.red().to_u8(), 0);
+        assert_eq!(color.green().to_u8(), 255);
+        assert_eq!(color.blue().to_u8(), 128);
+        assert_eq!(color.alpha().to_u8(), 128);
     }
 
     #[test]
     fn from_rgb_str_percentage_above_range() {
         let color = RGB::from_rgb_str("rgb(0% 100% 150%)").unwrap();
 
-        assert_eq!(color.red(), 0);
-        assert_eq!(color.green(), 255);
-        assert_eq!(color.blue(), 255);
-        assert_eq!(color.alpha(), 255);
+        assert_eq!(color.red().to_u8(), 0);
+        assert_eq!(color.green().to_u8(), 255);
+        assert_eq!(color.blue().to_u8(), 255);
+        assert_eq!(color.alpha().to_u8(), 255);
     }
 
     #[test]
     fn from_rgb_str_percentage_below_range() {
         let color = RGB::from_rgb_str("rgb(0% 100% -50%)").unwrap();
 
-        assert_eq!(color.red(), 0);
-        assert_eq!(color.green(), 255);
-        assert_eq!(color.blue(), 0);
-        assert_eq!(color.alpha(), 255);
+        assert_eq!(color.red().to_u8(), 0);
+        assert_eq!(color.green().to_u8(), 255);
+        assert_eq!(color.blue().to_u8(), 0);
+        assert_eq!(color.alpha().to_u8(), 255);
     }
 
     #[test]
     fn from_rgb_str_percentage() {
         let color = RGB::from_rgb_str("rgb(0% 100% 50%)").unwrap();
 
-        assert_eq!(color.red(), 0);
-        assert_eq!(color.green(), 255);
-        assert_eq!(color.blue(), 128);
-        assert_eq!(color.alpha(), 255);
+        assert_eq!(color.red().to_u8(), 0);
+        assert_eq!(color.green().to_u8(), 255);
+        assert_eq!(color.blue().to_u8(), 128);
+        assert_eq!(color.alpha().to_u8(), 255);
     }
 
     #[test]
     fn from_rgb_str_percentage_decimal() {
         let color = RGB::from_rgb_str("rgb(0% 100% 49.99%)").unwrap();
 
-        assert_eq!(color.red(), 0);
-        assert_eq!(color.green(), 255);
-        assert_eq!(color.blue(), 128);
-        assert_eq!(color.alpha(), 255);
+        assert_eq!(color.red().to_u8(), 0);
+        assert_eq!(color.green().to_u8(), 255);
+        assert_eq!(color.blue().to_u8(), 128);
+        assert_eq!(color.alpha().to_u8(), 255);
     }
 
     #[test]
     fn from_rgb_str_percentage_with_alpha_decimal() {
         let color = RGB::from_rgb_str("rgb(0% 100% 50% / 0.5)").unwrap();
 
-        assert_eq!(color.red(), 0);
-        assert_eq!(color.green(), 255);
-        assert_eq!(color.blue(), 128);
-        assert_eq!(color.alpha(), 128);
+        assert_eq!(color.red().to_u8(), 0);
+        assert_eq!(color.green().to_u8(), 255);
+        assert_eq!(color.blue().to_u8(), 128);
+        assert_eq!(color.alpha().to_u8(), 128);
     }
 
     #[test]
     fn from_rgb_str_percentage_with_alpha_percentage() {
         let color = RGB::from_rgb_str("rgb(0% 100% 50% / 50%)").unwrap();
 
-        assert_eq!(color.red(), 0);
-        assert_eq!(color.green(), 255);
-        assert_eq!(color.blue(), 128);
-        assert_eq!(color.alpha(), 128);
+        assert_eq!(color.red().to_u8(), 0);
+        assert_eq!(color.green().to_u8(), 255);
+        assert_eq!(color.blue().to_u8(), 128);
+        assert_eq!(color.alpha().to_u8(), 128);
     }
 
     #[test]
@@ -297,7 +297,11 @@ mod tests {
 
     #[test]
     fn to_rgb_str_omit_alpha_channel_opaque() {
-        let color = RGB::from_rgb(128, 255, 0);
+        let color = RGB::from_channels(
+            SrgbChannel::from_u8(128),
+            SrgbChannel::from_u8(255),
+            SrgbChannel::from_u8(0),
+        );
 
         let rgb_string = color.to_rgb_str(
             OmitAlphaChannel::IfOpaque,
@@ -309,7 +313,12 @@ mod tests {
 
     #[test]
     fn to_rgb_str_omit_alpha_channel_non_opaque() {
-        let color = RGB::from_rgb_with_alpha(128, 255, 0, 0);
+        let color = RGB::from_channels_with_alpha(
+            SrgbChannel::from_u8(128),
+            SrgbChannel::from_u8(255),
+            SrgbChannel::from_u8(0),
+            SrgbChannel::from_u8(0),
+        );
 
         let rgb_string = color.to_rgb_str(
             OmitAlphaChannel::IfOpaque,
@@ -321,7 +330,11 @@ mod tests {
 
     #[test]
     fn to_rgb_str_omit_alpha_never() {
-        let color = RGB::from_rgb(128, 255, 0);
+        let color = RGB::from_channels(
+            SrgbChannel::from_u8(128),
+            SrgbChannel::from_u8(255),
+            SrgbChannel::from_u8(0),
+        );
 
         let rgb_string = color.to_rgb_str(
             OmitAlphaChannel::Never,
@@ -333,7 +346,11 @@ mod tests {
 
     #[test]
     fn to_rgb_str_number_color_channel() {
-        let color = RGB::from_rgb(128, 255, 0);
+        let color = RGB::from_channels
+            (SrgbChannel::from_u8(128),
+             SrgbChannel::from_u8(255),
+             SrgbChannel::from_u8(0),
+            );
 
         let rgb_string = color.to_rgb_str(
             OmitAlphaChannel::IfOpaque,
@@ -345,10 +362,10 @@ mod tests {
 
     #[test]
     fn to_rgb_str_number_color_channel_decimals() {
-        let color = RGB::from_srgb(
-            Float::with_val(64, 0.525),
-            Float::with_val(64, 0.125),
-            Float::with_val(64, 0.901),
+        let color = RGB::from_channels(
+            SrgbChannel::with_val(Float::with_val(64, 0.525)),
+            SrgbChannel::with_val(Float::with_val(64, 0.125)),
+            SrgbChannel::with_val(Float::with_val(64, 0.901)),
         );
 
         let rgb_string = color.to_rgb_str(
@@ -361,7 +378,11 @@ mod tests {
 
     #[test]
     fn to_rgb_str_percentage_color_channel() {
-        let color = RGB::from_rgb(0, 255, 0);
+        let color = RGB::from_channels(
+            SrgbChannel::from_u8(0),
+            SrgbChannel::from_u8(255),
+            SrgbChannel::from_u8(0),
+        );
 
         let rgb_string = color.to_rgb_str(
             OmitAlphaChannel::IfOpaque,
@@ -373,10 +394,10 @@ mod tests {
 
     #[test]
     fn to_rgb_str_percentage_color_channel_decimals() {
-        let color = RGB::from_srgb(
-            Float::with_val(64, 0.5),
-            Float::with_val(64, 0.125),
-            Float::with_val(64, 0.901),
+        let color = RGB::from_channels(
+            SrgbChannel::with_val(Float::with_val(64, 0.5)),
+            SrgbChannel::with_val(Float::with_val(64, 0.125)),
+            SrgbChannel::with_val(Float::with_val(64, 0.901)),
         );
 
         let rgb_string = color.to_rgb_str(
@@ -389,7 +410,12 @@ mod tests {
 
     #[test]
     fn to_rgb_str_number_alpha_channel() {
-        let color = RGB::from_rgb_with_alpha(0, 255, 0, 255);
+        let color = RGB::from_channels_with_alpha(
+            SrgbChannel::from_u8(0),
+            SrgbChannel::from_u8(255),
+            SrgbChannel::from_u8(0),
+            SrgbChannel::from_u8(255),
+        );
 
         let rgb_string = color.to_rgb_str(
             OmitAlphaChannel::Never,
@@ -401,7 +427,12 @@ mod tests {
 
     #[test]
     fn to_rgb_str_percentage_alpha_channel() {
-        let color = RGB::from_rgb_with_alpha(0, 255, 0, 255);
+        let color = RGB::from_channels_with_alpha(
+            SrgbChannel::from_u8(0),
+            SrgbChannel::from_u8(255),
+            SrgbChannel::from_u8(0),
+            SrgbChannel::from_u8(255),
+        );
 
         let rgb_string = color.to_rgb_str(
             OmitAlphaChannel::Never,

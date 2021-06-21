@@ -1,12 +1,10 @@
 use std::fmt;
 use std::fmt::Display;
 
-use rug::Float;
-
 pub use crate::color::rgb::hex_str::{LetterCase, ShorthandNotation};
 pub use crate::color::rgb::rgb_str::ChannelUnit;
-use crate::color::rgb::srgb::{RGB_CHANNEL_MAX, SRGB_CHANNEL_MAX, SRGB_CHANNEL_MIN};
 pub use crate::color::rgb::srgb::{DEFAULT_SRGB_PRECISION, SrgbChannel};
+use crate::color::rgb::srgb::srgb_max;
 
 mod srgb;
 mod css_types;
@@ -25,37 +23,20 @@ pub struct RGB {
 
 // TODO: Add method to check if color fits in RGB (8bit) channels and a method to round to the nearest one that can.
 impl RGB {
-    pub fn red(&self) -> u8 {
-        self.red.to_u8()
+    pub fn red(&self) -> &SrgbChannel {
+        &self.red
     }
 
-    pub fn green(&self) -> u8 {
-        self.green.to_u8()
+    pub fn green(&self) -> &SrgbChannel {
+        &self.green
     }
 
-    pub fn blue(&self) -> u8 {
-        self.blue.to_u8()
+    pub fn blue(&self) -> &SrgbChannel {
+        &self.blue
     }
 
-    pub fn alpha(&self) -> u8 {
-        self.alpha.to_u8()
-    }
-
-
-    pub fn red_srgb(&self) -> &Float {
-        self.red.value()
-    }
-
-    pub fn green_srgb(&self) -> &Float {
-        self.green.value()
-    }
-
-    pub fn blue_srgb(&self) -> &Float {
-        self.blue.value()
-    }
-
-    pub fn alpha_srgb(&self) -> &Float {
-        self.alpha.value()
+    pub fn alpha(&self) -> &SrgbChannel {
+        &self.alpha
     }
 
 
@@ -64,45 +45,12 @@ impl RGB {
     }
 
 
-    /// Creates a RGB instance based on the given values. Alpha channel is fully opaque.
-    pub fn from_rgb(red: u8, green: u8, blue: u8) -> RGB {
-        RGB::from_rgb_with_alpha(red, green, blue, RGB_CHANNEL_MAX)
+    pub fn from_channels(red: SrgbChannel, green: SrgbChannel, blue: SrgbChannel) -> RGB {
+        RGB::from_channels_with_alpha(red, green, blue, SrgbChannel::with_val(srgb_max()))
     }
 
-    /// Creates a RGB instance based on the given sRGB values. Alpha channel is fully opaque.
-    ///
-    /// # Panics
-    /// If channel values are outside range 0 to 1.
-    pub fn from_srgb(red: Float, green: Float, blue: Float) -> RGB {
-        RGB::from_srgb_with_alpha(red, green, blue, srgb::srgb_max())
-    }
-
-    /// Creates a RGB instance with custom alpha channel based on the given values.
-    pub fn from_rgb_with_alpha(red: u8, green: u8, blue: u8, alpha: u8) -> RGB {
-        RGB::from_srgb_with_alpha(
-            srgb::rgb_to_srgb(red),
-            srgb::rgb_to_srgb(green),
-            srgb::rgb_to_srgb(blue),
-            srgb::rgb_to_srgb(alpha),
-        )
-    }
-
-    /// Creates a RGB instance with custom alpha channel based on the given sRGB values.
-    ///
-    /// # Panics
-    /// If channel values are outside range 0 to 1.
-    pub fn from_srgb_with_alpha(red: Float, green: Float, blue: Float, alpha: Float) -> RGB {
-        assert!(red >= SRGB_CHANNEL_MIN && red <= SRGB_CHANNEL_MAX);
-        assert!(green >= SRGB_CHANNEL_MIN && green <= SRGB_CHANNEL_MAX);
-        assert!(blue >= SRGB_CHANNEL_MIN && blue <= SRGB_CHANNEL_MAX);
-        assert!(alpha >= SRGB_CHANNEL_MIN && alpha <= SRGB_CHANNEL_MAX);
-
-        RGB {
-            red: SrgbChannel::with_val(red),
-            green: SrgbChannel::with_val(green),
-            blue: SrgbChannel::with_val(blue),
-            alpha: SrgbChannel::with_val(alpha),
-        }
+    pub fn from_channels_with_alpha(red: SrgbChannel, green: SrgbChannel, blue: SrgbChannel, alpha: SrgbChannel) -> RGB {
+        RGB { red, green, blue, alpha }
     }
 }
 
@@ -121,60 +69,46 @@ impl Display for RGB {
 
 #[cfg(test)]
 mod tests {
+
     use super::*;
 
     #[test]
-    fn outputs_internal_float_as_u8() {
-        let color = RGB::from_srgb_with_alpha(
-            Float::with_val(64, 0.5),
-            Float::with_val(64, 0),
-            Float::with_val(64, 1),
-            Float::with_val(64, 0.25),
-        );
-
-        assert_eq!(color.red(), 128);
-        assert_eq!(color.green(), 0);
-        assert_eq!(color.blue(), 255);
-        assert_eq!(color.alpha(), 64);
-    }
-
-    #[test]
     fn is_opaque_true_for_opaque() {
-        assert!(RGB::from_rgb(
-            128,
-            64,
-            0,
+        assert!(RGB::from_channels(
+            SrgbChannel::from_u8(128),
+            SrgbChannel::from_u8(64),
+            SrgbChannel::from_u8(0),
         ).is_opaque());
 
-        assert!(RGB::from_rgb_with_alpha(
-            128,
-            64,
-            0,
-            255,
+        assert!(RGB::from_channels_with_alpha(
+            SrgbChannel::from_u8(128),
+            SrgbChannel::from_u8(64),
+            SrgbChannel::from_u8(0),
+            SrgbChannel::from_u8(255),
         ).is_opaque());
     }
 
     #[test]
     fn is_opaque_false_for_transparent() {
-        assert!(!RGB::from_rgb_with_alpha(
-            128,
-            64,
-            0,
-            254,
+        assert!(!RGB::from_channels_with_alpha(
+            SrgbChannel::from_u8(128),
+            SrgbChannel::from_u8(64),
+            SrgbChannel::from_u8(0),
+            SrgbChannel::from_u8(254),
         ).is_opaque());
 
-        assert!(!RGB::from_rgb_with_alpha(
-            128,
-            64,
-            0,
-            128,
+        assert!(!RGB::from_channels_with_alpha(
+            SrgbChannel::from_u8(128),
+            SrgbChannel::from_u8(64),
+            SrgbChannel::from_u8(0),
+            SrgbChannel::from_u8(128),
         ).is_opaque());
 
-        assert!(!RGB::from_rgb_with_alpha(
-            128,
-            64,
-            0,
-            0,
+        assert!(!RGB::from_channels_with_alpha(
+            SrgbChannel::from_u8(128),
+            SrgbChannel::from_u8(64),
+            SrgbChannel::from_u8(0),
+            SrgbChannel::from_u8(0),
         ).is_opaque());
     }
 }
