@@ -9,17 +9,14 @@ use std::option::Option::None;
 pub enum ParsingError<'a> {
     InvalidSyntax(&'a str),
 
-    NumberConversionFailed(Box<dyn Error>),
-
-    RegexFailed(regex::Error),
+    NumberConversionFailed(Box<dyn Error>)
 }
 
 impl Display for ParsingError<'_> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         match self {
             ParsingError::InvalidSyntax(details) => f.write_str(details),
-            ParsingError::NumberConversionFailed(err) => write!(f, "Number conversion failed: {}", err),
-            ParsingError::RegexFailed(err) => write!(f, "Regex conversion failed: {}", err),
+            ParsingError::NumberConversionFailed(err) => write!(f, "Number conversion failed: {}", err)
         }
     }
 }
@@ -28,8 +25,7 @@ impl Error for ParsingError<'_> {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         match self {
             ParsingError::InvalidSyntax(_) => None,
-            ParsingError::NumberConversionFailed(err) => Some(err.deref()),
-            ParsingError::RegexFailed(err) => Some(err),
+            ParsingError::NumberConversionFailed(err) => Some(err.deref())
         }
     }
 }
@@ -50,11 +46,5 @@ impl From<std::num::ParseIntError> for ParsingError<'_> {
 impl From<rug::float::ParseFloatError> for ParsingError<'_> {
     fn from(err: rug::float::ParseFloatError) -> Self {
         ParsingError::NumberConversionFailed(Box::new(err))
-    }
-}
-
-impl From<regex::Error> for ParsingError<'_> {
-    fn from(err: regex::Error) -> Self {
-        ParsingError::RegexFailed(err)
     }
 }

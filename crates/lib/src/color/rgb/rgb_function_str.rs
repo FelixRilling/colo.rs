@@ -74,7 +74,7 @@ impl Rgb {
         // https://regex101.com/r/MZkxf8/1
         let rgb_regex = Regex::new(
             r"^rgb\((?P<red>[-+]?(?:\d+\.)?\d+%?) (?P<green>[-+]?(?:\d+\.)?\d+%?) (?P<blue>[-+]?(?:\d+\.)?\d+%?)(?: / (?P<alpha>[-+]?(?:\d+\.)?\d+%?))?\)$"
-        )?;
+        ).expect("Could not build RGB function string pattern.");
 
         match rgb_regex.captures(rgb_str) {
             None => Err(ParsingError::InvalidSyntax("String did not match RGB pattern")),
