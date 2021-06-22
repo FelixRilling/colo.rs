@@ -1,6 +1,7 @@
 use std::error::Error;
 use std::fmt;
 use std::fmt::{Debug, Display, Formatter};
+use std::ops::Deref;
 use std::option::Option::None;
 
 /// Kinds of errors than may happen during color parsing.
@@ -8,9 +9,8 @@ use std::option::Option::None;
 pub enum ParsingError<'a> {
     InvalidSyntax(&'a str),
 
-    IntegerConversionFailed(std::num::ParseIntError),
-    FloatConversionFailed(std::num::ParseFloatError),
-    ArbitraryPrecisionFloatConversionFailed(rug::float::ParseFloatError),
+    NumberConversionFailed(Box<dyn Error>),
+
     RegexFailed(regex::Error),
 }
 
@@ -18,9 +18,7 @@ impl Display for ParsingError<'_> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         match self {
             ParsingError::InvalidSyntax(details) => f.write_str(details),
-            ParsingError::IntegerConversionFailed(err) => write!(f, "Integer conversion failed: {}", err),
-            ParsingError::FloatConversionFailed(err) => write!(f, "Float conversion failed: {}", err),
-            ParsingError::ArbitraryPrecisionFloatConversionFailed(err) => write!(f, "Arbitrary precision float conversion failed: {}", err),
+            ParsingError::NumberConversionFailed(err) => write!(f, "Number conversion failed: {}", err),
             ParsingError::RegexFailed(err) => write!(f, "Regex conversion failed: {}", err),
         }
     }
@@ -30,9 +28,7 @@ impl Error for ParsingError<'_> {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         match self {
             ParsingError::InvalidSyntax(_) => None,
-            ParsingError::IntegerConversionFailed(err) => Some(err),
-            ParsingError::FloatConversionFailed(err) => Some(err),
-            ParsingError::ArbitraryPrecisionFloatConversionFailed(err) => Some(err),
+            ParsingError::NumberConversionFailed(err) => Some(err.deref()),
             ParsingError::RegexFailed(err) => Some(err),
         }
     }
@@ -41,19 +37,19 @@ impl Error for ParsingError<'_> {
 
 impl From<std::num::ParseFloatError> for ParsingError<'_> {
     fn from(err: std::num::ParseFloatError) -> Self {
-        ParsingError::FloatConversionFailed(err)
+        ParsingError::NumberConversionFailed(Box::new(err))
     }
 }
 
 impl From<std::num::ParseIntError> for ParsingError<'_> {
     fn from(err: std::num::ParseIntError) -> Self {
-        ParsingError::IntegerConversionFailed(err)
+        ParsingError::NumberConversionFailed(Box::new(err))
     }
 }
 
 impl From<rug::float::ParseFloatError> for ParsingError<'_> {
     fn from(err: rug::float::ParseFloatError) -> Self {
-        ParsingError::ArbitraryPrecisionFloatConversionFailed(err)
+        ParsingError::NumberConversionFailed(Box::new(err))
     }
 }
 

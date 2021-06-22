@@ -30,6 +30,7 @@ fn get_best_contrast<'a>
 }
 
 /// Prints colored color value to stream. Stream color is reset afterwards.
+// TODO: Allow customization of output format.
 pub(crate) fn print_color(stdout: &mut StandardStream, color: &Rgb) {
     let black = Rgb::from_channels(SrgbChannel::from_u8(0), SrgbChannel::from_u8(0), SrgbChannel::from_u8(0));
     let white = Rgb::from_channels(SrgbChannel::from_u8(255), SrgbChannel::from_u8(255), SrgbChannel::from_u8(255));

@@ -147,7 +147,7 @@ mod tests {
         let result = Rgb::from_hex_str("#XX2233");
 
         assert!(result.is_err());
-        assert!(matches!(result.err().unwrap(), ParsingError::IntegerConversionFailed ( .. )))
+        assert!(matches!(result.err().unwrap(), ParsingError::NumberConversionFailed ( .. )))
     }
 
     #[test]
