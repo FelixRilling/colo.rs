@@ -13,7 +13,7 @@ fn rgb_as_term_color(color: &Rgb) -> Color {
 
 /// Finds and returns the `color_options` value that has the best contrast to `initial_color`.
 fn get_best_contrast<'a>
-(initial_color: &'a Rgb, color_options: &'a Vec<&Rgb>) -> &'a Rgb {
+(initial_color: &'a Rgb, color_options: &'a[&Rgb]) -> &'a Rgb {
     let mut best_contrast_ratio: Float = Float::with_val(DEFAULT_SRGB_PRECISION, 0.0);
     // Default value only matters if all options have zero contrast, so they should be the same as initial_color anyways.
     let mut best_contrast_ratio_color: &Rgb = initial_color;

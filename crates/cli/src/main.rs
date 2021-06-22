@@ -1,6 +1,5 @@
 use std::collections::HashSet;
 use std::io::Write;
-use std::iter::FromIterator;
 
 use clap::{App, Arg, SubCommand};
 use rug::Float;
@@ -68,14 +67,14 @@ fn main() {
     }
 }
 
-fn floor_n_decimals(val: Float, n: u32) -> Float {
+fn floor_n_decimals(val: &Float, n: u32) -> Float {
     let factor = 10_i32.pow(n);
-    let tmp = val * factor;
+    let tmp = val.clone() * factor;
     tmp.floor() / factor
 }
 
 fn hash_set_as_sorted_vec<T: Ord>(hash_set: HashSet<T>) -> Vec<T> {
-    let mut set_copy_vec: Vec<T> = Vec::from_iter(hash_set.into_iter());
+    let mut set_copy_vec = hash_set.into_iter().collect::<Vec<_>>();
     set_copy_vec.sort();
     set_copy_vec
 }
@@ -96,8 +95,8 @@ fn print_contrast(color_1: &Rgb, color_2: &Rgb, options: &Options) {
         _ => {
             // Usually only displaying the last 2 digits is enough.
             // Note that we cannot use the rounding provided by the formatter as contrast values may not be rounded up.
-            let floored = floor_n_decimals(contrast_ratio_val, 2).to_f32();
-            writeln!(&mut stdout, " is {:.2}.", floored).unwrap()
+            let floored = floor_n_decimals(&contrast_ratio_val, 2);
+            writeln!(&mut stdout, " is {:.2}.", floored.to_f32()).unwrap()
         }
     };
 
