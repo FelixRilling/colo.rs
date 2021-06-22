@@ -13,7 +13,7 @@ fn rgb_as_term_color(color: &Rgb) -> Color {
 
 /// Finds and returns the `color_options` value that has the best contrast to `initial_color`.
 fn get_best_contrast<'a>
-(initial_color: &'a Rgb, color_options: &'a[&Rgb]) -> &'a Rgb {
+(initial_color: &'a Rgb, color_options: &'a [&Rgb]) -> &'a Rgb {
     let mut best_contrast_ratio: Float = Float::with_val(DEFAULT_SRGB_PRECISION, 0.0);
     // Default value only matters if all options have zero contrast, so they should be the same as initial_color anyways.
     let mut best_contrast_ratio_color: &Rgb = initial_color;
@@ -31,7 +31,7 @@ fn get_best_contrast<'a>
 
 /// Prints colored color value to stream. Stream color is reset afterwards.
 // TODO: Allow customization of output format.
-pub(crate) fn print_color(stdout: &mut StandardStream, color: &Rgb) {
+pub(crate) fn print_color(stdout: &mut StandardStream, color: &Rgb) -> std::io::Result<()> {
     let black = Rgb::from_channels(SrgbChannel::from_u8(0), SrgbChannel::from_u8(0), SrgbChannel::from_u8(0));
     let white = Rgb::from_channels(SrgbChannel::from_u8(255), SrgbChannel::from_u8(255), SrgbChannel::from_u8(255));
     let foreground_color_options = vec![&black, &white];
@@ -39,10 +39,9 @@ pub(crate) fn print_color(stdout: &mut StandardStream, color: &Rgb) {
 
     stdout.set_color(ColorSpec::new()
         .set_bg(Some(rgb_as_term_color(color)))
-        .set_fg(Some(rgb_as_term_color(foreground_color))))
-        .expect("Could not set stdout color.");
-    write!(stdout, "{}", color).expect("Could not write color to stdout.");
-    stdout.set_color(&ColorSpec::default()).expect("Could not reset stdout color.");
+        .set_fg(Some(rgb_as_term_color(foreground_color))))?;
+    write!(stdout, "{}", color)?;
+    stdout.set_color(&ColorSpec::default())
 }
 
 

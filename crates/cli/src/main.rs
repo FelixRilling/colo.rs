@@ -7,6 +7,7 @@ use termcolor::{ColorChoice, StandardStream};
 
 use color_utils::color::rgb::Rgb;
 use color_utils::contrast::{contrast_ratio_levels_reached, contrast_ratio_val};
+use color_utils::error::ParsingError;
 
 use crate::color_printing::print_color;
 
@@ -18,10 +19,10 @@ struct Options {
     verbosity: u8,
 }
 
-fn parse_color(slice: &str) -> Result<Rgb, String> {
+fn parse_color(slice: &str) -> Result<Rgb, ParsingError> {
+    // TODO: Allow specifying which format should be used instead of trying all.
     Rgb::from_hex_str(slice)
         .or_else(|_| Rgb::from_rgb_function_str(slice))
-        .map_err(|_| format!("Could not parse '{}' as a color.", slice))
 }
 
 fn main() {
@@ -57,9 +58,7 @@ fn main() {
                 Err(e) => eprintln!("Color 1: {}", e),
                 Ok(color_1) => match parse_color(color_2_str) {
                     Err(e) => eprintln!("Color 2: {}", e),
-                    Ok(color_2) => {
-                        print_contrast(&color_1, &color_2, &options)
-                    }
+                    Ok(color_2) => print_contrast(&color_1, &color_2, &options).expect("Could not print contrast.")
                 },
             }
         }
@@ -79,24 +78,24 @@ fn hash_set_as_sorted_vec<T: Ord>(hash_set: HashSet<T>) -> Vec<T> {
     set_copy_vec
 }
 
-fn print_contrast(color_1: &Rgb, color_2: &Rgb, options: &Options) {
+fn print_contrast(color_1: &Rgb, color_2: &Rgb, options: &Options) -> std::io::Result<()> {
     let contrast_ratio_val = contrast_ratio_val(color_1, color_2);
     let contrast_levels_reached = contrast_ratio_levels_reached(color_1, color_2);
 
     let mut stdout = StandardStream::stdout(ColorChoice::Auto);
 
-    write!(&mut stdout, "WCAG 2.0 contrast ratio for ").unwrap();
-    print_color(&mut stdout, color_1);
-    write!(&mut stdout, " to ").unwrap();
-    print_color(&mut stdout, color_2);
+    write!(&mut stdout, "WCAG 2.0 contrast ratio for ")?;
+    print_color(&mut stdout, color_1)?;
+    write!(&mut stdout, " to ")?;
+    print_color(&mut stdout, color_2)?;
 
     match options.verbosity {
-        verbosity if verbosity >= 1 => writeln!(&mut stdout, " is {}.", contrast_ratio_val).unwrap(),
+        verbosity if verbosity >= 1 => writeln!(&mut stdout, " is {}.", contrast_ratio_val)?,
         _ => {
             // Usually only displaying the last 2 digits is enough.
             // Note that we cannot use the rounding provided by the formatter as contrast values may not be rounded up.
             let floored = floor_n_decimals(&contrast_ratio_val, 2);
-            writeln!(&mut stdout, " is {:.2}.", floored.to_f32()).unwrap()
+            writeln!(&mut stdout, " is {:.2}.", floored.to_f32())?
         }
     };
 
@@ -108,5 +107,5 @@ fn print_contrast(color_1: &Rgb, color_2: &Rgb, options: &Options) {
             .map(|level| level.to_string())
             .collect::<Vec<String>>().join(", ")
     };
-    writeln!(&mut stdout, "Contrast level(s) reached: {}.", contrast_levels_reached_string).unwrap();
+    writeln!(&mut stdout, "Contrast level(s) reached: {}.", contrast_levels_reached_string)
 }

@@ -77,7 +77,7 @@ impl Rgb {
         ).expect("Could not build RGB function string pattern.");
 
         match rgb_regex.captures(rgb_str) {
-            None => Err(ParsingError::InvalidSyntax("String did not match RGB pattern")),
+            None => Err(ParsingError::InvalidSyntax("String did not match RGB function string pattern")),
             Some(captures) => {
                 let red_str = captures.name("red").unwrap().as_str();
                 let green_str = captures.name("green").unwrap().as_str();
