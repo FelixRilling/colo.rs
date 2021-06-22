@@ -7,14 +7,13 @@ pub use crate::color::rgb::srgb::{DEFAULT_SRGB_PRECISION, SrgbChannel};
 use crate::color::rgb::srgb::srgb_max;
 
 mod srgb;
-mod css_types;
 mod rgb_function_str;
 mod hex_str;
 
 /// Represents a single [RGB](https://en.wikipedia.org/wiki/RGB_color_space) color in the RGB color space with an alpha channel.
 /// sRGB is used as color space.
 #[derive(Debug, PartialEq)]
-pub struct RGB {
+pub struct Rgb {
     red: SrgbChannel,
     green: SrgbChannel,
     blue: SrgbChannel,
@@ -22,7 +21,7 @@ pub struct RGB {
 }
 
 // TODO: Add method to check if color fits in RGB (8bit) channels and a method to round to the nearest one that can.
-impl RGB {
+impl Rgb {
     pub fn red(&self) -> &SrgbChannel {
         &self.red
     }
@@ -46,13 +45,13 @@ impl RGB {
 
 
     /// Creates an opaque color based on the given color channels.
-    pub fn from_channels(red: SrgbChannel, green: SrgbChannel, blue: SrgbChannel) -> RGB {
-        RGB::from_channels_with_alpha(red, green, blue, SrgbChannel::with_val(srgb_max()))
+    pub fn from_channels(red: SrgbChannel, green: SrgbChannel, blue: SrgbChannel) -> Rgb {
+        Rgb::from_channels_with_alpha(red, green, blue, SrgbChannel::with_val(srgb_max()))
     }
 
     /// Creates a color based on the given color and alpha channels.
-    pub fn from_channels_with_alpha(red: SrgbChannel, green: SrgbChannel, blue: SrgbChannel, alpha: SrgbChannel) -> RGB {
-        RGB { red, green, blue, alpha }
+    pub fn from_channels_with_alpha(red: SrgbChannel, green: SrgbChannel, blue: SrgbChannel, alpha: SrgbChannel) -> Rgb {
+        Rgb { red, green, blue, alpha }
     }
 }
 
@@ -63,7 +62,7 @@ pub enum OmitAlphaChannel {
     IfOpaque,
 }
 
-impl Display for RGB {
+impl Display for Rgb {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_str(&self.to_hex_str(OmitAlphaChannel::IfOpaque, ShorthandNotation::Never, LetterCase::Uppercase))
     }
@@ -75,13 +74,13 @@ mod tests {
 
     #[test]
     fn is_opaque_true_for_opaque() {
-        assert!(RGB::from_channels(
+        assert!(Rgb::from_channels(
             SrgbChannel::from_u8(128),
             SrgbChannel::from_u8(64),
             SrgbChannel::from_u8(0),
         ).is_opaque());
 
-        assert!(RGB::from_channels_with_alpha(
+        assert!(Rgb::from_channels_with_alpha(
             SrgbChannel::from_u8(128),
             SrgbChannel::from_u8(64),
             SrgbChannel::from_u8(0),
@@ -91,21 +90,21 @@ mod tests {
 
     #[test]
     fn is_opaque_false_for_transparent() {
-        assert!(!RGB::from_channels_with_alpha(
+        assert!(!Rgb::from_channels_with_alpha(
             SrgbChannel::from_u8(128),
             SrgbChannel::from_u8(64),
             SrgbChannel::from_u8(0),
             SrgbChannel::from_u8(254),
         ).is_opaque());
 
-        assert!(!RGB::from_channels_with_alpha(
+        assert!(!Rgb::from_channels_with_alpha(
             SrgbChannel::from_u8(128),
             SrgbChannel::from_u8(64),
             SrgbChannel::from_u8(0),
             SrgbChannel::from_u8(128),
         ).is_opaque());
 
-        assert!(!RGB::from_channels_with_alpha(
+        assert!(!Rgb::from_channels_with_alpha(
             SrgbChannel::from_u8(128),
             SrgbChannel::from_u8(64),
             SrgbChannel::from_u8(0),

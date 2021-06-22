@@ -1,4 +1,4 @@
-use crate::color::rgb::{OmitAlphaChannel, RGB, SrgbChannel};
+use crate::color::rgb::{OmitAlphaChannel, Rgb, SrgbChannel};
 use crate::error::ParsingError;
 
 /// Represents the case of hexadecimal letters.
@@ -39,7 +39,7 @@ fn parse_hexadecimal_channel(seq: &str) -> Result<SrgbChannel, ParsingError> {
 }
 
 
-impl RGB {
+impl Rgb {
     /// Parses a CSS-style hex color notation string .
     /// For a list of supported formats, see <https://www.w3.org/TR/css-color-4/#hex-notation>.
     ///
@@ -48,7 +48,7 @@ impl RGB {
     /// - Missing the '#' character at the start of the string.
     /// - Non-hexadecimal digits.
     /// - A length of the digit part not equal to 3, 4, 6 or 8.
-    pub fn from_hex_str(hex_str: &str) -> Result<RGB, ParsingError> {
+    pub fn from_hex_str(hex_str: &str) -> Result<Rgb, ParsingError> {
         if !hex_str.starts_with('#') {
             return Err(ParsingError::InvalidSyntax("Missing '#'"));
         }
@@ -62,10 +62,10 @@ impl RGB {
                 let blue = parse_shorthand_hexadecimal_channel(&hex_digits[2..3])?;
 
                 match len {
-                    3 => Ok(RGB::from_channels(red, green, blue)),
+                    3 => Ok(Rgb::from_channels(red, green, blue)),
                     4 => {
                         let alpha = parse_shorthand_hexadecimal_channel(&hex_digits[3..4])?;
-                        Ok(RGB::from_channels_with_alpha(red, green, blue, alpha))
+                        Ok(Rgb::from_channels_with_alpha(red, green, blue, alpha))
                     }
                     _ => unreachable!()
                 }
@@ -76,10 +76,10 @@ impl RGB {
                 let blue = parse_hexadecimal_channel(&hex_digits[4..6])?;
 
                 match len {
-                    6 => Ok(RGB::from_channels(red, green, blue)),
+                    6 => Ok(Rgb::from_channels(red, green, blue)),
                     8 => {
                         let alpha = parse_hexadecimal_channel(&hex_digits[6..8])?;
-                        Ok(RGB::from_channels_with_alpha(red, green, blue, alpha))
+                        Ok(Rgb::from_channels_with_alpha(red, green, blue, alpha))
                     }
                     _ => unreachable!()
                 }
@@ -137,7 +137,7 @@ mod tests {
 
     #[test]
     fn from_hex_str_errors_for_no_hash() {
-        let result = RGB::from_hex_str("112233");
+        let result = Rgb::from_hex_str("112233");
 
         assert!(result.is_err());
         assert!(matches!(result.err().unwrap(), ParsingError::InvalidSyntax(..)))
@@ -145,7 +145,7 @@ mod tests {
 
     #[test]
     fn from_hex_str_invalid_chars() {
-        let result = RGB::from_hex_str("#XX2233");
+        let result = Rgb::from_hex_str("#XX2233");
 
         assert!(result.is_err());
         assert!(matches!(result.err().unwrap(), ParsingError::IntegerConversionFailed ( .. )))
@@ -153,22 +153,22 @@ mod tests {
 
     #[test]
     fn from_hex_str_invalid_length() {
-        let result_too_long = RGB::from_hex_str("#1111111111111111111111");
+        let result_too_long = Rgb::from_hex_str("#1111111111111111111111");
         assert!(result_too_long.is_err());
         assert!(matches!(result_too_long.err().unwrap(), ParsingError::InvalidSyntax ( .. )));
 
-        let result_between_short_and_long = RGB::from_hex_str("#11223");
+        let result_between_short_and_long = Rgb::from_hex_str("#11223");
         assert!(result_between_short_and_long.is_err());
         assert!(matches!(result_between_short_and_long.err().unwrap(), ParsingError::InvalidSyntax ( .. )));
 
-        let result_between_too_short = RGB::from_hex_str("#11");
+        let result_between_too_short = Rgb::from_hex_str("#11");
         assert!(result_between_too_short.is_err());
         assert!(matches!(result_between_too_short.err().unwrap(), ParsingError::InvalidSyntax ( .. )));
     }
 
     #[test]
     fn from_hex_str_short_notation() {
-        let color = RGB::from_hex_str("#1FA").unwrap();
+        let color = Rgb::from_hex_str("#1FA").unwrap();
 
         assert_eq!(color.red().to_u8(), u8::from_str_radix("11", 16).unwrap());
         assert_eq!(color.green().to_u8(), u8::from_str_radix("FF", 16).unwrap());
@@ -178,7 +178,7 @@ mod tests {
 
     #[test]
     fn from_hex_str_short_notation_alpha() {
-        let color = RGB::from_hex_str("#1FAD").unwrap();
+        let color = Rgb::from_hex_str("#1FAD").unwrap();
 
         assert_eq!(color.red().to_u8(), u8::from_str_radix("11", 16).unwrap());
         assert_eq!(color.green().to_u8(), u8::from_str_radix("FF", 16).unwrap());
@@ -188,7 +188,7 @@ mod tests {
 
     #[test]
     fn from_hex_str_long_notation() {
-        let color = RGB::from_hex_str("#11FF0A").unwrap();
+        let color = Rgb::from_hex_str("#11FF0A").unwrap();
 
         assert_eq!(color.red().to_u8(), u8::from_str_radix("11", 16).unwrap());
         assert_eq!(color.green().to_u8(), u8::from_str_radix("FF", 16).unwrap());
@@ -198,7 +198,7 @@ mod tests {
 
     #[test]
     fn from_hex_str_long_notation_alpha() {
-        let color = RGB::from_hex_str("#11FF0AD4").unwrap();
+        let color = Rgb::from_hex_str("#11FF0AD4").unwrap();
 
         assert_eq!(color.red().to_u8(), u8::from_str_radix("11", 16).unwrap());
         assert_eq!(color.green().to_u8(), u8::from_str_radix("FF", 16).unwrap());
@@ -208,7 +208,7 @@ mod tests {
 
     #[test]
     fn to_hex_str_omit_alpha_channel_opaque() {
-        let color = RGB::from_hex_str("#11FF0AFF").unwrap();
+        let color = Rgb::from_hex_str("#11FF0AFF").unwrap();
 
         let hex_string = color.to_hex_str(
             OmitAlphaChannel::IfOpaque,
@@ -220,7 +220,7 @@ mod tests {
 
     #[test]
     fn to_hex_str_omit_alpha_channel_non_opaque() {
-        let color = RGB::from_hex_str("#11FF0A99").unwrap();
+        let color = Rgb::from_hex_str("#11FF0A99").unwrap();
 
         let hex_string = color.to_hex_str(
             OmitAlphaChannel::IfOpaque,
@@ -232,7 +232,7 @@ mod tests {
 
     #[test]
     fn to_hex_str_omit_alpha_never() {
-        let color = RGB::from_hex_str("#11FF0AFF").unwrap();
+        let color = Rgb::from_hex_str("#11FF0AFF").unwrap();
 
         let hex_string = color.to_hex_str(
             OmitAlphaChannel::Never,
@@ -244,7 +244,7 @@ mod tests {
 
     #[test]
     fn to_hex_str_shorthand_notation_possible() {
-        let color = RGB::from_hex_str("#11FF00").unwrap();
+        let color = Rgb::from_hex_str("#11FF00").unwrap();
 
         let hex_string = color.to_hex_str(
             OmitAlphaChannel::IfOpaque,
@@ -256,7 +256,7 @@ mod tests {
 
     #[test]
     fn to_hex_str_shorthand_notation_not_possible() {
-        let color = RGB::from_hex_str("#1BF701").unwrap();
+        let color = Rgb::from_hex_str("#1BF701").unwrap();
 
         let hex_string = color.to_hex_str(
             OmitAlphaChannel::IfOpaque,
@@ -268,7 +268,7 @@ mod tests {
 
     #[test]
     fn to_hex_str_shorthand_notation_never() {
-        let color = RGB::from_hex_str("#11FF00").unwrap();
+        let color = Rgb::from_hex_str("#11FF00").unwrap();
 
         let hex_string = color.to_hex_str(
             OmitAlphaChannel::IfOpaque,
@@ -280,7 +280,7 @@ mod tests {
 
     #[test]
     fn to_hex_str_shorthand_notation_possible_alpha() {
-        let color = RGB::from_hex_str("#11FF0066").unwrap();
+        let color = Rgb::from_hex_str("#11FF0066").unwrap();
 
         let hex_string = color.to_hex_str(
             OmitAlphaChannel::IfOpaque,
@@ -292,7 +292,7 @@ mod tests {
 
     #[test]
     fn to_hex_str_shorthand_notation_not_possible_alpha() {
-        let color = RGB::from_hex_str("#11FF00AB").unwrap();
+        let color = Rgb::from_hex_str("#11FF00AB").unwrap();
 
         let hex_string = color.to_hex_str(
             OmitAlphaChannel::IfOpaque,
@@ -304,7 +304,7 @@ mod tests {
 
     #[test]
     fn to_hex_str_uppercase() {
-        let color = RGB::from_hex_str("#11FF0A").unwrap();
+        let color = Rgb::from_hex_str("#11FF0A").unwrap();
 
         let hex_string = color.to_hex_str(
             OmitAlphaChannel::IfOpaque,
@@ -316,7 +316,7 @@ mod tests {
 
     #[test]
     fn to_hex_str_lowercase() {
-        let color = RGB::from_hex_str("#11FF0A").unwrap();
+        let color = Rgb::from_hex_str("#11FF0A").unwrap();
 
         let hex_string = color.to_hex_str(
             OmitAlphaChannel::IfOpaque,

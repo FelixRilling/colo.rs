@@ -6,7 +6,7 @@ use clap::{App, Arg, SubCommand};
 use rug::Float;
 use termcolor::{ColorChoice, StandardStream};
 
-use color_utils::color::rgb::RGB;
+use color_utils::color::rgb::Rgb;
 use color_utils::contrast::{contrast_ratio_levels_reached, contrast_ratio_val};
 
 use crate::color_printing::print_color;
@@ -19,9 +19,9 @@ struct Options {
     verbosity: u8,
 }
 
-fn parse_color(slice: &str) -> Result<RGB, String> {
-    RGB::from_hex_str(slice)
-        .or_else(|_| RGB::from_rgb_function_str(slice))
+fn parse_color(slice: &str) -> Result<Rgb, String> {
+    Rgb::from_hex_str(slice)
+        .or_else(|_| Rgb::from_rgb_function_str(slice))
         .map_err(|_| format!("Could not parse '{}' as a color.", slice))
 }
 
@@ -80,7 +80,7 @@ fn hash_set_as_sorted_vec<T: Ord>(hash_set: HashSet<T>) -> Vec<T> {
     set_copy_vec
 }
 
-fn print_contrast(color_1: &RGB, color_2: &RGB, options: &Options) {
+fn print_contrast(color_1: &Rgb, color_2: &Rgb, options: &Options) {
     let contrast_ratio_val = contrast_ratio_val(color_1, color_2);
     let contrast_levels_reached = contrast_ratio_levels_reached(color_1, color_2);
 
