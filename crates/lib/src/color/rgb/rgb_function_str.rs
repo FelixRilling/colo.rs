@@ -4,7 +4,7 @@ use rug::Float;
 use crate::color::rgb::{OmitAlphaChannel, SrgbChannel};
 use crate::color::css_types::{format_number, format_percentage, is_percentage, parse_number, parse_percentage};
 use crate::color::rgb::Rgb;
-use crate::color::rgb::srgb::{RGB_CHANNEL_MAX, SRGB_CHANNEL_MAX, SRGB_CHANNEL_MIN};
+use crate::color::rgb::srgb::{SRGB_SINGLE_BYTE_CHANNEL_RANGE, SRGB_CHANNEL_RANGE};
 use crate::error::ParsingError;
 
 fn parse_color_channel(seq: &str) -> Result<SrgbChannel, ParsingError> {
@@ -12,9 +12,9 @@ fn parse_color_channel(seq: &str) -> Result<SrgbChannel, ParsingError> {
     if is_percentage(seq) {
         channel_val = parse_percentage(&seq)?;
     } else {
-        channel_val = parse_number(seq)? / RGB_CHANNEL_MAX;
+        channel_val = parse_number(seq)? / SRGB_SINGLE_BYTE_CHANNEL_RANGE.end();
     }
-    Ok(SrgbChannel::with_val(channel_val.clamp(&SRGB_CHANNEL_MIN, &SRGB_CHANNEL_MAX)))
+    Ok(SrgbChannel::with_val(channel_val.clamp(SRGB_CHANNEL_RANGE.start(), SRGB_CHANNEL_RANGE.end())))
 }
 
 // https://www.w3.org/TR/css-color-4/#typedef-alpha-value
@@ -26,13 +26,13 @@ fn parse_alpha_channel(seq: &str) -> Result<SrgbChannel, ParsingError> {
         // When parsing the alpha channel, the value ranges from 0 to 1 already.
         channel_val = parse_number(seq)?;
     }
-    Ok(SrgbChannel::with_val(channel_val.clamp(&SRGB_CHANNEL_MIN, &SRGB_CHANNEL_MAX)))
+    Ok(SrgbChannel::with_val(channel_val.clamp(SRGB_CHANNEL_RANGE.start(), SRGB_CHANNEL_RANGE.end())))
 }
 
 
 fn format_color_channel(color_channel: &SrgbChannel, unit: &ChannelUnit) -> String {
     match unit {
-        ChannelUnit::Number => format_number(&(color_channel.value().clone() * RGB_CHANNEL_MAX)),
+        ChannelUnit::Number => format_number(&(color_channel.value().clone() * SRGB_SINGLE_BYTE_CHANNEL_RANGE.end())),
         ChannelUnit::Percentage => format_percentage(color_channel.value())
     }
 }
