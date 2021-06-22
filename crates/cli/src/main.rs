@@ -21,7 +21,7 @@ struct Options {
 
 fn parse_color(slice: &str) -> Result<RGB, String> {
     RGB::from_hex_str(slice)
-        .or_else(|_| RGB::from_rgb_str(slice))
+        .or_else(|_| RGB::from_rgb_function_str(slice))
         .map_err(|_| format!("Could not parse '{}' as a color.", slice))
 }
 

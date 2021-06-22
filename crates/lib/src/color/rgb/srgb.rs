@@ -30,7 +30,7 @@ impl SrgbChannel {
         SrgbChannel { value: srgb_channel_val }
     }
 
-    /// Creates a new channel based on the given RGB value in the range 0 to 255.
+    /// Creates a new channel based on the given value in the range 0 to 255.
     pub fn from_u8(rgb_channel_val: u8) -> SrgbChannel {
         let srgb_channel_val = Float::with_val(DEFAULT_SRGB_PRECISION, rgb_channel_val) / RGB_CHANNEL_MAX;
         SrgbChannel::with_val(srgb_channel_val)
@@ -41,7 +41,7 @@ impl SrgbChannel {
         &self.value
     }
 
-    /// Returns the closest RGB value to the channel value. Note that precision may be lost.
+    /// Returns the closest value from 0 to 255 based on the channel value. Note that precision may be lost.
     pub fn to_u8(&self) -> u8 {
         let rgb_channel_val_float = self.value().clone() * RGB_CHANNEL_MAX;
         rgb_channel_val_float.to_f32().ceil() as u8

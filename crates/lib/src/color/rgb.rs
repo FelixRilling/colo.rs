@@ -2,17 +2,17 @@ use std::fmt;
 use std::fmt::Display;
 
 pub use crate::color::rgb::hex_str::{LetterCase, ShorthandNotation};
-pub use crate::color::rgb::rgb_str::ChannelUnit;
+pub use crate::color::rgb::rgb_function_str::ChannelUnit;
 pub use crate::color::rgb::srgb::{DEFAULT_SRGB_PRECISION, SrgbChannel};
 use crate::color::rgb::srgb::srgb_max;
 
 mod srgb;
 mod css_types;
-mod rgb_str;
+mod rgb_function_str;
 mod hex_str;
 
-/// Represents a single [RGB](https://en.wikipedia.org/wiki/RGB_color_space) color with an alpha channel.
-/// Note: internally stores values as sRGB channels and are not limited to 8 bits.
+/// Represents a single [RGB](https://en.wikipedia.org/wiki/RGB_color_space) color in the RGB color space with an alpha channel.
+/// sRGB is used as color space.
 #[derive(Debug, PartialEq)]
 pub struct RGB {
     red: SrgbChannel,
@@ -39,22 +39,24 @@ impl RGB {
         &self.alpha
     }
 
-
+    /// Returns if this color is fully opaque.
     pub fn is_opaque(&self) -> bool {
         *self.alpha.value() == srgb::srgb_max()
     }
 
 
+    /// Creates an opaque color based on the given color channels.
     pub fn from_channels(red: SrgbChannel, green: SrgbChannel, blue: SrgbChannel) -> RGB {
         RGB::from_channels_with_alpha(red, green, blue, SrgbChannel::with_val(srgb_max()))
     }
 
+    /// Creates a color based on the given color and alpha channels.
     pub fn from_channels_with_alpha(red: SrgbChannel, green: SrgbChannel, blue: SrgbChannel, alpha: SrgbChannel) -> RGB {
         RGB { red, green, blue, alpha }
     }
 }
 
-/// The alpha channel can be omitted if its opaque.
+/// The alpha channel may be omitted if its opaque.
 #[derive(Debug, PartialEq, Eq)]
 pub enum OmitAlphaChannel {
     Never,
@@ -69,7 +71,6 @@ impl Display for RGB {
 
 #[cfg(test)]
 mod tests {
-
     use super::*;
 
     #[test]

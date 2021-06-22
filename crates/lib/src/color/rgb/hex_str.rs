@@ -1,7 +1,7 @@
 use crate::color::rgb::{OmitAlphaChannel, RGB, SrgbChannel};
 use crate::error::ParsingError;
 
-/// Represents case of hexadecimal letters.
+/// Represents the case of hexadecimal letters.
 #[derive(Debug, PartialEq, Eq)]
 pub enum LetterCase {
     Uppercase,
@@ -40,7 +40,7 @@ fn parse_hexadecimal_channel(seq: &str) -> Result<SrgbChannel, ParsingError> {
 
 
 impl RGB {
-    /// Parses a CSS-style hexadecimal representation of an RGB color.
+    /// Parses a CSS-style hex color notation string .
     /// For a list of supported formats, see <https://www.w3.org/TR/css-color-4/#hex-notation>.
     ///
     /// # Errors
@@ -88,10 +88,10 @@ impl RGB {
         }
     }
 
-    /// Creates a CSS-style hexadecimal string for this color.
+    /// Creates a CSS-style hex color notation string for this color.
     ///
-    /// Note that values more precise than the 255 bit supported for the hexadecimal notation will lose precision in the output.
-    /// RGB string notation should be used instead for these.
+    /// Note that values more precise than the 8 bit supported for the hexadecimal notation will lose precision in the output.
+    /// A RGB function string should be used instead for these.
     pub fn to_hex_str(&self, omit_alpha_channel: OmitAlphaChannel, shorthand_notation: ShorthandNotation, letter_case: LetterCase) -> String {
         let mut red = format!("{:02X}", self.red().to_u8());
         let mut green = format!("{:02X}", self.green().to_u8());
