@@ -102,22 +102,21 @@ impl Rgb {
             Some(format!("{:02X}", self.alpha().to_u8()))
         };
 
-        if shorthand_notation == ShorthandNotation::IfPossible {
-            if can_shorthand_channel(&red)
-                && can_shorthand_channel(&green)
-                && can_shorthand_channel(&blue) {
-                match alpha_opt.as_ref() {
-                    Some(alpha) => if can_shorthand_channel(alpha) {
-                        red = shorthand_channel(&red);
-                        green = shorthand_channel(&green);
-                        blue = shorthand_channel(&blue);
-                        alpha_opt = Some(shorthand_channel(alpha));
-                    },
-                    None => {
-                        red = shorthand_channel(&red);
-                        green = shorthand_channel(&green);
-                        blue = shorthand_channel(&blue);
-                    }
+        if shorthand_notation == ShorthandNotation::IfPossible
+            && can_shorthand_channel(&red)
+            && can_shorthand_channel(&green)
+            && can_shorthand_channel(&blue) {
+            match alpha_opt.as_ref() {
+                Some(alpha) => if can_shorthand_channel(alpha) {
+                    red = shorthand_channel(&red);
+                    green = shorthand_channel(&green);
+                    blue = shorthand_channel(&blue);
+                    alpha_opt = Some(shorthand_channel(alpha));
+                },
+                None => {
+                    red = shorthand_channel(&red);
+                    green = shorthand_channel(&green);
+                    blue = shorthand_channel(&blue);
                 }
             }
         }
