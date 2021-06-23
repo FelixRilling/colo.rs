@@ -1,3 +1,4 @@
+use log::{trace, warn};
 use regex::Regex;
 use rug::Float;
 
@@ -8,6 +9,9 @@ use crate::color::rgb::srgb::{SRGB_CHANNEL_RANGE, SRGB_SINGLE_BYTE_CHANNEL_RANGE
 use crate::error::ParsingError;
 
 fn clamp_in_channel_range(channel_val: Float) -> Float {
+    if !SRGB_CHANNEL_RANGE.contains(&channel_val) {
+        warn!("Channel value '{}' is out of sRGB channel range, it will be clamped.", &channel_val);
+    }
     channel_val.clamp(SRGB_CHANNEL_RANGE.start(), SRGB_CHANNEL_RANGE.end())
 }
 
@@ -82,6 +86,7 @@ impl Rgb {
                 let red_str = captures.name("red").unwrap().as_str();
                 let green_str = captures.name("green").unwrap().as_str();
                 let blue_str = captures.name("blue").unwrap().as_str();
+                trace!("Found RGB function string color channel values r='{}', g='{}', b='{}'.", &red_str, &green_str, &blue_str);
 
                 if is_percentage(red_str) != is_percentage(green_str) ||
                     is_percentage(red_str) != is_percentage(blue_str) {
@@ -91,12 +96,25 @@ impl Rgb {
                 let red = parse_color_channel(red_str)?;
                 let green = parse_color_channel(green_str)?;
                 let blue = parse_color_channel(blue_str)?;
+                trace!("Parsed color channel values r='{}', g='{}', b='{}'.", red.value(), green.value(), blue.value());
 
                 match captures.name("alpha") {
-                    None => Ok(Rgb::from_channels(red, green, blue)),
+                    None => {
+                        trace!("No alpha channel found.");
+                        let color = Rgb::from_channels(red, green, blue);
+                        trace!("Created opaque color '{}'.", color);
+                        Ok(color)
+                    }
                     Some(alpha_match) => {
-                        let alpha = parse_alpha_channel(alpha_match.as_str())?;
-                        Ok(Rgb::from_channels_with_alpha(red, green, blue, alpha))
+                        let alpha_str = alpha_match.as_str();
+                        trace!("Found alpha channel value a='{}'.", &alpha_str);
+
+                        let alpha = parse_alpha_channel(alpha_str)?;
+                        trace!("Parsed alpha channel value a='{}'.", alpha.value());
+
+                        let color = Rgb::from_channels_with_alpha(red, green, blue, alpha);
+                        trace!("Created color '{}'.", &color);
+                        Ok(color)
                     }
                 }
             }
@@ -105,19 +123,26 @@ impl Rgb {
 
     /// Creates a CSS-style RGB function string for this color.
     pub fn to_rgb_function_str(&self, omit_alpha_channel: OmitAlphaChannel, color_channel_unit: ChannelUnit, alpha_channel_unit: ChannelUnit) -> String {
-        let red = format_color_channel(self.red(), &color_channel_unit);
-        let green = format_color_channel(self.green(), &color_channel_unit);
-        let blue = format_color_channel(self.blue(), &color_channel_unit);
-        let alpha_opt = if self.is_opaque() && omit_alpha_channel == OmitAlphaChannel::IfOpaque {
+        let red_str = format_color_channel(self.red(), &color_channel_unit);
+        let green_str = format_color_channel(self.green(), &color_channel_unit);
+        let blue_str = format_color_channel(self.blue(), &color_channel_unit);
+        trace!("Formatted color channel values r='{}', g='{}', b='{}'.", &red_str, &green_str, &blue_str);
+
+        let alpha_str_opt = if self.is_opaque() && omit_alpha_channel == OmitAlphaChannel::IfOpaque {
+            trace!("Omitting alpha channel from output.");
             None
         } else {
-            Some(format_alpha_channel(self.alpha(), &alpha_channel_unit))
+            let alpha_str = format_alpha_channel(self.alpha(), &alpha_channel_unit);
+            trace!("Formatted alpha channel value a='{}'.", &alpha_str);
+            Some(alpha_str)
         };
 
-        alpha_opt.map_or_else(
-            || format!("rgb({} {} {})", red, green, blue),
-            |alpha| format!("rgb({} {} {} / {})", red, green, blue, alpha),
-        )
+        let rgb_function_str = alpha_str_opt.map_or_else(
+            || format!("rgb({} {} {})", &red_str, &green_str, &blue_str),
+            |alpha| format!("rgb({} {} {} / {})", &red_str, &green_str, &blue_str, &alpha),
+        );
+        trace!("Created RGB function string '{}'.", &rgb_function_str);
+        rgb_function_str
     }
 }
 

@@ -87,6 +87,7 @@ dependencies = [
 name = "color-utils"
 version = "0.1.0"
 dependencies = [
+ "log",
  "regex",
  "rug",
 ]
