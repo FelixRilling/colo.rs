@@ -4,7 +4,7 @@ use std::io::Write;
 use std::ops::Deref;
 
 use clap::{App, Arg, SubCommand};
-use log::{debug, error, info};
+use log::{debug, error, info, LevelFilter};
 use rug::Float;
 use termcolor::{ColorChoice, StandardStream};
 
@@ -69,7 +69,13 @@ fn main() {
         .get_matches();
 
     let verbosity = matches.occurrences_of("v") as usize;
-    stderrlog::new().verbosity(verbosity).init().expect("Could not initialize logger.");
+    env_logger::builder().filter_level(match &verbosity {
+        0 => LevelFilter::Error,
+        1 => LevelFilter::Warn,
+        2 => LevelFilter::Info,
+        3 => LevelFilter::Debug,
+        _ => LevelFilter::Trace,
+    }).init();
 
     match matches.subcommand_matches("contrast") {
         Some(matches) => {
