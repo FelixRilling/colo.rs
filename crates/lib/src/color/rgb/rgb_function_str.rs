@@ -102,7 +102,7 @@ impl Rgb {
                     None => {
                         trace!("No alpha channel found.");
                         let color = Rgb::from_channels(red, green, blue);
-                        trace!("Created opaque color '{}'.", color);
+                        trace!("Created opaque color '{}'.", &color);
                         Ok(color)
                     }
                     Some(alpha_match) => {

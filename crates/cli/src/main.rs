@@ -23,20 +23,20 @@ fn parse_color(seq: &str) -> Result<Rgb, ParsingError> {
     debug!("Attempting to parse '{}' as hex string color.", seq);
     match Rgb::from_hex_str(seq) {
         Ok(color) => {
-            info!("Successfully parsed '{}' as hex string color: '{}'.", seq, color);
+            info!("Successfully parsed '{}' as hex string color: '{}'.", seq, &color);
             Ok(color)
         }
         Err(hex_err) => {
-            info!("Could not parse '{}' as hex string color: {}.", seq, hex_err);
+            info!("Could not parse '{}' as hex string color: {}.", seq, &hex_err);
 
             debug!("Attempting to parse '{}' as RGB function string color.", seq);
             match Rgb::from_rgb_function_str(seq) {
                 Ok(color) => {
-                    info!("Successfully parsed '{}' as RGB function string color: '{}'.", seq, color);
+                    info!("Successfully parsed '{}' as RGB function string color: '{}'.", seq, &color);
                     Ok(color)
                 }
                 Err(rgb_function_err) => {
-                    info!("Could not parse '{}' as RGB function string color: {}.", seq, rgb_function_err);
+                    info!("Could not parse '{}' as RGB function string color: {}.", seq, &rgb_function_err);
                     Err(rgb_function_err)
                 }
             }
