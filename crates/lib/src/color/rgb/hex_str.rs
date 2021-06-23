@@ -30,11 +30,15 @@ fn shorthand_channel(channel_hex_str: &str) -> String {
 
 
 fn parse_shorthand_hexadecimal_channel(seq: &str) -> Result<SrgbChannel, ParsingError> {
+    debug_assert!(seq.len() == 1);
+
     let expanded_seq = seq.repeat(2);
     Ok(SrgbChannel::from_u8(u8::from_str_radix(&expanded_seq, 16)?))
 }
 
 fn parse_hexadecimal_channel(seq: &str) -> Result<SrgbChannel, ParsingError> {
+    debug_assert!(seq.len() == 2);
+
     Ok(SrgbChannel::from_u8(u8::from_str_radix(seq, 16)?))
 }
 
@@ -54,38 +58,49 @@ impl Rgb {
         }
         let hex_digits = &hex_str[1..];
         let len = hex_digits.len();
-        match len {
+
+        let (red, green, blue, alpha_opt) = match len {
             3 | 4 => {
                 // In the shorthand notation, the hex digit is simply repeated, so e.g "F" becomes "FF".
                 let red = parse_shorthand_hexadecimal_channel(&hex_digits[0..1])?;
                 let green = parse_shorthand_hexadecimal_channel(&hex_digits[1..2])?;
                 let blue = parse_shorthand_hexadecimal_channel(&hex_digits[2..3])?;
 
-                match len {
-                    3 => Ok(Rgb::from_channels(red, green, blue)),
+                let alpha = match len {
+                    3 => None,
                     4 => {
                         let alpha = parse_shorthand_hexadecimal_channel(&hex_digits[3..4])?;
-                        Ok(Rgb::from_channels_with_alpha(red, green, blue, alpha))
+                        Some(alpha)
                     }
                     _ => unreachable!()
-                }
+                };
+
+                (red, green, blue, alpha)
             }
             6 | 8 => {
                 let red = parse_hexadecimal_channel(&hex_digits[0..2])?;
                 let green = parse_hexadecimal_channel(&hex_digits[2..4])?;
                 let blue = parse_hexadecimal_channel(&hex_digits[4..6])?;
 
-                match len {
-                    6 => Ok(Rgb::from_channels(red, green, blue)),
+                let alpha = match len {
+                    6 => None,
                     8 => {
                         let alpha = parse_hexadecimal_channel(&hex_digits[6..8])?;
-                        Ok(Rgb::from_channels_with_alpha(red, green, blue, alpha))
+                        Some(alpha)
                     }
                     _ => unreachable!()
-                }
+                };
+
+                (red, green, blue, alpha)
             }
-            _ => Err(ParsingError::InvalidSyntax("Unexpected length. String must have either 3, 4, 6, or 8 hexadecimal digits"))
-        }
+            _ => return Err(ParsingError::InvalidSyntax("Unexpected length. String must have either 3, 4, 6, or 8 hexadecimal digits"))
+        };
+
+        let color = match alpha_opt {
+            None => Rgb::from_channels(red, green, blue),
+            Some(alpha) => Rgb::from_channels_with_alpha(red, green, blue, alpha)
+        };
+        Ok(color)
     }
 
     /// Creates a CSS-style hex color notation string for this color.
