@@ -9,14 +9,14 @@ use std::option::Option::None;
 pub enum ParsingError<'a> {
     InvalidSyntax(&'a str),
 
-    NumberConversionFailed(Box<dyn Error>)
+    NumberConversionFailed(Box<dyn Error>),
 }
 
 impl Display for ParsingError<'_> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         match self {
             ParsingError::InvalidSyntax(details) => f.write_str(details),
-            ParsingError::NumberConversionFailed(err) => write!(f, "Number conversion failed: {}", err)
+            ParsingError::NumberConversionFailed(_) => f.write_str("Number conversion failed")
         }
     }
 }
