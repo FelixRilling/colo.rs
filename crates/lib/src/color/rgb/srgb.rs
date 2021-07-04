@@ -51,7 +51,7 @@ impl SrgbChannel {
     /// To avoid loss of precision, use [`value`](#method.value).
     pub fn to_u8(&self) -> u8 {
         let rgb_channel_val_float = self.value().clone() * SRGB_SINGLE_BYTE_CHANNEL_RANGE.end();
-        rgb_channel_val_float.to_f32().ceil() as u8
+        rgb_channel_val_float.ceil().to_f32() as u8
     }
 
     /// Checks if this channels value can be fully represented in a range from 0 to 255.
