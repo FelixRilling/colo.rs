@@ -43,7 +43,7 @@ impl Rgb {
     }
 
     /// Checks if this color can be fully represented with channels in a range from 0 to 255.
-    /// See [`SrgbChannel::fits_u8`](color_utils::color::rgb::srgb::SrgbChannel::fits_in_u8) for details.
+    /// See [`SrgbChannel::fits_u8`](SrgbChannel::fits_in_u8) for details.
     pub fn channels_fit_in_u8(&self) -> bool {
         self.red().fits_in_u8() &&
             self.blue().fits_in_u8() &&
