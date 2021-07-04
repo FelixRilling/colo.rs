@@ -47,9 +47,18 @@ impl SrgbChannel {
     }
 
     /// Returns the closest value from 0 to 255 based on the channel value. Note that precision may be lost.
+    /// To check if precision will be lost on conversion, use [`fits_in_u8`](#method.fits_in_u8).
+    /// To avoid loss of precision, use [`value`](#method.value).
     pub fn to_u8(&self) -> u8 {
         let rgb_channel_val_float = self.value().clone() * SRGB_SINGLE_BYTE_CHANNEL_RANGE.end();
         rgb_channel_val_float.to_f32().ceil() as u8
+    }
+
+    /// Checks if this channels value can be fully represented in a range from 0 to 255.
+    /// Due to the lack of precision in this range, not all values can be.
+    pub fn fits_in_u8(&self) -> bool {
+        let rgb_channel_val_float = self.value().clone() * SRGB_SINGLE_BYTE_CHANNEL_RANGE.end();
+        rgb_channel_val_float.is_integer()
     }
 }
 
@@ -65,7 +74,6 @@ mod tests {
         assert_eq!(*channel.value(), float);
     }
 
-
     #[test]
     fn from_u8_converts_to_float() {
         let val: u8 = 255;
@@ -80,5 +88,21 @@ mod tests {
         let channel = SrgbChannel::with_val(float);
 
         assert_eq!(channel.to_u8(), 255);
+    }
+
+    #[test]
+    fn fits_in_u8_false_if_too_precise() {
+        let float = Float::with_val(64, 0.0000000001);
+        let channel = SrgbChannel::with_val(float);
+
+        assert!(!channel.fits_in_u8());
+    }
+
+    #[test]
+    fn fits_in_u8_false_if_fitting() {
+        let float = Float::with_val(64, 1);
+        let channel = SrgbChannel::with_val(float);
+
+        assert!(channel.fits_in_u8());
     }
 }

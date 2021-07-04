@@ -20,7 +20,6 @@ pub struct Rgb {
     alpha: SrgbChannel,
 }
 
-// TODO: Add method to check if color fits in RGB (8bit) channels and a method to round to the nearest one that can.
 impl Rgb {
     pub fn red(&self) -> &SrgbChannel {
         &self.red
@@ -41,6 +40,15 @@ impl Rgb {
     /// Returns if this color is fully opaque.
     pub fn is_opaque(&self) -> bool {
         *self.alpha.value() == srgb::srgb_max()
+    }
+
+    /// Checks if this color can be fully represented with channels in a range from 0 to 255.
+    /// See [`SrgbChannel::fits_u8`](color_utils::color::rgb::srgb::SrgbChannel::fits_in_u8) for details.
+    pub fn channels_fit_in_u8(&self) -> bool {
+        self.red().fits_in_u8() &&
+            self.blue().fits_in_u8() &&
+            self.green().fits_in_u8() &&
+            self.alpha().fits_in_u8()
     }
 
 
@@ -70,23 +78,9 @@ impl Display for Rgb {
 
 #[cfg(test)]
 mod tests {
+    use rug::Float;
+
     use super::*;
-
-    #[test]
-    fn is_opaque_true_for_opaque() {
-        assert!(Rgb::from_channels(
-            SrgbChannel::from_u8(128),
-            SrgbChannel::from_u8(64),
-            SrgbChannel::from_u8(0),
-        ).is_opaque());
-
-        assert!(Rgb::from_channels_with_alpha(
-            SrgbChannel::from_u8(128),
-            SrgbChannel::from_u8(64),
-            SrgbChannel::from_u8(0),
-            SrgbChannel::from_u8(255),
-        ).is_opaque());
-    }
 
     #[test]
     fn is_opaque_false_for_transparent() {
@@ -110,5 +104,41 @@ mod tests {
             SrgbChannel::from_u8(0),
             SrgbChannel::from_u8(0),
         ).is_opaque());
+    }
+
+    #[test]
+    fn is_opaque_true_for_opaque() {
+        assert!(Rgb::from_channels(
+            SrgbChannel::from_u8(128),
+            SrgbChannel::from_u8(64),
+            SrgbChannel::from_u8(0),
+        ).is_opaque());
+
+        assert!(Rgb::from_channels_with_alpha(
+            SrgbChannel::from_u8(128),
+            SrgbChannel::from_u8(64),
+            SrgbChannel::from_u8(0),
+            SrgbChannel::from_u8(255),
+        ).is_opaque());
+    }
+
+    #[test]
+    fn channels_fit_in_u8_true_if_all_fit() {
+        assert!(Rgb::from_channels_with_alpha(
+            SrgbChannel::from_u8(128),
+            SrgbChannel::from_u8(64),
+            SrgbChannel::from_u8(0),
+            SrgbChannel::from_u8(0),
+        ).channels_fit_in_u8());
+    }
+
+    #[test]
+    fn channels_fit_in_u8_false_if_not_all_fit() {
+        assert!(!Rgb::from_channels_with_alpha(
+            SrgbChannel::with_val(Float::with_val(64, 1)),
+            SrgbChannel::with_val(Float::with_val(64, 1)),
+            SrgbChannel::with_val(Float::with_val(64, 1)),
+            SrgbChannel::with_val(Float::with_val(64, 0.00000001)),
+        ).channels_fit_in_u8());
     }
 }

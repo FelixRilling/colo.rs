@@ -126,7 +126,7 @@ impl Rgb {
     /// Creates a CSS-style hex color notation string for this color.
     ///
     /// Note that values more precise than the 8 bit supported for the hexadecimal notation will lose precision in the output.
-    /// A RGB function string should be used instead for these.
+    /// A RGB function string should be used instead for these. See [`channels_fit_in_u8`](#method.channels_fit_in_u8) for details.
     pub fn to_hex_str(&self, omit_alpha_channel: OmitAlphaChannel, shorthand_notation: ShorthandNotation, letter_case: LetterCase) -> String {
         let mut red_str = format!("{:02X}", self.red().to_u8());
         let mut green_str = format!("{:02X}", self.green().to_u8());
