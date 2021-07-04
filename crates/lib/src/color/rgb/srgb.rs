@@ -52,3 +52,33 @@ impl SrgbChannel {
         rgb_channel_val_float.to_f32().ceil() as u8
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn with_val_creates_with_val() {
+        let float = Float::with_val(64, 1);
+        let channel = SrgbChannel::with_val(float.clone());
+
+        assert_eq!(*channel.value(), float);
+    }
+
+
+    #[test]
+    fn from_u8_converts_to_float() {
+        let val: u8 = 255;
+        let channel = SrgbChannel::from_u8(val);
+
+        assert_eq!(*channel.value(), Float::with_val(DEFAULT_SRGB_PRECISION, 1));
+    }
+
+    #[test]
+    fn to_u8_converts_from_float() {
+        let float = Float::with_val(64, 1);
+        let channel = SrgbChannel::with_val(float);
+
+        assert_eq!(channel.to_u8(), 255);
+    }
+}
