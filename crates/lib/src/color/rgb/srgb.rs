@@ -32,12 +32,15 @@ impl SrgbChannel {
     pub fn new(srgb_channel_val: Float) -> SrgbChannel {
         assert!(SRGB_CHANNEL_RANGE.contains(&srgb_channel_val));
 
-        SrgbChannel { value: srgb_channel_val }
+        SrgbChannel {
+            value: srgb_channel_val,
+        }
     }
 
     /// Creates a new channel based on the given value in the range 0 to 255.
     pub fn from_u8(rgb_channel_val: u8) -> SrgbChannel {
-        let srgb_channel_val = Float::with_val(DEFAULT_SRGB_PRECISION, rgb_channel_val) / SRGB_SINGLE_BYTE_CHANNEL_RANGE.end();
+        let srgb_channel_val = Float::with_val(DEFAULT_SRGB_PRECISION, rgb_channel_val)
+            / SRGB_SINGLE_BYTE_CHANNEL_RANGE.end();
         SrgbChannel::new(srgb_channel_val)
     }
 
@@ -50,8 +53,14 @@ impl SrgbChannel {
     /// To check if precision will be lost on conversion, use [`fits_in_u8`](#method.fits_in_u8).
     /// To avoid loss of precision, use [`value`](#method.value).
     pub fn to_u8(&self) -> u8 {
-        let rgb_channel_val_float = self.value().clone() * SRGB_SINGLE_BYTE_CHANNEL_RANGE.end();
-        rgb_channel_val_float.ceil().to_f32() as u8
+        let rgb_channel_val_float =
+            (self.value().clone() * SRGB_SINGLE_BYTE_CHANNEL_RANGE.end()).ceil();
+        // Because constructor enforces that value must be >= 0 and <=1, this conversion should never fail.
+        rgb_channel_val_float
+            .to_integer()
+            .expect("Could not convert channel val to integer.")
+            .to_u8()
+            .expect("Could not convert channel val to u8.")
     }
 
     /// Checks if this channels value can be fully represented in a range from 0 to 255.
