@@ -1,6 +1,7 @@
 use log::trace;
 
-use crate::color::rgb::{OmitAlphaChannel, Rgb, SrgbChannel};
+use crate::color::component::{FloatComponent, SingleByteComponent};
+use crate::color::rgb::{OmitAlphaChannel, Rgb, RgbChannel};
 use crate::error::ParsingError;
 
 /// Represents the case of hexadecimal letters.
@@ -30,20 +31,18 @@ fn shorthand_channel(channel_hex_str: &str) -> String {
     String::from(&channel_hex_str[0..1])
 }
 
-
-fn parse_shorthand_hexadecimal_channel(seq: &str) -> Result<SrgbChannel, ParsingError> {
+fn parse_shorthand_hexadecimal_channel(seq: &str) -> Result<RgbChannel, ParsingError> {
     debug_assert!(seq.len() == 1);
 
     let expanded_seq = seq.repeat(2);
-    Ok(SrgbChannel::from_u8(u8::from_str_radix(&expanded_seq, 16)?))
+    Ok(RgbChannel::from_u8(u8::from_str_radix(&expanded_seq, 16)?))
 }
 
-fn parse_hexadecimal_channel(seq: &str) -> Result<SrgbChannel, ParsingError> {
+fn parse_hexadecimal_channel(seq: &str) -> Result<RgbChannel, ParsingError> {
     debug_assert!(seq.len() == 2);
 
-    Ok(SrgbChannel::from_u8(u8::from_str_radix(seq, 16)?))
+    Ok(RgbChannel::from_u8(u8::from_str_radix(seq, 16)?))
 }
-
 
 impl Rgb {
     /// Parses a CSS-style hex color notation string .
@@ -60,54 +59,67 @@ impl Rgb {
         }
         let hex_digits = &hex_str[1..];
         let len = hex_digits.len();
-        let (red, green, blue, alpha_opt) = match len {
-            3 | 4 => {
-                trace!("Parsing hex color as shorthand notation.");
-                // In the shorthand notation, the hex digit is simply repeated, so e.g "F" becomes "FF".
-                let red = parse_shorthand_hexadecimal_channel(&hex_digits[0..1])?;
-                let green = parse_shorthand_hexadecimal_channel(&hex_digits[1..2])?;
-                let blue = parse_shorthand_hexadecimal_channel(&hex_digits[2..3])?;
-                trace!("Parsed color channel values r='{}', g='{}', b='{}'.", red.value(), green.value(), blue.value());
+        let (red, green, blue, alpha_opt) =
+            match len {
+                3 | 4 => {
+                    trace!("Parsing hex color as shorthand notation.");
+                    // In the shorthand notation, the hex digit is simply repeated, so e.g "F" becomes "FF".
+                    let red = parse_shorthand_hexadecimal_channel(&hex_digits[0..1])?;
+                    let green = parse_shorthand_hexadecimal_channel(&hex_digits[1..2])?;
+                    let blue = parse_shorthand_hexadecimal_channel(&hex_digits[2..3])?;
+                    trace!(
+                        "Parsed color channel values r='{}', g='{}', b='{}'.",
+                        red.value(),
+                        green.value(),
+                        blue.value()
+                    );
 
-                let alpha = match len {
-                    3 => {
-                        trace!("No alpha channel found.");
-                        None
-                    }
-                    4 => {
-                        let alpha = parse_shorthand_hexadecimal_channel(&hex_digits[3..4])?;
-                        trace!("Parsed alpha channel value a='{}'.", alpha.value());
-                        Some(alpha)
-                    }
-                    _ => unreachable!()
-                };
+                    let alpha = match len {
+                        3 => {
+                            trace!("No alpha channel found.");
+                            None
+                        }
+                        4 => {
+                            let alpha = parse_shorthand_hexadecimal_channel(&hex_digits[3..4])?;
+                            trace!("Parsed alpha channel value a='{}'.", alpha.value());
+                            Some(alpha)
+                        }
+                        _ => unreachable!(),
+                    };
 
-                (red, green, blue, alpha)
-            }
-            6 | 8 => {
-                trace!("Parsing hex color as full notation.");
-                let red = parse_hexadecimal_channel(&hex_digits[0..2])?;
-                let green = parse_hexadecimal_channel(&hex_digits[2..4])?;
-                let blue = parse_hexadecimal_channel(&hex_digits[4..6])?;
-                trace!("Parsed color channel values r='{}', g='{}', b='{}'.", red.value(), green.value(), blue.value());
+                    (red, green, blue, alpha)
+                }
+                6 | 8 => {
+                    trace!("Parsing hex color as full notation.");
+                    let red = parse_hexadecimal_channel(&hex_digits[0..2])?;
+                    let green = parse_hexadecimal_channel(&hex_digits[2..4])?;
+                    let blue = parse_hexadecimal_channel(&hex_digits[4..6])?;
+                    trace!(
+                        "Parsed color channel values r='{}', g='{}', b='{}'.",
+                        red.value(),
+                        green.value(),
+                        blue.value()
+                    );
 
-                let alpha = match len {
-                    6 => {
-                        trace!("No alpha channel found.");
-                        None
-                    }
-                    8 => {
-                        let alpha = parse_hexadecimal_channel(&hex_digits[6..8])?;
-                        trace!("Parsed alpha channel value a='{}'.", alpha.value());
-                        Some(alpha)
-                    }
-                    _ => unreachable!()
-                };
+                    let alpha = match len {
+                        6 => {
+                            trace!("No alpha channel found.");
+                            None
+                        }
+                        8 => {
+                            let alpha = parse_hexadecimal_channel(&hex_digits[6..8])?;
+                            trace!("Parsed alpha channel value a='{}'.", alpha.value());
+                            Some(alpha)
+                        }
+                        _ => unreachable!(),
+                    };
 
-                (red, green, blue, alpha)
-            }
-            _ => return Err(ParsingError::InvalidSyntax("Unexpected length. String must have either 3, 4, 6, or 8 hexadecimal digits"))
-        };
+                    (red, green, blue, alpha)
+                }
+                _ => return Err(ParsingError::InvalidSyntax(
+                    "Unexpected length. String must have either 3, 4, 6, or 8 hexadecimal digits",
+                )),
+            };
 
         Ok(match alpha_opt {
             None => {
@@ -127,46 +139,73 @@ impl Rgb {
     ///
     /// Note that values more precise than the 8 bit supported for the hexadecimal notation will lose precision in the output.
     /// A RGB function string should be used instead for these. See [`channels_fit_in_u8`](#method.channels_fit_in_u8) for details.
-    pub fn to_hex_str(&self, omit_alpha_channel: OmitAlphaChannel, shorthand_notation: ShorthandNotation, letter_case: LetterCase) -> String {
+    pub fn to_hex_str(
+        &self,
+        omit_alpha_channel: OmitAlphaChannel,
+        shorthand_notation: ShorthandNotation,
+        letter_case: LetterCase,
+    ) -> String {
         let mut red_str = format!("{:02X}", self.red().to_u8());
         let mut green_str = format!("{:02X}", self.green().to_u8());
         let mut blue_str = format!("{:02X}", self.blue().to_u8());
-        trace!("Formatted color channel values r='{}', g='{}', b='{}'.", &red_str, &green_str, &blue_str);
+        trace!(
+            "Formatted color channel values r='{}', g='{}', b='{}'.",
+            &red_str,
+            &green_str,
+            &blue_str
+        );
 
-        let mut alpha_str_opt = if self.is_opaque() && omit_alpha_channel == OmitAlphaChannel::IfOpaque {
-            trace!("Omitting alpha channel from output.");
-            None
-        } else {
-            let alpha_str = format!("{:02X}", self.alpha().to_u8());
-            trace!("Formatted alpha channel value a='{}'.", &alpha_str);
-            Some(alpha_str)
-        };
+        let mut alpha_str_opt =
+            if self.is_opaque() && omit_alpha_channel == OmitAlphaChannel::IfOpaque {
+                trace!("Omitting alpha channel from output.");
+                None
+            } else {
+                let alpha_str = format!("{:02X}", self.alpha().to_u8());
+                trace!("Formatted alpha channel value a='{}'.", &alpha_str);
+                Some(alpha_str)
+            };
 
         if shorthand_notation == ShorthandNotation::IfPossible
             && can_shorthand_channel(&red_str)
             && can_shorthand_channel(&green_str)
-            && can_shorthand_channel(&blue_str) {
+            && can_shorthand_channel(&blue_str)
+        {
             trace!("Color channels support shorthand syntax.");
             match alpha_str_opt.as_ref() {
-                Some(alpha) => if can_shorthand_channel(alpha) {
-                    trace!("Alpha channel supports shorthand syntax.");
+                Some(alpha) => {
+                    if can_shorthand_channel(alpha) {
+                        trace!("Alpha channel supports shorthand syntax.");
 
-                    red_str = shorthand_channel(&red_str);
-                    green_str = shorthand_channel(&green_str);
-                    blue_str = shorthand_channel(&blue_str);
-                    trace!("Shorthanded color channel values r='{}', g='{}', b='{}'.", &red_str, &green_str, &blue_str);
+                        red_str = shorthand_channel(&red_str);
+                        green_str = shorthand_channel(&green_str);
+                        blue_str = shorthand_channel(&blue_str);
+                        trace!(
+                            "Shorthanded color channel values r='{}', g='{}', b='{}'.",
+                            &red_str,
+                            &green_str,
+                            &blue_str
+                        );
 
-                    let shorthand_alpha_str = shorthand_channel(alpha);
-                    trace!("Shorthanded alpha channel value a='{}'.", &shorthand_alpha_str);
-                    alpha_str_opt = Some(shorthand_alpha_str);
-                },
+                        let shorthand_alpha_str = shorthand_channel(alpha);
+                        trace!(
+                            "Shorthanded alpha channel value a='{}'.",
+                            &shorthand_alpha_str
+                        );
+                        alpha_str_opt = Some(shorthand_alpha_str);
+                    }
+                }
                 None => {
                     trace!("Alpha channel does not exist, skipping alpha shorthand check.");
 
                     red_str = shorthand_channel(&red_str);
                     green_str = shorthand_channel(&green_str);
                     blue_str = shorthand_channel(&blue_str);
-                    trace!("Shorthanded color channel values r='{}', g='{}', b='{}'.", &red_str, &green_str, &blue_str);
+                    trace!(
+                        "Shorthanded color channel values r='{}', g='{}', b='{}'.",
+                        &red_str,
+                        &green_str,
+                        &blue_str
+                    );
                 }
             }
         }
@@ -197,7 +236,10 @@ mod tests {
         let result = Rgb::from_hex_str("112233");
 
         assert!(result.is_err());
-        assert!(matches!(result.err().unwrap(), ParsingError::InvalidSyntax(..)))
+        assert!(matches!(
+            result.err().unwrap(),
+            ParsingError::InvalidSyntax(..)
+        ))
     }
 
     #[test]
@@ -205,22 +247,34 @@ mod tests {
         let result = Rgb::from_hex_str("#XX2233");
 
         assert!(result.is_err());
-        assert!(matches!(result.err().unwrap(), ParsingError::NumberConversionFailed ( .. )))
+        assert!(matches!(
+            result.err().unwrap(),
+            ParsingError::NumberConversionFailed(..)
+        ))
     }
 
     #[test]
     fn from_hex_str_invalid_length() {
         let result_too_long = Rgb::from_hex_str("#1111111111111111111111");
         assert!(result_too_long.is_err());
-        assert!(matches!(result_too_long.err().unwrap(), ParsingError::InvalidSyntax ( .. )));
+        assert!(matches!(
+            result_too_long.err().unwrap(),
+            ParsingError::InvalidSyntax(..)
+        ));
 
         let result_between_short_and_long = Rgb::from_hex_str("#11223");
         assert!(result_between_short_and_long.is_err());
-        assert!(matches!(result_between_short_and_long.err().unwrap(), ParsingError::InvalidSyntax ( .. )));
+        assert!(matches!(
+            result_between_short_and_long.err().unwrap(),
+            ParsingError::InvalidSyntax(..)
+        ));
 
         let result_between_too_short = Rgb::from_hex_str("#11");
         assert!(result_between_too_short.is_err());
-        assert!(matches!(result_between_too_short.err().unwrap(), ParsingError::InvalidSyntax ( .. )));
+        assert!(matches!(
+            result_between_too_short.err().unwrap(),
+            ParsingError::InvalidSyntax(..)
+        ));
     }
 
     #[test]

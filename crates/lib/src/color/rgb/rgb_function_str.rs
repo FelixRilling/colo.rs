@@ -2,31 +2,32 @@ use log::{trace, warn};
 use regex::Regex;
 use rug::Float;
 
+use crate::color::component::{FloatComponent, SINGLE_BYTE_COMPONENT_VALUE_RANGE};
+use crate::color::component::FLOAT_COMPONENT_VALUE_RANGE;
 use crate::color::css_types::{format_number, format_percentage, is_percentage, parse_number, parse_percentage};
-use crate::color::rgb::{OmitAlphaChannel, SrgbChannel};
+use crate::color::rgb::{OmitAlphaChannel, RgbChannel};
 use crate::color::rgb::Rgb;
-use crate::color::rgb::srgb::{SRGB_CHANNEL_RANGE, SRGB_SINGLE_BYTE_CHANNEL_RANGE};
 use crate::error::ParsingError;
 
 fn clamp_in_channel_range(channel_val: Float) -> Float {
-    if !SRGB_CHANNEL_RANGE.contains(&channel_val) {
-        warn!("Channel value '{}' is out of sRGB channel range, it will be clamped.", &channel_val);
+    if !FLOAT_COMPONENT_VALUE_RANGE.contains(&channel_val) {
+        warn!("Channel value '{}' is out of RGB component range, it will be clamped.", &channel_val);
     }
-    channel_val.clamp(SRGB_CHANNEL_RANGE.start(), SRGB_CHANNEL_RANGE.end())
+    channel_val.clamp(FLOAT_COMPONENT_VALUE_RANGE.start(), FLOAT_COMPONENT_VALUE_RANGE.end())
 }
 
-fn parse_color_channel(seq: &str) -> Result<SrgbChannel, ParsingError> {
+fn parse_color_channel(seq: &str) -> Result<RgbChannel, ParsingError> {
     let channel_val: Float;
     if is_percentage(seq) {
         channel_val = parse_percentage(&seq)?;
     } else {
-        channel_val = parse_number(seq)? / SRGB_SINGLE_BYTE_CHANNEL_RANGE.end();
+        channel_val = parse_number(seq)? / SINGLE_BYTE_COMPONENT_VALUE_RANGE.end();
     }
-    Ok(SrgbChannel::new(clamp_in_channel_range(channel_val)))
+    Ok(RgbChannel::from_value(clamp_in_channel_range(channel_val)))
 }
 
 // https://www.w3.org/TR/css-color-4/#typedef-alpha-value
-fn parse_alpha_channel(seq: &str) -> Result<SrgbChannel, ParsingError> {
+fn parse_alpha_channel(seq: &str) -> Result<RgbChannel, ParsingError> {
     let channel_val: Float;
     if is_percentage(seq) {
         channel_val = parse_percentage(&seq)?;
@@ -34,18 +35,18 @@ fn parse_alpha_channel(seq: &str) -> Result<SrgbChannel, ParsingError> {
         // When parsing the alpha channel, the value ranges from 0 to 1 already.
         channel_val = parse_number(seq)?;
     }
-    Ok(SrgbChannel::new(clamp_in_channel_range(channel_val)))
+    Ok(RgbChannel::from_value(clamp_in_channel_range(channel_val)))
 }
 
 
-fn format_color_channel(color_channel: &SrgbChannel, unit: &ChannelUnit) -> String {
+fn format_color_channel(color_channel: &RgbChannel, unit: &ChannelUnit) -> String {
     match unit {
-        ChannelUnit::Number => format_number(&(color_channel.value().clone() * SRGB_SINGLE_BYTE_CHANNEL_RANGE.end())),
+        ChannelUnit::Number => format_number(&(color_channel.value().clone() * SINGLE_BYTE_COMPONENT_VALUE_RANGE.end())),
         ChannelUnit::Percentage => format_percentage(color_channel.value())
     }
 }
 
-fn format_alpha_channel(alpha_channel: &SrgbChannel, unit: &ChannelUnit) -> String {
+fn format_alpha_channel(alpha_channel: &RgbChannel, unit: &ChannelUnit) -> String {
     match unit {
         ChannelUnit::Number => format_number(alpha_channel.value()),
         ChannelUnit::Percentage => format_percentage(alpha_channel.value())
@@ -53,7 +54,7 @@ fn format_alpha_channel(alpha_channel: &SrgbChannel, unit: &ChannelUnit) -> Stri
 }
 
 
-/// Possible CSS types able to represent an sRGB channel value.
+/// Possible CSS types able to represent an RGB component value.
 #[derive(Debug, PartialEq, Eq)]
 pub enum ChannelUnit {
     Number,
@@ -148,6 +149,8 @@ impl Rgb {
 
 #[cfg(test)]
 mod tests {
+    use crate::color::component::SingleByteComponent;
+
     use super::*;
 
     #[test]
@@ -330,9 +333,9 @@ mod tests {
     #[test]
     fn to_rgb_str_omit_alpha_channel_opaque() {
         let color = Rgb::from_channels(
-            SrgbChannel::from_u8(128),
-            SrgbChannel::from_u8(255),
-            SrgbChannel::from_u8(0),
+            RgbChannel::from_u8(128),
+            RgbChannel::from_u8(255),
+            RgbChannel::from_u8(0),
         );
 
         let rgb_string = color.to_rgb_function_str(
@@ -346,10 +349,10 @@ mod tests {
     #[test]
     fn to_rgb_str_omit_alpha_channel_non_opaque() {
         let color = Rgb::from_channels_with_alpha(
-            SrgbChannel::from_u8(128),
-            SrgbChannel::from_u8(255),
-            SrgbChannel::from_u8(0),
-            SrgbChannel::from_u8(0),
+            RgbChannel::from_u8(128),
+            RgbChannel::from_u8(255),
+            RgbChannel::from_u8(0),
+            RgbChannel::from_u8(0),
         );
 
         let rgb_string = color.to_rgb_function_str(
@@ -363,9 +366,9 @@ mod tests {
     #[test]
     fn to_rgb_str_omit_alpha_never() {
         let color = Rgb::from_channels(
-            SrgbChannel::from_u8(128),
-            SrgbChannel::from_u8(255),
-            SrgbChannel::from_u8(0),
+            RgbChannel::from_u8(128),
+            RgbChannel::from_u8(255),
+            RgbChannel::from_u8(0),
         );
 
         let rgb_string = color.to_rgb_function_str(
@@ -379,9 +382,9 @@ mod tests {
     #[test]
     fn to_rgb_str_number_color_channel() {
         let color = Rgb::from_channels
-            (SrgbChannel::from_u8(128),
-             SrgbChannel::from_u8(255),
-             SrgbChannel::from_u8(0),
+            (RgbChannel::from_u8(128),
+             RgbChannel::from_u8(255),
+             RgbChannel::from_u8(0),
             );
 
         let rgb_string = color.to_rgb_function_str(
@@ -395,9 +398,9 @@ mod tests {
     #[test]
     fn to_rgb_str_number_color_channel_decimals() {
         let color = Rgb::from_channels(
-            SrgbChannel::new(Float::with_val(64, 0.525)),
-            SrgbChannel::new(Float::with_val(64, 0.125)),
-            SrgbChannel::new(Float::with_val(64, 0.901)),
+            RgbChannel::from_value(Float::with_val(64, 0.525)),
+            RgbChannel::from_value(Float::with_val(64, 0.125)),
+            RgbChannel::from_value(Float::with_val(64, 0.901)),
         );
 
         let rgb_string = color.to_rgb_function_str(
@@ -411,9 +414,9 @@ mod tests {
     #[test]
     fn to_rgb_str_percentage_color_channel() {
         let color = Rgb::from_channels(
-            SrgbChannel::from_u8(0),
-            SrgbChannel::from_u8(255),
-            SrgbChannel::from_u8(0),
+            RgbChannel::from_u8(0),
+            RgbChannel::from_u8(255),
+            RgbChannel::from_u8(0),
         );
 
         let rgb_string = color.to_rgb_function_str(
@@ -427,9 +430,9 @@ mod tests {
     #[test]
     fn to_rgb_str_percentage_color_channel_decimals() {
         let color = Rgb::from_channels(
-            SrgbChannel::new(Float::with_val(64, 0.5)),
-            SrgbChannel::new(Float::with_val(64, 0.125)),
-            SrgbChannel::new(Float::with_val(64, 0.901)),
+            RgbChannel::from_value(Float::with_val(64, 0.5)),
+            RgbChannel::from_value(Float::with_val(64, 0.125)),
+            RgbChannel::from_value(Float::with_val(64, 0.901)),
         );
 
         let rgb_string = color.to_rgb_function_str(
@@ -443,10 +446,10 @@ mod tests {
     #[test]
     fn to_rgb_str_number_alpha_channel() {
         let color = Rgb::from_channels_with_alpha(
-            SrgbChannel::from_u8(0),
-            SrgbChannel::from_u8(255),
-            SrgbChannel::from_u8(0),
-            SrgbChannel::from_u8(255),
+            RgbChannel::from_u8(0),
+            RgbChannel::from_u8(255),
+            RgbChannel::from_u8(0),
+            RgbChannel::from_u8(255),
         );
 
         let rgb_string = color.to_rgb_function_str(
@@ -460,10 +463,10 @@ mod tests {
     #[test]
     fn to_rgb_str_percentage_alpha_channel() {
         let color = Rgb::from_channels_with_alpha(
-            SrgbChannel::from_u8(0),
-            SrgbChannel::from_u8(255),
-            SrgbChannel::from_u8(0),
-            SrgbChannel::from_u8(255),
+            RgbChannel::from_u8(0),
+            RgbChannel::from_u8(255),
+            RgbChannel::from_u8(0),
+            RgbChannel::from_u8(255),
         );
 
         let rgb_string = color.to_rgb_function_str(

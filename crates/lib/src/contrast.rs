@@ -5,6 +5,7 @@ use std::fmt::Display;
 use rug::Float;
 use rug::ops::Pow;
 
+use crate::color::component::FloatComponent;
 use crate::color::rgb::Rgb;
 
 /// Contrast target values based on

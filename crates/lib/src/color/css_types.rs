@@ -1,12 +1,12 @@
 use rug::Float;
 
-use crate::color::rgb::DEFAULT_SRGB_PRECISION;
+use crate::color::rgb::DEFAULT_RGB_PRECISION;
 use crate::error::ParsingError;
 
 /// Parses a CSS number (e.g. '1.2' as a float 1.2).
 // https://www.w3.org/TR/css-values-3/#number
 pub(crate) fn parse_number(seq: &str) -> Result<Float, ParsingError> {
-    Ok(Float::with_val(DEFAULT_SRGB_PRECISION, Float::parse(seq)?))
+    Ok(Float::with_val(DEFAULT_RGB_PRECISION, Float::parse(seq)?))
 }
 
 /// Checks if something can be parsed as a CSS percentage.
