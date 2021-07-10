@@ -22,7 +22,7 @@ fn parse_color_channel(seq: &str) -> Result<SrgbChannel, ParsingError> {
     } else {
         channel_val = parse_number(seq)? / SRGB_SINGLE_BYTE_CHANNEL_RANGE.end();
     }
-    Ok(SrgbChannel::with_val(clamp_in_channel_range(channel_val)))
+    Ok(SrgbChannel::new(clamp_in_channel_range(channel_val)))
 }
 
 // https://www.w3.org/TR/css-color-4/#typedef-alpha-value
@@ -34,7 +34,7 @@ fn parse_alpha_channel(seq: &str) -> Result<SrgbChannel, ParsingError> {
         // When parsing the alpha channel, the value ranges from 0 to 1 already.
         channel_val = parse_number(seq)?;
     }
-    Ok(SrgbChannel::with_val(clamp_in_channel_range(channel_val)))
+    Ok(SrgbChannel::new(clamp_in_channel_range(channel_val)))
 }
 
 
@@ -395,9 +395,9 @@ mod tests {
     #[test]
     fn to_rgb_str_number_color_channel_decimals() {
         let color = Rgb::from_channels(
-            SrgbChannel::with_val(Float::with_val(64, 0.525)),
-            SrgbChannel::with_val(Float::with_val(64, 0.125)),
-            SrgbChannel::with_val(Float::with_val(64, 0.901)),
+            SrgbChannel::new(Float::with_val(64, 0.525)),
+            SrgbChannel::new(Float::with_val(64, 0.125)),
+            SrgbChannel::new(Float::with_val(64, 0.901)),
         );
 
         let rgb_string = color.to_rgb_function_str(
@@ -427,9 +427,9 @@ mod tests {
     #[test]
     fn to_rgb_str_percentage_color_channel_decimals() {
         let color = Rgb::from_channels(
-            SrgbChannel::with_val(Float::with_val(64, 0.5)),
-            SrgbChannel::with_val(Float::with_val(64, 0.125)),
-            SrgbChannel::with_val(Float::with_val(64, 0.901)),
+            SrgbChannel::new(Float::with_val(64, 0.5)),
+            SrgbChannel::new(Float::with_val(64, 0.125)),
+            SrgbChannel::new(Float::with_val(64, 0.901)),
         );
 
         let rgb_string = color.to_rgb_function_str(

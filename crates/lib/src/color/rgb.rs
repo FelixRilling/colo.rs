@@ -54,7 +54,7 @@ impl Rgb {
 
     /// Creates an opaque color based on the given color channels.
     pub fn from_channels(red: SrgbChannel, green: SrgbChannel, blue: SrgbChannel) -> Rgb {
-        Rgb::from_channels_with_alpha(red, green, blue, SrgbChannel::with_val(srgb_max()))
+        Rgb::from_channels_with_alpha(red, green, blue, SrgbChannel::new(srgb_max()))
     }
 
     /// Creates a color based on the given color and alpha channels.
@@ -135,10 +135,10 @@ mod tests {
     #[test]
     fn channels_fit_in_u8_false_if_not_all_fit() {
         assert!(!Rgb::from_channels_with_alpha(
-            SrgbChannel::with_val(Float::with_val(64, 1)),
-            SrgbChannel::with_val(Float::with_val(64, 1)),
-            SrgbChannel::with_val(Float::with_val(64, 1)),
-            SrgbChannel::with_val(Float::with_val(64, 0.00000001)),
+            SrgbChannel::new(Float::with_val(64, 1)),
+            SrgbChannel::new(Float::with_val(64, 1)),
+            SrgbChannel::new(Float::with_val(64, 1)),
+            SrgbChannel::new(Float::with_val(64, 0.00000001)),
         ).channels_fit_in_u8());
     }
 }

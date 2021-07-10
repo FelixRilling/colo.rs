@@ -29,7 +29,7 @@ impl SrgbChannel {
     ///
     /// # Panics
     /// If value is out of range.
-    pub fn with_val(srgb_channel_val: Float) -> SrgbChannel {
+    pub fn new(srgb_channel_val: Float) -> SrgbChannel {
         assert!(SRGB_CHANNEL_RANGE.contains(&srgb_channel_val));
 
         SrgbChannel { value: srgb_channel_val }
@@ -38,7 +38,7 @@ impl SrgbChannel {
     /// Creates a new channel based on the given value in the range 0 to 255.
     pub fn from_u8(rgb_channel_val: u8) -> SrgbChannel {
         let srgb_channel_val = Float::with_val(DEFAULT_SRGB_PRECISION, rgb_channel_val) / SRGB_SINGLE_BYTE_CHANNEL_RANGE.end();
-        SrgbChannel::with_val(srgb_channel_val)
+        SrgbChannel::new(srgb_channel_val)
     }
 
     /// Returns the channel value as-is.
@@ -69,7 +69,7 @@ mod tests {
     #[test]
     fn with_val_creates_with_val() {
         let float = Float::with_val(64, 1);
-        let channel = SrgbChannel::with_val(float.clone());
+        let channel = SrgbChannel::new(float.clone());
 
         assert_eq!(*channel.value(), float);
     }
@@ -85,7 +85,7 @@ mod tests {
     #[test]
     fn to_u8_converts_from_float() {
         let float = Float::with_val(64, 1);
-        let channel = SrgbChannel::with_val(float);
+        let channel = SrgbChannel::new(float);
 
         assert_eq!(channel.to_u8(), 255);
     }
@@ -93,7 +93,7 @@ mod tests {
     #[test]
     fn fits_in_u8_false_if_too_precise() {
         let float = Float::with_val(64, 0.0000000001);
-        let channel = SrgbChannel::with_val(float);
+        let channel = SrgbChannel::new(float);
 
         assert!(!channel.fits_in_u8());
     }
@@ -101,7 +101,7 @@ mod tests {
     #[test]
     fn fits_in_u8_false_if_fitting() {
         let float = Float::with_val(64, 1);
-        let channel = SrgbChannel::with_val(float);
+        let channel = SrgbChannel::new(float);
 
         assert!(channel.fits_in_u8());
     }
