@@ -16,7 +16,7 @@ fn rgb_as_term_color(color: &Rgb) -> termcolor::Color {
 }
 
 /// Finds and returns the `color_options` value that has the best contrast to `initial_color`.
-fn get_best_contrast<'a>(initial_color: &'a Rgb, color_options: &'a [&Rgb]) -> &'a Rgb {
+fn get_best_contrast<'a>(initial_color: &'a Rgb, color_options: &'a [Rgb]) -> &'a Rgb {
     let mut best_contrast_ratio: Float = Float::with_val(DEFAULT_RGB_PRECISION, 0.0);
     // Default value only matters if all options have zero contrast, so they should be the same as initial_color anyways.
     let mut best_contrast_ratio_color: &Rgb = initial_color;
@@ -45,7 +45,7 @@ pub(crate) fn print_color(stdout: &mut StandardStream, color: &Rgb) -> std::io::
         RgbChannel::from_u8(255),
         RgbChannel::from_u8(255),
     );
-    let foreground_color_options = vec![&black, &white];
+    let foreground_color_options = vec![black, white];
     let foreground_color = get_best_contrast(color, &foreground_color_options);
 
     stdout.set_color(
@@ -75,14 +75,14 @@ mod tests {
             RgbChannel::from_u8(255),
             RgbChannel::from_u8(255),
         );
-        let options = vec![&black, &white];
+        let options = vec![black.clone(), white.clone()];
 
         let bright_color = Rgb::from_hex_str("#ABCDEF").unwrap();
         let bright_color_best_contrast_actual = get_best_contrast(&bright_color, &options);
-        assert_eq!(bright_color_best_contrast_actual, &black);
+        assert_eq!(*bright_color_best_contrast_actual, black);
 
         let dark_color = Rgb::from_hex_str("#696969").unwrap();
         let dark_color_best_contrast_actual = get_best_contrast(&dark_color, &options);
-        assert_eq!(dark_color_best_contrast_actual, &white);
+        assert_eq!(*dark_color_best_contrast_actual, white);
     }
 }

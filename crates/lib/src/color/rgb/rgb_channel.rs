@@ -1,6 +1,9 @@
 use rug::Float;
 
-use crate::color::component::{FLOAT_COMPONENT_VALUE_RANGE, FloatComponent, SINGLE_BYTE_COMPONENT_VALUE_RANGE, SingleByteComponent};
+use crate::color::component::{
+    FLOAT_COMPONENT_VALUE_RANGE, FloatComponent, SINGLE_BYTE_COMPONENT_VALUE_RANGE,
+    SingleByteComponent,
+};
 
 /// Floating point precision used when creating floats internally.
 /// Chosen arbitrarily, but the current value seems to work based on most exploration tests.
@@ -11,7 +14,7 @@ pub(crate) fn value_max() -> Float {
 }
 
 /// [RGB](https://en.wikipedia.org/wiki/RGB_color_model) channel.
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct RgbChannel {
     value: Float,
 }
@@ -30,7 +33,6 @@ impl FloatComponent for RgbChannel {
     }
 }
 
-
 impl SingleByteComponent for RgbChannel {
     fn from_u8(component_value: u8) -> RgbChannel {
         let component_value_float = Float::with_val(DEFAULT_RGB_PRECISION, component_value)
@@ -40,9 +42,10 @@ impl SingleByteComponent for RgbChannel {
 
     fn to_u8(&self) -> u8 {
         let single_byte_component_value_float =
-            (self.value().clone() * SINGLE_BYTE_COMPONENT_VALUE_RANGE.end()).ceil();
+            self.value().clone() * SINGLE_BYTE_COMPONENT_VALUE_RANGE.end();
         // Because constructor enforces that value must be >= 0 and <=1, this conversion should never fail.
         single_byte_component_value_float
+            .ceil()// According to CSS color spec, rounding towards infinity is used when value is not an integer
             .to_integer()
             .expect("Could not convert channel val to integer.")
             .to_u8()
@@ -50,7 +53,8 @@ impl SingleByteComponent for RgbChannel {
     }
 
     fn fits_in_u8(&self) -> bool {
-        let single_byte_component_value_float = self.value().clone() * SINGLE_BYTE_COMPONENT_VALUE_RANGE.end();
+        let single_byte_component_value_float =
+            self.value().clone() * SINGLE_BYTE_COMPONENT_VALUE_RANGE.end();
         single_byte_component_value_float.is_integer()
     }
 }

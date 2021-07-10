@@ -18,15 +18,15 @@ pub enum ShorthandNotation {
     IfPossible,
 }
 
-fn can_shorthand_channel(channel_hex_str: &str) -> bool {
+fn can_shorthand_hexadecimal_channel(channel_hex_str: &str) -> bool {
     debug_assert!(channel_hex_str.len() == 2);
 
     channel_hex_str[0..1] == channel_hex_str[1..2]
 }
 
-fn shorthand_channel(channel_hex_str: &str) -> String {
+fn shorthand_hexadecimal_channel(channel_hex_str: &str) -> String {
     debug_assert!(channel_hex_str.len() == 2);
-    debug_assert!(can_shorthand_channel(channel_hex_str));
+    debug_assert!(can_shorthand_hexadecimal_channel(channel_hex_str));
 
     String::from(&channel_hex_str[0..1])
 }
@@ -166,19 +166,19 @@ impl Rgb {
             };
 
         if shorthand_notation == ShorthandNotation::IfPossible
-            && can_shorthand_channel(&red_str)
-            && can_shorthand_channel(&green_str)
-            && can_shorthand_channel(&blue_str)
+            && can_shorthand_hexadecimal_channel(&red_str)
+            && can_shorthand_hexadecimal_channel(&green_str)
+            && can_shorthand_hexadecimal_channel(&blue_str)
         {
             trace!("Color channels support shorthand syntax.");
-            match alpha_str_opt.as_ref() {
-                Some(alpha) => {
-                    if can_shorthand_channel(alpha) {
+            match alpha_str_opt {
+                Some(ref alpha) => {
+                    if can_shorthand_hexadecimal_channel(alpha) {
                         trace!("Alpha channel supports shorthand syntax.");
 
-                        red_str = shorthand_channel(&red_str);
-                        green_str = shorthand_channel(&green_str);
-                        blue_str = shorthand_channel(&blue_str);
+                        red_str = shorthand_hexadecimal_channel(&red_str);
+                        green_str = shorthand_hexadecimal_channel(&green_str);
+                        blue_str = shorthand_hexadecimal_channel(&blue_str);
                         trace!(
                             "Shorthanded color channel values r='{}', g='{}', b='{}'.",
                             &red_str,
@@ -186,7 +186,7 @@ impl Rgb {
                             &blue_str
                         );
 
-                        let shorthand_alpha_str = shorthand_channel(alpha);
+                        let shorthand_alpha_str = shorthand_hexadecimal_channel(alpha);
                         trace!(
                             "Shorthanded alpha channel value a='{}'.",
                             &shorthand_alpha_str
@@ -197,9 +197,9 @@ impl Rgb {
                 None => {
                     trace!("Alpha channel does not exist, skipping alpha shorthand check.");
 
-                    red_str = shorthand_channel(&red_str);
-                    green_str = shorthand_channel(&green_str);
-                    blue_str = shorthand_channel(&blue_str);
+                    red_str = shorthand_hexadecimal_channel(&red_str);
+                    green_str = shorthand_hexadecimal_channel(&green_str);
+                    blue_str = shorthand_hexadecimal_channel(&blue_str);
                     trace!(
                         "Shorthanded color channel values r='{}', g='{}', b='{}'.",
                         &red_str,

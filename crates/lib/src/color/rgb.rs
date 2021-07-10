@@ -12,7 +12,7 @@ mod rgb_function_str;
 mod hex_str;
 
 /// Represents a [RGB](https://en.wikipedia.org/wiki/RGB_color_space) color in the RGB color space with an alpha channel.
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct Rgb {
     red: RgbChannel,
     green: RgbChannel,
