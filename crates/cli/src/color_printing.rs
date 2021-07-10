@@ -4,7 +4,7 @@ use rug::Float;
 use termcolor::{ColorSpec, StandardStream, WriteColor};
 
 use color_utils::color::component::SingleByteComponent;
-use color_utils::color::rgb::{DEFAULT_RGB_PRECISION, Rgb, RgbChannel};
+use color_utils::color::rgb::{Rgb, RgbChannel};
 use color_utils::contrast::contrast_ratio_val;
 
 fn rgb_as_term_color(color: &Rgb) -> termcolor::Color {
@@ -17,7 +17,7 @@ fn rgb_as_term_color(color: &Rgb) -> termcolor::Color {
 
 /// Finds and returns the `color_options` value that has the best contrast to `initial_color`.
 fn get_best_contrast<'a>(initial_color: &'a Rgb, color_options: &'a [Rgb]) -> &'a Rgb {
-    let mut best_contrast_ratio: Float = Float::with_val(DEFAULT_RGB_PRECISION, 0.0);
+    let mut best_contrast_ratio: Float = Float::with_val(1, 0.0);
     // Default value only matters if all options have zero contrast, so they should be the same as initial_color anyways.
     let mut best_contrast_ratio_color: &Rgb = initial_color;
 
