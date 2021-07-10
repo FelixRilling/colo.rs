@@ -82,6 +82,7 @@ pub fn contrast_ratio_val(color_1: &Rgb, color_2: &Rgb) -> Float {
 }
 
 fn relative_luminance(color: &Rgb) -> Float {
+    // Note that RGB component values, being floats between 0 and 1, conform to the part described as 'sRGB' value in the WCAG spec.
     return 0.2126 * transform_color_value(color.red().value().clone())
         + 0.7152 * transform_color_value(color.green().value().clone())
         + 0.0722 * transform_color_value(color.blue().value().clone());

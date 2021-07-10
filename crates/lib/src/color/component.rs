@@ -1,12 +1,14 @@
+//! Traits for color channel components.
+
 use std::ops::RangeInclusive;
 
 use rug::Float;
 
 pub(crate) const FLOAT_COMPONENT_VALUE_RANGE: RangeInclusive<f64> = 0.0..=1.0;
 
-/// Channel that uses percentages/floats between 0 and 1 for the component value.
+/// Component that uses percentages, or floats between 0 and 1 for its value.
 ///
-/// In the case of RGB: <https://en.wikipedia.org/wiki/RGB_color_model#Numeric_representations>
+/// In the case of RGB: <https://en.wikipedia.org/wiki/RGB_color_model#Numeric_representations>.
 pub trait FloatComponent {
     /// Creates a new channel with the given value. Value must be >= 0 and <= 1.
     ///
@@ -20,16 +22,17 @@ pub trait FloatComponent {
 
 pub(crate) const SINGLE_BYTE_COMPONENT_VALUE_RANGE: RangeInclusive<u8> = u8::MIN..=u8::MAX;
 
-/// Software often uses an unsigned 8-bit number to represent a component value.
+/// Component with value able to be presented in a single byte.
+/// This is often used in software for historical purposes, or if the limited precision is good enough.
 ///
-/// In the case of RGB: <https://en.wikipedia.org/wiki/RGB_color_model#Numeric_representations>
-///
+/// In the case of RGB: <https://en.wikipedia.org/wiki/RGB_color_model#Numeric_representations>.
 /// As stated on <https://www.w3.org/TR/css-color-4/#rgb-functions>:
 /// "0 again represents the minimum value for the color channel, but 255 represents the maximum.
 /// These values come from the fact that many graphics engines store the color channels internally as a single byte,
 /// which can hold integers between 0 and 255."
 ///
-/// Due to most color models only using this as a secondary representation, method naming is named to avoid confusion.
+/// Meant to be used as secondary representation, for example for a color channel that is based on [`FloatComponent`].
+/// Method naming is adapted to avoid confusion.
 pub trait SingleByteComponent {
     /// Creates a new channel based on the given value in the range 0 to 255.
     fn from_u8(single_byte_value: u8) -> Self;
