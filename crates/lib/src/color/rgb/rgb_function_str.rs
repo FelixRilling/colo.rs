@@ -4,16 +4,24 @@ use rug::Float;
 
 use crate::color::component::{FloatComponent, SINGLE_BYTE_COMPONENT_VALUE_RANGE};
 use crate::color::component::FLOAT_COMPONENT_VALUE_RANGE;
-use crate::color::css_types::{format_number, format_percentage, is_percentage, parse_number, parse_percentage};
+use crate::color::css_types::{
+    format_number, format_percentage, is_percentage, parse_number, parse_percentage,
+};
 use crate::color::rgb::{OmitAlphaChannel, RgbChannel};
 use crate::color::rgb::Rgb;
 use crate::error::ParsingError;
 
 fn clamp_in_channel_range(channel_val: Float) -> Float {
     if !FLOAT_COMPONENT_VALUE_RANGE.contains(&channel_val) {
-        warn!("Channel value '{}' is out of RGB component range, it will be clamped.", &channel_val);
+        warn!(
+            "Channel value '{}' is out of RGB component range, it will be clamped.",
+            &channel_val
+        );
     }
-    channel_val.clamp(FLOAT_COMPONENT_VALUE_RANGE.start(), FLOAT_COMPONENT_VALUE_RANGE.end())
+    channel_val.clamp(
+        FLOAT_COMPONENT_VALUE_RANGE.start(),
+        FLOAT_COMPONENT_VALUE_RANGE.end(),
+    )
 }
 
 fn parse_color_channel(seq: &str) -> Result<RgbChannel, ParsingError> {
@@ -38,21 +46,21 @@ fn parse_alpha_channel(seq: &str) -> Result<RgbChannel, ParsingError> {
     Ok(RgbChannel::from_value(clamp_in_channel_range(channel_val)))
 }
 
-
 fn format_color_channel(color_channel: &RgbChannel, unit: &ChannelUnit) -> String {
     match unit {
-        ChannelUnit::Number => format_number(&(color_channel.value().clone() * SINGLE_BYTE_COMPONENT_VALUE_RANGE.end())),
-        ChannelUnit::Percentage => format_percentage(color_channel.value())
+        ChannelUnit::Number => format_number(
+            &(color_channel.value().clone() * SINGLE_BYTE_COMPONENT_VALUE_RANGE.end()),
+        ),
+        ChannelUnit::Percentage => format_percentage(color_channel.value()),
     }
 }
 
 fn format_alpha_channel(alpha_channel: &RgbChannel, unit: &ChannelUnit) -> String {
     match unit {
         ChannelUnit::Number => format_number(alpha_channel.value()),
-        ChannelUnit::Percentage => format_percentage(alpha_channel.value())
+        ChannelUnit::Percentage => format_percentage(alpha_channel.value()),
     }
 }
-
 
 /// Possible CSS types able to represent an RGB component value.
 #[derive(Debug, PartialEq, Eq)]
@@ -61,43 +69,54 @@ pub enum ChannelUnit {
     Percentage,
 }
 
-
 impl Rgb {
     /// Parses a CSS-style RGB function string.
-    /// For a list of supported formats, see <https://www.w3.org/TR/css-color-4/#rgb-functions>.
-    ///
-    /// Note that according to the spec, values out-of-range are clamped.
+    /// For details see the [CSS color specification](https://www.w3.org/TR/css-color-4/#rgb-functions).
     ///
     /// Note that the legacy syntax with comma or the `rgba` function are *not* supported.
-    ///
-    /// Note that only the lowercase function name 'rgb' is supported.
     ///
     /// # Errors
     /// A malformed input will result in an error. This may include but is not limited to:
     /// - Input not matching the shape of an RGB string.
     pub fn from_rgb_function_str(rgb_str: &str) -> Result<Rgb, ParsingError> {
+        // TODO: avoid regex compilation for every method invocation.
         // https://regex101.com/r/MZkxf8/1
         let rgb_regex = Regex::new(
-            r"^rgb\((?P<red>[-+]?(?:\d+\.)?\d+%?) (?P<green>[-+]?(?:\d+\.)?\d+%?) (?P<blue>[-+]?(?:\d+\.)?\d+%?)(?: / (?P<alpha>[-+]?(?:\d+\.)?\d+%?))?\)$"
+            r"(?i)^rgb\((?P<red>[-+]?(?:\d+\.)?\d+%?) (?P<green>[-+]?(?:\d+\.)?\d+%?) (?P<blue>[-+]?(?:\d+\.)?\d+%?)(?: / (?P<alpha>[-+]?(?:\d+\.)?\d+%?))?\)$"
         ).expect("Could not build RGB function string pattern.");
 
         match rgb_regex.captures(rgb_str) {
-            None => Err(ParsingError::InvalidSyntax("String did not match RGB function string pattern")),
+            None => Err(ParsingError::InvalidSyntax(
+                "String did not match RGB function string pattern",
+            )),
             Some(captures) => {
                 let red_str = captures.name("red").unwrap().as_str();
                 let green_str = captures.name("green").unwrap().as_str();
                 let blue_str = captures.name("blue").unwrap().as_str();
-                trace!("Found RGB function string color channel values r='{}', g='{}', b='{}'.", &red_str, &green_str, &blue_str);
+                trace!(
+                    "Found RGB function string color channel values r='{}', g='{}', b='{}'.",
+                    &red_str,
+                    &green_str,
+                    &blue_str
+                );
 
-                if is_percentage(red_str) != is_percentage(green_str) ||
-                    is_percentage(red_str) != is_percentage(blue_str) {
-                    return Err(ParsingError::InvalidSyntax("Unexpected combination of percentage and absolute values"));
+                if is_percentage(red_str) != is_percentage(green_str)
+                    || is_percentage(red_str) != is_percentage(blue_str)
+                {
+                    return Err(ParsingError::InvalidSyntax(
+                        "Unexpected combination of percentage and absolute values",
+                    ));
                 }
 
                 let red = parse_color_channel(red_str)?;
                 let green = parse_color_channel(green_str)?;
                 let blue = parse_color_channel(blue_str)?;
-                trace!("Parsed color channel values r='{}', g='{}', b='{}'.", red.value(), green.value(), blue.value());
+                trace!(
+                    "Parsed color channel values r='{}', g='{}', b='{}'.",
+                    red.value(),
+                    green.value(),
+                    blue.value()
+                );
 
                 match captures.name("alpha") {
                     None => {
@@ -123,13 +142,25 @@ impl Rgb {
     }
 
     /// Creates a CSS-style RGB function string for this color.
-    pub fn to_rgb_function_str(&self, omit_alpha_channel: OmitAlphaChannel, color_channel_unit: ChannelUnit, alpha_channel_unit: ChannelUnit) -> String {
+    /// For details see the [CSS color specification](https://www.w3.org/TR/css-color-4/#rgb-functions).
+    pub fn to_rgb_function_str(
+        &self,
+        omit_alpha_channel: OmitAlphaChannel,
+        color_channel_unit: ChannelUnit,
+        alpha_channel_unit: ChannelUnit,
+    ) -> String {
         let red_str = format_color_channel(self.red(), &color_channel_unit);
         let green_str = format_color_channel(self.green(), &color_channel_unit);
         let blue_str = format_color_channel(self.blue(), &color_channel_unit);
-        trace!("Formatted color channel values r='{}', g='{}', b='{}'.", &red_str, &green_str, &blue_str);
+        trace!(
+            "Formatted color channel values r='{}', g='{}', b='{}'.",
+            &red_str,
+            &green_str,
+            &blue_str
+        );
 
-        let alpha_str_opt = if self.is_opaque() && omit_alpha_channel == OmitAlphaChannel::IfOpaque {
+        let alpha_str_opt = if self.is_opaque() && omit_alpha_channel == OmitAlphaChannel::IfOpaque
+        {
             trace!("Omitting alpha channel from output.");
             None
         } else {
@@ -140,7 +171,12 @@ impl Rgb {
 
         let rgb_function_str = alpha_str_opt.map_or_else(
             || format!("rgb({} {} {})", &red_str, &green_str, &blue_str),
-            |alpha| format!("rgb({} {} {} / {})", &red_str, &green_str, &blue_str, &alpha),
+            |alpha| {
+                format!(
+                    "rgb({} {} {} / {})",
+                    &red_str, &green_str, &blue_str, &alpha
+                )
+            },
         );
         trace!("Created RGB function string '{}'.", &rgb_function_str);
         rgb_function_str
@@ -158,7 +194,20 @@ mod tests {
         let result = Rgb::from_rgb_function_str("rgb(");
 
         assert!(result.is_err());
-        assert!(matches!(result.err().unwrap(), ParsingError::InvalidSyntax ( .. )));
+        assert!(matches!(
+            result.err().unwrap(),
+            ParsingError::InvalidSyntax(..)
+        ));
+    }
+
+    #[test]
+    fn from_rgb_str_ignores_case() {
+        let color = Rgb::from_rgb_function_str("rGB(0 255 128)").unwrap();
+
+        assert_eq!(color.red().to_u8(), 0);
+        assert_eq!(color.green().to_u8(), 255);
+        assert_eq!(color.blue().to_u8(), 128);
+        assert_eq!(color.alpha().to_u8(), 255);
     }
 
     #[test]
@@ -326,9 +375,11 @@ mod tests {
         let result = Rgb::from_rgb_function_str("rgb(255 100% 128)");
 
         assert!(result.is_err());
-        assert!(matches!(result.err().unwrap(), ParsingError::InvalidSyntax ( .. )));
+        assert!(matches!(
+            result.err().unwrap(),
+            ParsingError::InvalidSyntax(..)
+        ));
     }
-
 
     #[test]
     fn to_rgb_str_omit_alpha_channel_opaque() {
@@ -381,11 +432,11 @@ mod tests {
 
     #[test]
     fn to_rgb_str_number_color_channel() {
-        let color = Rgb::from_channels
-            (RgbChannel::from_u8(128),
-             RgbChannel::from_u8(255),
-             RgbChannel::from_u8(0),
-            );
+        let color = Rgb::from_channels(
+            RgbChannel::from_u8(128),
+            RgbChannel::from_u8(255),
+            RgbChannel::from_u8(0),
+        );
 
         let rgb_string = color.to_rgb_function_str(
             OmitAlphaChannel::IfOpaque,

@@ -45,8 +45,8 @@ fn parse_hexadecimal_channel(seq: &str) -> Result<RgbChannel, ParsingError> {
 }
 
 impl Rgb {
-    /// Parses a CSS-style hex color notation string .
-    /// For a list of supported formats, see <https://www.w3.org/TR/css-color-4/#hex-notation>.
+    /// Parses a CSS-style hex color notation string.
+    /// For details see the [CSS color specification](https://www.w3.org/TR/css-color-4/#hex-notation).
     ///
     /// # Errors
     /// A malformed input will result in an error. This may include but is not limited to:
@@ -136,6 +136,7 @@ impl Rgb {
     }
 
     /// Creates a CSS-style hex color notation string for this color.
+    /// For details see the [CSS color specification](https://www.w3.org/TR/css-color-4/#hex-notation).
     ///
     /// Note that values more precise than the 8 bit supported for the hexadecimal notation will lose precision in the output.
     /// A RGB function string should be used instead for these. See [`channels_fit_in_u8`](#method.channels_fit_in_u8) for details.
