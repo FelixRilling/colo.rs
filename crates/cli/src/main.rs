@@ -1,8 +1,8 @@
 use clap::{App, Arg, SubCommand};
 use log::{debug, error, info, LevelFilter};
 
-use color_utils::color::rgb::Rgb;
 use color_utils::error::ParsingError;
+use color_utils::rgb::Rgb;
 
 mod color_printing;
 mod contrast;

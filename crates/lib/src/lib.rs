@@ -1,9 +1,7 @@
-pub mod color {
-    pub mod component;
-    pub mod rgb;
-    mod css_types;
-}
+pub mod component;
+pub mod error;
+pub mod rgb;
 
 pub mod contrast;
 
-pub mod error;
+mod css_types;

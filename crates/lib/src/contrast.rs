@@ -5,8 +5,8 @@ use std::fmt::Display;
 use rug::Float;
 use rug::ops::Pow;
 
-use crate::color::component::FloatComponent;
-use crate::color::rgb::Rgb;
+use crate::component::FloatComponent;
+use crate::rgb::Rgb;
 
 /// Contrast target values based on
 /// <https://www.w3.org/TR/2008/REC-WCAG20-20081211/#visual-audio-contrast-contrast>.
@@ -99,7 +99,7 @@ fn transform_color_value(srgb_val: Float) -> Float {
 
 #[cfg(test)]
 mod tests {
-    use crate::color::rgb::Rgb;
+    use crate::rgb::Rgb;
 
     use super::*;
 

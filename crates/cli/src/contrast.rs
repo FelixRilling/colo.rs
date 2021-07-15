@@ -4,8 +4,8 @@ use std::io::Write;
 use rug::Float;
 use termcolor::{ColorChoice, StandardStream};
 
-use color_utils::color::rgb::Rgb;
 use color_utils::contrast::{contrast_ratio_levels_reached, contrast_ratio_val};
+use color_utils::rgb::Rgb;
 
 use crate::color_printing::print_color;
 

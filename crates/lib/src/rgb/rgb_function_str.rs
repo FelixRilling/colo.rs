@@ -2,14 +2,14 @@ use log::{trace, warn};
 use regex::Regex;
 use rug::Float;
 
-use crate::color::component::{FloatComponent, SINGLE_BYTE_COMPONENT_VALUE_RANGE};
-use crate::color::component::FLOAT_COMPONENT_VALUE_RANGE;
-use crate::color::css_types::{
+use crate::component::{FloatComponent, SINGLE_BYTE_COMPONENT_VALUE_RANGE};
+use crate::component::FLOAT_COMPONENT_VALUE_RANGE;
+use crate::css_types::{
     format_number, format_percentage, is_percentage, parse_number, parse_percentage,
 };
-use crate::color::rgb::{OmitAlphaChannel, RgbChannel};
-use crate::color::rgb::Rgb;
 use crate::error::ParsingError;
+use crate::rgb::{OmitAlphaChannel, RgbChannel};
+use crate::rgb::Rgb;
 
 fn clamp_in_channel_range(channel_val: Float) -> Float {
     if !FLOAT_COMPONENT_VALUE_RANGE.contains(&channel_val) {
@@ -185,7 +185,7 @@ impl Rgb {
 
 #[cfg(test)]
 mod tests {
-    use crate::color::component::SingleByteComponent;
+    use crate::component::SingleByteComponent;
 
     use super::*;
 

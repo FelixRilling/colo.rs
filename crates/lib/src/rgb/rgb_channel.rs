@@ -1,6 +1,6 @@
 use rug::Float;
 
-use crate::color::component::{
+use crate::component::{
     FLOAT_COMPONENT_VALUE_RANGE, FloatComponent, SINGLE_BYTE_COMPONENT_VALUE_RANGE,
     SingleByteComponent,
 };
@@ -61,7 +61,7 @@ impl SingleByteComponent for RgbChannel {
 
 #[cfg(test)]
 mod tests {
-    use crate::color::component::SingleByteComponent;
+    use crate::component::SingleByteComponent;
 
     use super::*;
 

@@ -1,11 +1,11 @@
 use std::fmt;
 use std::fmt::Display;
 
-use crate::color::component::{FloatComponent, SingleByteComponent};
-pub use crate::color::rgb::hex_str::{LetterCase, ShorthandNotation};
-pub use crate::color::rgb::rgb_channel::{DEFAULT_RGB_PRECISION, RgbChannel};
-use crate::color::rgb::rgb_channel::value_max;
-pub use crate::color::rgb::rgb_function_str::ChannelUnit;
+use crate::component::{FloatComponent, SingleByteComponent};
+pub use crate::rgb::hex_str::{LetterCase, ShorthandNotation};
+pub use crate::rgb::rgb_channel::{DEFAULT_RGB_PRECISION, RgbChannel};
+use crate::rgb::rgb_channel::value_max;
+pub use crate::rgb::rgb_function_str::ChannelUnit;
 
 mod rgb_channel;
 mod rgb_function_str;

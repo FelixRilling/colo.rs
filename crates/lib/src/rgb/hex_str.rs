@@ -1,8 +1,8 @@
 use log::trace;
 
-use crate::color::component::{FloatComponent, SingleByteComponent};
-use crate::color::rgb::{OmitAlphaChannel, Rgb, RgbChannel};
+use crate::component::{FloatComponent, SingleByteComponent};
 use crate::error::ParsingError;
+use crate::rgb::{OmitAlphaChannel, Rgb, RgbChannel};
 
 /// Represents the case of hexadecimal letters.
 #[derive(Debug, PartialEq, Eq)]

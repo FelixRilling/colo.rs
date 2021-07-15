@@ -3,9 +3,9 @@ use std::io::Write;
 use rug::Float;
 use termcolor::{ColorSpec, StandardStream, WriteColor};
 
-use color_utils::color::component::SingleByteComponent;
-use color_utils::color::rgb::{Rgb, RgbChannel};
+use color_utils::component::SingleByteComponent;
 use color_utils::contrast::contrast_ratio_val;
+use color_utils::rgb::{Rgb, RgbChannel};
 
 fn rgb_as_term_color(color: &Rgb) -> termcolor::Color {
     termcolor::Color::Rgb(
@@ -59,7 +59,7 @@ pub(crate) fn print_color(stdout: &mut StandardStream, color: &Rgb) -> std::io::
 
 #[cfg(test)]
 mod tests {
-    use color_utils::color::rgb::Rgb;
+    use color_utils::rgb::Rgb;
 
     use super::*;
 

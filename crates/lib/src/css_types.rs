@@ -1,7 +1,7 @@
 use rug::Float;
 
-use crate::color::rgb::DEFAULT_RGB_PRECISION;
 use crate::error::ParsingError;
+use crate::rgb::DEFAULT_RGB_PRECISION;
 
 /// Parses a CSS number (e.g. `'1.2'` as a float `1.2`).
 // https://www.w3.org/TR/css-values-3/#number
