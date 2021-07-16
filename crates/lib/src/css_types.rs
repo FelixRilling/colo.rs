@@ -2,6 +2,7 @@ use rug::Float;
 
 use crate::error::ParsingError;
 use crate::rgb::DEFAULT_RGB_PRECISION;
+use crate::float::float_to_string;
 
 /// Parses a CSS number (e.g. `'1.2'` as a float `1.2`).
 // https://www.w3.org/TR/css-values-3/#number
@@ -27,12 +28,12 @@ pub(crate) fn parse_percentage(seq: &str) -> Result<Float, ParsingError> {
 
 /// Formats a float as a CSS number (e.g. `0.6` as `'0.6'`).
 pub(crate) fn format_number(val: &Float) -> String {
-    format!("{}", val.to_f32())
+    float_to_string(val)
 }
 
 
 /// Formats a float as a CSS percentage (e.g. `0.6` as `'60%'`).
 pub(crate) fn format_percentage(val: &Float) -> String {
-    let tmp: Float = val.clone() * 100;
-    format!("{}%", tmp.to_f32())
+    let val_as_percentage: Float = val.clone() * 100;
+    format!("{}%", float_to_string(&val_as_percentage))
 }

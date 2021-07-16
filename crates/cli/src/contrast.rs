@@ -35,8 +35,8 @@ pub(crate) fn print_contrast(color_1: &Rgb, color_2: &Rgb, verbosity: usize) -> 
     let contrast_ratio_val_str = if verbosity == 0 {
         // Usually only displaying the last 2 digits is enough.
         let floored_val = floor_n_decimals(&contrast_ratio_val, 2);
-        // Conversion to f32 is used to bypass weird Float formatting.
-        floored_val.to_f32().to_string()
+        // See color_utils::float::float_to_string
+        floored_val.to_f64().to_string()
     } else {
         contrast_ratio_val.to_string()
     };
