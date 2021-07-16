@@ -186,7 +186,7 @@ mod tests {
     fn contrast_ratio_val_same_color() {
         let black = Rgb::from_hex_str("#000000").unwrap();
 
-        let expected = Float::with_val(32, 1);
+        let expected = Float::with_val(64, 1);
         let actual = contrast_ratio_val(&black, &black);
         assert_eq!(actual, expected)
     }
@@ -196,7 +196,7 @@ mod tests {
         let black = Rgb::from_hex_str("#000000").unwrap();
         let white = Rgb::from_hex_str("#FFFFFF").unwrap();
 
-        let expected = Float::with_val(32, 21);
+        let expected = Float::with_val(64, 21);
         let mut actual = contrast_ratio_val(&black, &white);
         actual.set_prec(32); // We only require the first few decimal places to match.
         assert_eq!(actual, expected)

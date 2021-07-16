@@ -448,18 +448,17 @@ mod tests {
 
     #[test]
     fn to_rgb_str_number_color_channel_decimals() {
-        let color = Rgb::from_channels(
-            RgbChannel::from_value(Float::with_val(64, 0.525)),
-            RgbChannel::from_value(Float::with_val(64, 0.125)),
-            RgbChannel::from_value(Float::with_val(64, 0.901)),
-        );
+        let red = RgbChannel::from_value(Float::with_val(64, 1) / 1000);
+        let green = RgbChannel::from_value(Float::with_val(64, 1) / 10_000);
+        let blue = RgbChannel::from_value(Float::with_val(64, 1) / 100_000);
+        let color = Rgb::from_channels(red, green, blue);
 
         let rgb_string = color.to_rgb_function_str(
             OmitAlphaChannel::IfOpaque,
             ChannelUnit::Number,
             ChannelUnit::Number,
         );
-        assert_eq!(rgb_string, "rgb(133.875 31.875 229.755)");
+        assert_eq!(rgb_string, "rgb(0.255 0.0255 0.00255)");
     }
 
     #[test]
@@ -480,18 +479,17 @@ mod tests {
 
     #[test]
     fn to_rgb_str_percentage_color_channel_decimals() {
-        let color = Rgb::from_channels(
-            RgbChannel::from_value(Float::with_val(64, 0.5)),
-            RgbChannel::from_value(Float::with_val(64, 0.125)),
-            RgbChannel::from_value(Float::with_val(64, 0.901)),
-        );
+        let red = RgbChannel::from_value(Float::with_val(64, 1) / 1000);
+        let green = RgbChannel::from_value(Float::with_val(64, 1) / 10_000);
+        let blue = RgbChannel::from_value(Float::with_val(64, 1) / 100_000);
+        let color = Rgb::from_channels(red, green, blue);
 
         let rgb_string = color.to_rgb_function_str(
             OmitAlphaChannel::IfOpaque,
             ChannelUnit::Percentage,
             ChannelUnit::Number,
         );
-        assert_eq!(rgb_string, "rgb(50% 12.5% 90.1%)");
+        assert_eq!(rgb_string, "rgb(0.1% 0.01% 0.001%)");
     }
 
     #[test]
