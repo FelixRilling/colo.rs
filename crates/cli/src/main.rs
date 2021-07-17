@@ -1,67 +1,19 @@
-use clap::{App, Arg, SubCommand};
-use log::{debug, info, LevelFilter};
+use clap::{App, Arg, ArgGroup, SubCommand};
+use log::LevelFilter;
 
-use color_utils::error::ParsingError;
-use color_utils::rgb::Rgb;
+use color_format::ColorFormat;
+use options::Options;
 
+mod color_format;
 mod color_printing;
 mod contrast;
-
-// TODO: Allow specifying which format should be used instead of trying all.
-
-pub fn is_color(val: String) -> Result<(), String> {
-    if Rgb::from_hex_str(&val).is_ok() || Rgb::from_rgb_function_str(&val).is_ok() {
-        return Ok(());
-    }
-    Err(String::from(
-        "Could not parse the value as a CSS-like color value.",
-    ))
-}
-
-pub fn parse_color(seq: &str) -> Result<Rgb, ParsingError> {
-    debug!("Attempting to parse '{}' as hex string color.", seq);
-    match Rgb::from_hex_str(seq) {
-        Ok(color) => {
-            info!(
-                "Successfully parsed '{}' as hex string color: '{}'.",
-                seq, &color
-            );
-            Ok(color)
-        }
-        Err(hex_err) => {
-            info!(
-                "Could not parse '{}' as hex string color: {}.",
-                seq, &hex_err
-            );
-
-            debug!(
-                "Attempting to parse '{}' as RGB function string color.",
-                seq
-            );
-            match Rgb::from_rgb_function_str(seq) {
-                Ok(color) => {
-                    info!(
-                        "Successfully parsed '{}' as RGB function string color: '{}'.",
-                        seq, &color
-                    );
-                    Ok(color)
-                }
-                Err(rgb_function_err) => {
-                    info!(
-                        "Could not parse '{}' as RGB function string color: {}.",
-                        seq, &rgb_function_err
-                    );
-                    Err(rgb_function_err)
-                }
-            }
-        }
-    }
-}
+mod options;
 
 fn decorate_color_arg<'a>(arg: Arg<'a, 'a>) -> Arg<'a, 'a> {
-    arg.required(true)
-        .help("CSS-like color value, e.g. #00FF11 or 'rgb(255 128 0)'.")
-        .validator(is_color)
+    arg.takes_value(true)
+        .help(
+            "CSS-like color value, e.g. #00FF11 or 'rgb(255 128 0)'. By default, all supported formats are tried. This can be changed via color-format arguments."
+        )
 }
 
 fn main() {
@@ -70,13 +22,32 @@ fn main() {
             Arg::with_name("v")
                 .short("v")
                 .multiple(true)
+                .takes_value(false)
                 .help("Increase message verbosity."),
+        )
+        .arg(
+            Arg::with_name("rgb-hex")
+                .long("rgb-hex")
+                .takes_value(false)
+                .help("Use RGB hexadecimal format for input/output."),
+        )
+        .arg(
+            Arg::with_name("rgb-function")
+                .long("rgb-function")
+                .takes_value(false)
+                .help("Use RGB function format for input/output."),
+        )
+        .group(
+            ArgGroup::with_name("color-format")
+                .required(false)
+                .arg("rgb-hex")
+                .arg("rgb-function"),
         )
         .subcommand(
             SubCommand::with_name("contrast")
                 .about("Calculate WCAG contrast of two colors.")
-                .arg(decorate_color_arg(Arg::with_name("color_1")))
-                .arg(decorate_color_arg(Arg::with_name("color_2"))),
+                .arg(decorate_color_arg(Arg::with_name("color-1").required(true)))
+                .arg(decorate_color_arg(Arg::with_name("color-2").required(true))),
         )
         .get_matches();
 
@@ -91,16 +62,27 @@ fn main() {
         })
         .init();
 
+    let format = match matches {
+        _ if matches.is_present("rgb-hex") => ColorFormat::RgbHex,
+        _ if matches.is_present("rgb-function") => ColorFormat::RgbFunction,
+        _ => ColorFormat::Auto,
+    };
+
+    let options = Options { verbosity, format };
+
     match matches.subcommand_matches("contrast") {
         Some(matches) => {
-            let color_1_str = matches.value_of("color_1").unwrap();
-            let color_2_str = matches.value_of("color_2").unwrap();
+            let color_1_str = matches.value_of("color-1").unwrap();
+            let color_2_str = matches.value_of("color-2").unwrap();
 
-            let color_1 = parse_color(color_1_str).unwrap();
-            let color_2 = parse_color(color_2_str).unwrap();
-
-            contrast::print_contrast(&color_1, &color_2, verbosity)
-                .expect("Could not print contrast.");
+            match color_format::parse_color(color_1_str, &options.format) {
+                Err(e_1) => eprintln!("Could not parse color 1: {}.", e_1),
+                Ok(color_1) => match color_format::parse_color(color_2_str, &options.format) {
+                    Err(e_2) => eprintln!("Could not parse color 2: {}.", e_2),
+                    Ok(color_2) => contrast::print_contrast(&color_1, &color_2, &options)
+                        .expect("Could not print contrast."),
+                },
+            }
         }
         None => eprintln!("No subcommand provided. See --help."),
     }

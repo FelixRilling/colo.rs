@@ -9,6 +9,7 @@ use color_utils::rgb::Rgb;
 use color_utils_internal::float::float_to_string;
 
 use crate::color_printing::print_color;
+use crate::options::Options;
 
 fn floor_n_decimals(val: &Float, n: u32) -> Float {
     let factor = 10_i32.pow(n);
@@ -22,7 +23,7 @@ fn hash_set_as_sorted_vec<T: Ord>(hash_set: HashSet<T>) -> Vec<T> {
     set_copy_vec
 }
 
-pub(crate) fn print_contrast(color_1: &Rgb, color_2: &Rgb, verbosity: usize) -> std::io::Result<()> {
+pub(crate) fn print_contrast(color_1: &Rgb, color_2: &Rgb, options: &Options) -> std::io::Result<()> {
     let contrast_ratio_val = contrast_ratio_val(color_1, color_2);
     let contrast_levels_reached = contrast_ratio_levels_reached(color_1, color_2);
 
@@ -33,7 +34,7 @@ pub(crate) fn print_contrast(color_1: &Rgb, color_2: &Rgb, verbosity: usize) -> 
     write!(&mut stdout, " to ")?;
     print_color(&mut stdout, color_2)?;
 
-    let contrast_ratio_val_str = if verbosity == 0 {
+    let contrast_ratio_val_str = if options.verbosity == 0 {
         // Usually only displaying the last 2 digits is enough.
         let floored_val = floor_n_decimals(&contrast_ratio_val, 2);
         float_to_string(&floored_val)
