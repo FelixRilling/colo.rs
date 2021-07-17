@@ -5,4 +5,3 @@ pub mod rgb;
 pub mod contrast;
 
 mod css_types;
-mod float;

@@ -68,6 +68,7 @@ dependencies = [
 name = "color-utils"
 version = "0.1.0"
 dependencies = [
+ "color-utils-internal",
  "log",
  "regex",
  "rug",
@@ -79,10 +80,18 @@ version = "0.1.0"
 dependencies = [
  "clap",
  "color-utils",
+ "color-utils-internal",
  "env_logger",
  "log",
  "rug",
  "termcolor",
+]
+
+[[package]]
+name = "color-utils-internal"
+version = "0.1.0"
+dependencies = [
+ "rug",
 ]
 
 [[package]]

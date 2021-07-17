@@ -1,0 +1,13 @@
+[package]
+name = "color-utils-internal"
+version = "0.1.0"
+authors = ["FelixRilling <contact@rilling.dev>"]
+description = """
+Internal cross-crate utility code.
+"""
+edition = "2018"
+
+[dependencies.rug]
+version = "1.12"
+default-features = false
+features = ["float"]

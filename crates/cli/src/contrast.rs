@@ -6,6 +6,7 @@ use termcolor::{ColorChoice, StandardStream};
 
 use color_utils::contrast::{contrast_ratio_levels_reached, contrast_ratio_val};
 use color_utils::rgb::Rgb;
+use color_utils_internal::float::float_to_string;
 
 use crate::color_printing::print_color;
 
@@ -35,8 +36,7 @@ pub(crate) fn print_contrast(color_1: &Rgb, color_2: &Rgb, verbosity: usize) -> 
     let contrast_ratio_val_str = if verbosity == 0 {
         // Usually only displaying the last 2 digits is enough.
         let floored_val = floor_n_decimals(&contrast_ratio_val, 2);
-        // See color_utils::float::float_to_string
-        floored_val.to_f64().to_string()
+        float_to_string(&floored_val)
     } else {
         contrast_ratio_val.to_string()
     };
