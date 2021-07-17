@@ -42,14 +42,14 @@ fn parse_color_auto(seq: &str) -> Result<Rgb, ParsingError> {
         Ok(color) => Ok(color),
         Err(hex_err) => {
             debug!(
-                "Could not parse '{}' as hex string color: {}.",
+                "Could not parse '{}' as hex string: {}.",
                 seq, &hex_err
             );
             match Rgb::from_rgb_function_str(seq) {
                 Ok(color) => Ok(color),
                 Err(rgb_function_err) => {
                     debug!(
-                        "Could not parse '{}' as RGB function string color: {}.",
+                        "Could not parse '{}' as RGB function string: {}.",
                         seq, &rgb_function_err
                     );
                     Err(ParsingError::InvalidSyntax(
