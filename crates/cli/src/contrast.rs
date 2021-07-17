@@ -11,9 +11,9 @@ use color_utils_internal::float::float_to_string;
 use crate::color_printing::print_color;
 use crate::options::Options;
 
-fn floor_n_decimals(val: &Float, n: u32) -> Float {
+fn floor_n_decimals(val: Float, n: u32) -> Float {
     let factor = 10_i32.pow(n);
-    let tmp = val.clone() * factor;
+    let tmp = val * factor;
     tmp.floor() / factor
 }
 
@@ -36,7 +36,7 @@ pub fn print_contrast(color_1: &Rgb, color_2: &Rgb, options: &Options) -> std::i
 
     let contrast_ratio_val_str = if options.verbosity == 0 {
         // Usually only displaying the last 2 digits is enough.
-        let floored_val = floor_n_decimals(&contrast_ratio_val, 2);
+        let floored_val = floor_n_decimals(contrast_ratio_val, 2);
         float_to_string(&floored_val)
     } else {
         contrast_ratio_val.to_string()
