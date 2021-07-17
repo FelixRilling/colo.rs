@@ -11,7 +11,8 @@ edition = "2018"
 color-utils-internal = { version = "0.1.0", path = "../internal" }
 
 regex = "1.5.4"
-log = { version = "0.4.14" }
+log = "0.4.14"
+lazy_static = "1.4.0"
 
 [dependencies.rug]
 version = "1.12"

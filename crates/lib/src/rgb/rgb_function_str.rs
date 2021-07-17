@@ -1,6 +1,7 @@
 use log::{trace, warn};
 use regex::Regex;
 use rug::Float;
+use lazy_static::lazy_static;
 
 use crate::component::{FloatComponent, SINGLE_BYTE_COMPONENT_VALUE_RANGE};
 use crate::component::FLOAT_COMPONENT_VALUE_RANGE;
@@ -79,13 +80,14 @@ impl Rgb {
     /// A malformed input will result in an error. This may include but is not limited to:
     /// - Input not matching the shape of an RGB string.
     pub fn from_rgb_function_str(rgb_str: &str) -> Result<Rgb, ParsingError> {
-        // TODO: avoid regex compilation for every method invocation.
         // https://regex101.com/r/MZkxf8/1
-        let rgb_regex = Regex::new(
-            r"(?i)^rgb\((?P<red>[-+]?(?:\d+\.)?\d+%?) (?P<green>[-+]?(?:\d+\.)?\d+%?) (?P<blue>[-+]?(?:\d+\.)?\d+%?)(?: / (?P<alpha>[-+]?(?:\d+\.)?\d+%?))?\)$"
-        ).expect("Could not build RGB function string pattern.");
+        lazy_static! {
+            static ref RGB_FUNCTION_REGEX: Regex = Regex::new(
+                r"(?i)^rgb\((?P<red>[-+]?(?:\d+\.)?\d+%?) (?P<green>[-+]?(?:\d+\.)?\d+%?) (?P<blue>[-+]?(?:\d+\.)?\d+%?)(?: / (?P<alpha>[-+]?(?:\d+\.)?\d+%?))?\)$"
+            ).expect("Could not build RGB function string pattern.");
+        }
 
-        match rgb_regex.captures(rgb_str) {
+        match RGB_FUNCTION_REGEX.captures(rgb_str) {
             None => Err(ParsingError::InvalidSyntax(
                 "String did not match RGB function string pattern",
             )),
