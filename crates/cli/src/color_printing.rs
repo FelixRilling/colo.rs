@@ -5,7 +5,12 @@ use termcolor::{ColorSpec, StandardStream, WriteColor};
 
 use color_utils::component::SingleByteComponent;
 use color_utils::contrast::contrast_ratio_val;
-use color_utils::rgb::{Rgb, RgbChannel};
+use color_utils::rgb::{
+    ChannelUnit, LetterCase, OmitAlphaChannel, Rgb, RgbChannel, ShorthandNotation,
+};
+
+use crate::color_format::ColorFormat;
+use crate::options::Options;
 
 fn rgb_as_term_color(color: &Rgb) -> termcolor::Color {
     termcolor::Color::Rgb(
@@ -32,9 +37,29 @@ fn get_best_contrast<'a>(initial_color: &'a Rgb, color_options: &'a [Rgb]) -> &'
     best_contrast_ratio_color
 }
 
+// TODO: Allow customization of formatting flags.
+fn format_color(color: &Rgb, options: &Options) -> String {
+    match options.format {
+        ColorFormat::Auto => color.to_string(),
+        ColorFormat::RgbHex => color.to_hex_str(
+            OmitAlphaChannel::IfOpaque,
+            ShorthandNotation::Never,
+            LetterCase::Uppercase,
+        ),
+        ColorFormat::RgbFunction => color.to_rgb_function_str(
+            OmitAlphaChannel::IfOpaque,
+            ChannelUnit::Number,
+            ChannelUnit::Number,
+        ),
+    }
+}
+
 /// Prints colored color value to stream. Stream color is reset afterwards.
-// TODO: Allow customization of output format.
-pub(crate) fn print_color(stdout: &mut StandardStream, color: &Rgb) -> std::io::Result<()> {
+pub fn print_color(
+    stdout: &mut StandardStream,
+    color: &Rgb,
+    options: &Options,
+) -> std::io::Result<()> {
     let black = Rgb::from_channels(
         RgbChannel::from_u8(0),
         RgbChannel::from_u8(0),
@@ -53,7 +78,7 @@ pub(crate) fn print_color(stdout: &mut StandardStream, color: &Rgb) -> std::io::
             .set_bg(Some(rgb_as_term_color(color)))
             .set_fg(Some(rgb_as_term_color(foreground_color))),
     )?;
-    write!(stdout, "{}", color)?;
+    write!(stdout, "{}", format_color(color, options))?;
     stdout.set_color(&ColorSpec::default())
 }
 

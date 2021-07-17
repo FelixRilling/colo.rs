@@ -23,16 +23,16 @@ fn hash_set_as_sorted_vec<T: Ord>(hash_set: HashSet<T>) -> Vec<T> {
     set_copy_vec
 }
 
-pub(crate) fn print_contrast(color_1: &Rgb, color_2: &Rgb, options: &Options) -> std::io::Result<()> {
+pub fn print_contrast(color_1: &Rgb, color_2: &Rgb, options: &Options) -> std::io::Result<()> {
     let contrast_ratio_val = contrast_ratio_val(color_1, color_2);
     let contrast_levels_reached = contrast_ratio_levels_reached(color_1, color_2);
 
     let mut stdout = StandardStream::stdout(ColorChoice::Auto);
 
     write!(&mut stdout, "WCAG 2.0 contrast ratio for ")?;
-    print_color(&mut stdout, color_1)?;
+    print_color(&mut stdout, color_1, options)?;
     write!(&mut stdout, " to ")?;
-    print_color(&mut stdout, color_2)?;
+    print_color(&mut stdout, color_2, options)?;
 
     let contrast_ratio_val_str = if options.verbosity == 0 {
         // Usually only displaying the last 2 digits is enough.
