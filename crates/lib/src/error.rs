@@ -1,7 +1,6 @@
 use std::error::Error;
 use std::fmt;
 use std::fmt::{Debug, Display, Formatter};
-use std::ops::Deref;
 use std::option::Option::None;
 
 /// Kinds of errors than may happen during color parsing.
@@ -25,7 +24,7 @@ impl Error for ParsingError<'_> {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         match self {
             ParsingError::InvalidSyntax(_) => None,
-            ParsingError::NumberConversionFailed(err) => Some(err.deref())
+            ParsingError::NumberConversionFailed(err) => Some(&**err)
         }
     }
 }

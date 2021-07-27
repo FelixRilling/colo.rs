@@ -48,7 +48,7 @@ pub fn print_contrast(color_1: &Rgb, color_2: &Rgb, options: &Options) -> std::i
     } else {
         hash_set_as_sorted_vec(contrast_levels_reached)
             .iter()
-            .map(|level| level.to_string())
+            .map(std::string::ToString::to_string)
             .collect::<Vec<String>>().join(", ")
     };
     writeln!(&mut stdout, "Contrast level(s) reached: {}.", contrast_levels_reached_str)

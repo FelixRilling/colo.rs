@@ -3,6 +3,7 @@ use log::LevelFilter;
 
 use color_format::ColorFormat;
 use options::Options;
+use std::convert::TryInto;
 
 mod color_format;
 mod color_printing;
@@ -51,7 +52,7 @@ fn main() {
         )
         .get_matches();
 
-    let verbosity = matches.occurrences_of("v") as usize;
+    let verbosity = matches.occurrences_of("v").try_into().expect("Unexpected count of verbosity flags");
     env_logger::builder()
         .filter_level(match &verbosity {
             0 => LevelFilter::Error,

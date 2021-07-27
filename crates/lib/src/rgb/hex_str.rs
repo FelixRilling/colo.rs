@@ -172,31 +172,9 @@ impl Rgb {
             && can_shorthand_hexadecimal_channel(&blue_str)
         {
             trace!("Color channels support shorthand syntax.");
-            match alpha_str_opt {
-                Some(ref alpha) => {
-                    if can_shorthand_hexadecimal_channel(alpha) {
-                        trace!("Alpha channel supports shorthand syntax.");
-
-                        red_str = shorthand_hexadecimal_channel(&red_str);
-                        green_str = shorthand_hexadecimal_channel(&green_str);
-                        blue_str = shorthand_hexadecimal_channel(&blue_str);
-                        trace!(
-                            "Shorthanded color channel values r='{}', g='{}', b='{}'.",
-                            &red_str,
-                            &green_str,
-                            &blue_str
-                        );
-
-                        let shorthand_alpha_str = shorthand_hexadecimal_channel(alpha);
-                        trace!(
-                            "Shorthanded alpha channel value a='{}'.",
-                            &shorthand_alpha_str
-                        );
-                        alpha_str_opt = Some(shorthand_alpha_str);
-                    }
-                }
-                None => {
-                    trace!("Alpha channel does not exist, skipping alpha shorthand check.");
+            if let Some(ref alpha) = alpha_str_opt {
+                if can_shorthand_hexadecimal_channel(alpha) {
+                    trace!("Alpha channel supports shorthand syntax.");
 
                     red_str = shorthand_hexadecimal_channel(&red_str);
                     green_str = shorthand_hexadecimal_channel(&green_str);
@@ -207,7 +185,26 @@ impl Rgb {
                         &green_str,
                         &blue_str
                     );
+
+                    let shorthand_alpha_str = shorthand_hexadecimal_channel(alpha);
+                    trace!(
+                        "Shorthanded alpha channel value a='{}'.",
+                        &shorthand_alpha_str
+                    );
+                    alpha_str_opt = Some(shorthand_alpha_str);
                 }
+            } else {
+                trace!("Alpha channel does not exist, skipping alpha shorthand check.");
+
+                red_str = shorthand_hexadecimal_channel(&red_str);
+                green_str = shorthand_hexadecimal_channel(&green_str);
+                blue_str = shorthand_hexadecimal_channel(&blue_str);
+                trace!(
+                    "Shorthanded color channel values r='{}', g='{}', b='{}'.",
+                    &red_str,
+                    &green_str,
+                    &blue_str
+                );
             }
         }
 
