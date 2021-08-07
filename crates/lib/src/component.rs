@@ -9,7 +9,7 @@ pub(crate) const FLOAT_COMPONENT_VALUE_RANGE: RangeInclusive<f64> = 0.0..=1.0;
 /// Component that uses percentages, or floats between 0 and 1 for its value.
 ///
 /// In the case of RGB: <https://en.wikipedia.org/wiki/RGB_color_model#Numeric_representations>.
-pub trait FloatComponent {
+pub trait FloatComponent: From<Float> {
     /// Creates a new channel with the given value. Value must be >= 0 and <= 1.
     ///
     /// # Panics
@@ -33,17 +33,22 @@ pub(crate) const SINGLE_BYTE_COMPONENT_VALUE_RANGE: RangeInclusive<u8> = u8::MIN
 ///
 /// Meant to be used as secondary representation, for example for a color channel that is based on [`FloatComponent`].
 /// Method naming is adapted to avoid confusion.
-pub trait SingleByteComponent {
+pub trait SingleByteComponent: From<u8> {
+    type Error;
+
     /// Creates a new channel based on the given value in the range 0 to 255.
     fn from_u8(single_byte_value: u8) -> Self;
-
-    /// Returns the closest value from 0 to 255 based on the channel value. Note that precision may be lost,
-    /// e.g. if the full value is a float.
-    /// To check if precision will be lost on conversion, use [`fits_in_u8`](#method.fits_in_u8).
-    fn to_u8(&self) -> u8;
 
     /// Checks if this channels value can be fully represented in a range from 0 to 255.
     /// Due to the lack of precision in this range, not all values can be.
     fn fits_in_u8(&self) -> bool;
-}
 
+    /// Returns the closest value from 0 to 255 based on the channel value.
+    /// To check if conversion will fail, use [`fits_in_u8`](#method.fits_in_u8).
+    fn to_u8(&self) -> Result<u8, Self::Error>;
+
+    /// Returns the closest value from 0 to 255 based on the channel value. Note that precision may be lost,
+    /// if the value does not exactly fit into 8 bit.
+    /// To check if precision will be lost on conversion, use [`fits_in_u8`](#method.fits_in_u8).
+    fn to_u8_round(&self) -> u8;
+}

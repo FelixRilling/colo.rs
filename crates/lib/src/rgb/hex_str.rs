@@ -146,9 +146,9 @@ impl Rgb {
         shorthand_notation: ShorthandNotation,
         letter_case: LetterCase,
     ) -> String {
-        let mut red_str = format!("{:02X}", self.red().to_u8());
-        let mut green_str = format!("{:02X}", self.green().to_u8());
-        let mut blue_str = format!("{:02X}", self.blue().to_u8());
+        let mut red_str = format!("{:02X}", self.red().to_u8_round());
+        let mut green_str = format!("{:02X}", self.green().to_u8_round());
+        let mut blue_str = format!("{:02X}", self.blue().to_u8_round());
         trace!(
             "Formatted color channel values r='{}', g='{}', b='{}'.",
             &red_str,
@@ -161,7 +161,7 @@ impl Rgb {
                 trace!("Omitting alpha channel from output.");
                 None
             } else {
-                let alpha_str = format!("{:02X}", self.alpha().to_u8());
+                let alpha_str = format!("{:02X}", self.alpha().to_u8_round());
                 trace!("Formatted alpha channel value a='{}'.", &alpha_str);
                 Some(alpha_str)
             };
@@ -279,40 +279,40 @@ mod tests {
     fn from_hex_str_short_notation() {
         let color = Rgb::from_hex_str("#1FA").unwrap();
 
-        assert_eq!(color.red().to_u8(), u8::from_str_radix("11", 16).unwrap());
-        assert_eq!(color.green().to_u8(), u8::from_str_radix("FF", 16).unwrap());
-        assert_eq!(color.blue().to_u8(), u8::from_str_radix("AA", 16).unwrap());
-        assert_eq!(color.alpha().to_u8(), 255);
+        assert_eq!(color.red().to_u8_round(), u8::from_str_radix("11", 16).unwrap());
+        assert_eq!(color.green().to_u8_round(), u8::from_str_radix("FF", 16).unwrap());
+        assert_eq!(color.blue().to_u8_round(), u8::from_str_radix("AA", 16).unwrap());
+        assert_eq!(color.alpha().to_u8_round(), 255);
     }
 
     #[test]
     fn from_hex_str_short_notation_alpha() {
         let color = Rgb::from_hex_str("#1FAD").unwrap();
 
-        assert_eq!(color.red().to_u8(), u8::from_str_radix("11", 16).unwrap());
-        assert_eq!(color.green().to_u8(), u8::from_str_radix("FF", 16).unwrap());
-        assert_eq!(color.blue().to_u8(), u8::from_str_radix("AA", 16).unwrap());
-        assert_eq!(color.alpha().to_u8(), u8::from_str_radix("DD", 16).unwrap());
+        assert_eq!(color.red().to_u8_round(), u8::from_str_radix("11", 16).unwrap());
+        assert_eq!(color.green().to_u8_round(), u8::from_str_radix("FF", 16).unwrap());
+        assert_eq!(color.blue().to_u8_round(), u8::from_str_radix("AA", 16).unwrap());
+        assert_eq!(color.alpha().to_u8_round(), u8::from_str_radix("DD", 16).unwrap());
     }
 
     #[test]
     fn from_hex_str_long_notation() {
         let color = Rgb::from_hex_str("#11FF0A").unwrap();
 
-        assert_eq!(color.red().to_u8(), u8::from_str_radix("11", 16).unwrap());
-        assert_eq!(color.green().to_u8(), u8::from_str_radix("FF", 16).unwrap());
-        assert_eq!(color.blue().to_u8(), u8::from_str_radix("0A", 16).unwrap());
-        assert_eq!(color.alpha().to_u8(), 255);
+        assert_eq!(color.red().to_u8_round(), u8::from_str_radix("11", 16).unwrap());
+        assert_eq!(color.green().to_u8_round(), u8::from_str_radix("FF", 16).unwrap());
+        assert_eq!(color.blue().to_u8_round(), u8::from_str_radix("0A", 16).unwrap());
+        assert_eq!(color.alpha().to_u8_round(), 255);
     }
 
     #[test]
     fn from_hex_str_long_notation_alpha() {
         let color = Rgb::from_hex_str("#11FF0AD4").unwrap();
 
-        assert_eq!(color.red().to_u8(), u8::from_str_radix("11", 16).unwrap());
-        assert_eq!(color.green().to_u8(), u8::from_str_radix("FF", 16).unwrap());
-        assert_eq!(color.blue().to_u8(), u8::from_str_radix("0A", 16).unwrap());
-        assert_eq!(color.alpha().to_u8(), u8::from_str_radix("D4", 16).unwrap());
+        assert_eq!(color.red().to_u8_round(), u8::from_str_radix("11", 16).unwrap());
+        assert_eq!(color.green().to_u8_round(), u8::from_str_radix("FF", 16).unwrap());
+        assert_eq!(color.blue().to_u8_round(), u8::from_str_radix("0A", 16).unwrap());
+        assert_eq!(color.alpha().to_u8_round(), u8::from_str_radix("D4", 16).unwrap());
     }
 
     #[test]

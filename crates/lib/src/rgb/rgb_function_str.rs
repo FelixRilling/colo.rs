@@ -1,7 +1,7 @@
+use lazy_static::lazy_static;
 use log::{trace, warn};
 use regex::Regex;
 use rug::Float;
-use lazy_static::lazy_static;
 
 use crate::component::{FloatComponent, SINGLE_BYTE_COMPONENT_VALUE_RANGE};
 use crate::component::FLOAT_COMPONENT_VALUE_RANGE;
@@ -206,170 +206,170 @@ mod tests {
     fn from_rgb_str_ignores_case() {
         let color = Rgb::from_rgb_function_str("rGB(0 255 128)").unwrap();
 
-        assert_eq!(color.red().to_u8(), 0);
-        assert_eq!(color.green().to_u8(), 255);
-        assert_eq!(color.blue().to_u8(), 128);
-        assert_eq!(color.alpha().to_u8(), 255);
+        assert_eq!(color.red().to_u8_round(), 0);
+        assert_eq!(color.green().to_u8_round(), 255);
+        assert_eq!(color.blue().to_u8_round(), 128);
+        assert_eq!(color.alpha().to_u8_round(), 255);
     }
 
     #[test]
     fn from_rgb_str_integer_above_range() {
         let color = Rgb::from_rgb_function_str("rgb(0 255 999)").unwrap();
 
-        assert_eq!(color.red().to_u8(), 0);
-        assert_eq!(color.green().to_u8(), 255);
-        assert_eq!(color.blue().to_u8(), 255);
-        assert_eq!(color.alpha().to_u8(), 255);
+        assert_eq!(color.red().to_u8_round(), 0);
+        assert_eq!(color.green().to_u8_round(), 255);
+        assert_eq!(color.blue().to_u8_round(), 255);
+        assert_eq!(color.alpha().to_u8_round(), 255);
     }
 
     #[test]
     fn from_rgb_str_integer_below_range() {
         let color = Rgb::from_rgb_function_str("rgb(0 255 -128)").unwrap();
 
-        assert_eq!(color.red().to_u8(), 0);
-        assert_eq!(color.green().to_u8(), 255);
-        assert_eq!(color.blue().to_u8(), 0);
-        assert_eq!(color.alpha().to_u8(), 255);
+        assert_eq!(color.red().to_u8_round(), 0);
+        assert_eq!(color.green().to_u8_round(), 255);
+        assert_eq!(color.blue().to_u8_round(), 0);
+        assert_eq!(color.alpha().to_u8_round(), 255);
     }
 
     #[test]
     fn from_rgb_str_integer() {
         let color = Rgb::from_rgb_function_str("rgb(0 255 128)").unwrap();
 
-        assert_eq!(color.red().to_u8(), 0);
-        assert_eq!(color.green().to_u8(), 255);
-        assert_eq!(color.blue().to_u8(), 128);
-        assert_eq!(color.alpha().to_u8(), 255);
+        assert_eq!(color.red().to_u8_round(), 0);
+        assert_eq!(color.green().to_u8_round(), 255);
+        assert_eq!(color.blue().to_u8_round(), 128);
+        assert_eq!(color.alpha().to_u8_round(), 255);
     }
 
     #[test]
     fn from_rgb_str_integer_decimal() {
         let color = Rgb::from_rgb_function_str("rgb(0 255 127.99)").unwrap();
 
-        assert_eq!(color.red().to_u8(), 0);
-        assert_eq!(color.green().to_u8(), 255);
-        assert_eq!(color.blue().to_u8(), 128);
-        assert_eq!(color.alpha().to_u8(), 255);
+        assert_eq!(color.red().to_u8_round(), 0);
+        assert_eq!(color.green().to_u8_round(), 255);
+        assert_eq!(color.blue().to_u8_round(), 128);
+        assert_eq!(color.alpha().to_u8_round(), 255);
     }
 
     #[test]
     fn from_rgb_str_integers_with_alpha_decimal_above_range() {
         let color = Rgb::from_rgb_function_str("rgb(0 255 128 / 1.5)").unwrap();
 
-        assert_eq!(color.red().to_u8(), 0);
-        assert_eq!(color.green().to_u8(), 255);
-        assert_eq!(color.blue().to_u8(), 128);
-        assert_eq!(color.alpha().to_u8(), 255);
+        assert_eq!(color.red().to_u8_round(), 0);
+        assert_eq!(color.green().to_u8_round(), 255);
+        assert_eq!(color.blue().to_u8_round(), 128);
+        assert_eq!(color.alpha().to_u8_round(), 255);
     }
 
     #[test]
     fn from_rgb_str_integers_with_alpha_decimal_below_range() {
         let color = Rgb::from_rgb_function_str("rgb(0 255 128 / -0.5)").unwrap();
 
-        assert_eq!(color.red().to_u8(), 0);
-        assert_eq!(color.green().to_u8(), 255);
-        assert_eq!(color.blue().to_u8(), 128);
-        assert_eq!(color.alpha().to_u8(), 0);
+        assert_eq!(color.red().to_u8_round(), 0);
+        assert_eq!(color.green().to_u8_round(), 255);
+        assert_eq!(color.blue().to_u8_round(), 128);
+        assert_eq!(color.alpha().to_u8_round(), 0);
     }
 
     #[test]
     fn from_rgb_str_integers_with_alpha_decimal() {
         let color = Rgb::from_rgb_function_str("rgb(0 255 128 / 0.5)").unwrap();
 
-        assert_eq!(color.red().to_u8(), 0);
-        assert_eq!(color.green().to_u8(), 255);
-        assert_eq!(color.blue().to_u8(), 128);
-        assert_eq!(color.alpha().to_u8(), 128);
+        assert_eq!(color.red().to_u8_round(), 0);
+        assert_eq!(color.green().to_u8_round(), 255);
+        assert_eq!(color.blue().to_u8_round(), 128);
+        assert_eq!(color.alpha().to_u8_round(), 128);
     }
 
     #[test]
     fn from_rgb_str_integers_with_alpha_percentage_above_range() {
         let color = Rgb::from_rgb_function_str("rgb(0 255 128 / 150%)").unwrap();
 
-        assert_eq!(color.red().to_u8(), 0);
-        assert_eq!(color.green().to_u8(), 255);
-        assert_eq!(color.blue().to_u8(), 128);
-        assert_eq!(color.alpha().to_u8(), 255);
+        assert_eq!(color.red().to_u8_round(), 0);
+        assert_eq!(color.green().to_u8_round(), 255);
+        assert_eq!(color.blue().to_u8_round(), 128);
+        assert_eq!(color.alpha().to_u8_round(), 255);
     }
 
     #[test]
     fn from_rgb_str_integers_with_alpha_percentage_below_range() {
         let color = Rgb::from_rgb_function_str("rgb(0 255 128 / -50%)").unwrap();
 
-        assert_eq!(color.red().to_u8(), 0);
-        assert_eq!(color.green().to_u8(), 255);
-        assert_eq!(color.blue().to_u8(), 128);
-        assert_eq!(color.alpha().to_u8(), 0);
+        assert_eq!(color.red().to_u8_round(), 0);
+        assert_eq!(color.green().to_u8_round(), 255);
+        assert_eq!(color.blue().to_u8_round(), 128);
+        assert_eq!(color.alpha().to_u8_round(), 0);
     }
 
     #[test]
     fn from_rgb_str_integers_with_alpha_percentage() {
         let color = Rgb::from_rgb_function_str("rgb(0 255 128 / 50%)").unwrap();
 
-        assert_eq!(color.red().to_u8(), 0);
-        assert_eq!(color.green().to_u8(), 255);
-        assert_eq!(color.blue().to_u8(), 128);
-        assert_eq!(color.alpha().to_u8(), 128);
+        assert_eq!(color.red().to_u8_round(), 0);
+        assert_eq!(color.green().to_u8_round(), 255);
+        assert_eq!(color.blue().to_u8_round(), 128);
+        assert_eq!(color.alpha().to_u8_round(), 128);
     }
 
     #[test]
     fn from_rgb_str_percentage_above_range() {
         let color = Rgb::from_rgb_function_str("rgb(0% 100% 150%)").unwrap();
 
-        assert_eq!(color.red().to_u8(), 0);
-        assert_eq!(color.green().to_u8(), 255);
-        assert_eq!(color.blue().to_u8(), 255);
-        assert_eq!(color.alpha().to_u8(), 255);
+        assert_eq!(color.red().to_u8_round(), 0);
+        assert_eq!(color.green().to_u8_round(), 255);
+        assert_eq!(color.blue().to_u8_round(), 255);
+        assert_eq!(color.alpha().to_u8_round(), 255);
     }
 
     #[test]
     fn from_rgb_str_percentage_below_range() {
         let color = Rgb::from_rgb_function_str("rgb(0% 100% -50%)").unwrap();
 
-        assert_eq!(color.red().to_u8(), 0);
-        assert_eq!(color.green().to_u8(), 255);
-        assert_eq!(color.blue().to_u8(), 0);
-        assert_eq!(color.alpha().to_u8(), 255);
+        assert_eq!(color.red().to_u8_round(), 0);
+        assert_eq!(color.green().to_u8_round(), 255);
+        assert_eq!(color.blue().to_u8_round(), 0);
+        assert_eq!(color.alpha().to_u8_round(), 255);
     }
 
     #[test]
     fn from_rgb_str_percentage() {
         let color = Rgb::from_rgb_function_str("rgb(0% 100% 50%)").unwrap();
 
-        assert_eq!(color.red().to_u8(), 0);
-        assert_eq!(color.green().to_u8(), 255);
-        assert_eq!(color.blue().to_u8(), 128);
-        assert_eq!(color.alpha().to_u8(), 255);
+        assert_eq!(color.red().to_u8_round(), 0);
+        assert_eq!(color.green().to_u8_round(), 255);
+        assert_eq!(color.blue().to_u8_round(), 128);
+        assert_eq!(color.alpha().to_u8_round(), 255);
     }
 
     #[test]
     fn from_rgb_str_percentage_decimal() {
         let color = Rgb::from_rgb_function_str("rgb(0% 100% 49.99%)").unwrap();
 
-        assert_eq!(color.red().to_u8(), 0);
-        assert_eq!(color.green().to_u8(), 255);
-        assert_eq!(color.blue().to_u8(), 128);
-        assert_eq!(color.alpha().to_u8(), 255);
+        assert_eq!(color.red().to_u8_round(), 0);
+        assert_eq!(color.green().to_u8_round(), 255);
+        assert_eq!(color.blue().to_u8_round(), 128);
+        assert_eq!(color.alpha().to_u8_round(), 255);
     }
 
     #[test]
     fn from_rgb_str_percentage_with_alpha_decimal() {
         let color = Rgb::from_rgb_function_str("rgb(0% 100% 50% / 0.5)").unwrap();
 
-        assert_eq!(color.red().to_u8(), 0);
-        assert_eq!(color.green().to_u8(), 255);
-        assert_eq!(color.blue().to_u8(), 128);
-        assert_eq!(color.alpha().to_u8(), 128);
+        assert_eq!(color.red().to_u8_round(), 0);
+        assert_eq!(color.green().to_u8_round(), 255);
+        assert_eq!(color.blue().to_u8_round(), 128);
+        assert_eq!(color.alpha().to_u8_round(), 128);
     }
 
     #[test]
     fn from_rgb_str_percentage_with_alpha_percentage() {
         let color = Rgb::from_rgb_function_str("rgb(0% 100% 50% / 50%)").unwrap();
 
-        assert_eq!(color.red().to_u8(), 0);
-        assert_eq!(color.green().to_u8(), 255);
-        assert_eq!(color.blue().to_u8(), 128);
-        assert_eq!(color.alpha().to_u8(), 128);
+        assert_eq!(color.red().to_u8_round(), 0);
+        assert_eq!(color.green().to_u8_round(), 255);
+        assert_eq!(color.blue().to_u8_round(), 128);
+        assert_eq!(color.alpha().to_u8_round(), 128);
     }
 
     #[test]

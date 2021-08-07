@@ -14,9 +14,9 @@ use crate::options::Options;
 
 fn rgb_as_term_color(color: &Rgb) -> termcolor::Color {
     termcolor::Color::Rgb(
-        color.red().to_u8(),
-        color.green().to_u8(),
-        color.blue().to_u8(),
+        color.red().to_u8_round(),
+        color.green().to_u8_round(),
+        color.blue().to_u8_round(),
     )
 }
 

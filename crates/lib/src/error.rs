@@ -15,7 +15,7 @@ impl Display for ParsingError<'_> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         match self {
             ParsingError::InvalidSyntax(details) => f.write_str(details),
-            ParsingError::NumberConversionFailed(_) => f.write_str("Number conversion failed")
+            ParsingError::NumberConversionFailed(_) => f.write_str("Number conversion failed"),
         }
     }
 }
@@ -24,11 +24,10 @@ impl Error for ParsingError<'_> {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         match self {
             ParsingError::InvalidSyntax(_) => None,
-            ParsingError::NumberConversionFailed(err) => Some(&**err)
+            ParsingError::NumberConversionFailed(err) => Some(&**err),
         }
     }
 }
-
 
 impl From<std::num::ParseFloatError> for ParsingError<'_> {
     fn from(err: std::num::ParseFloatError) -> Self {
@@ -47,3 +46,15 @@ impl From<rug::float::ParseFloatError> for ParsingError<'_> {
         ParsingError::NumberConversionFailed(Box::new(err))
     }
 }
+
+/// Error for [`TryFrom`] conversions.
+#[derive(Debug)]
+pub struct TryFromError();
+
+impl Display for TryFromError {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+        f.write_str("Could not convert value.")
+    }
+}
+
+impl Error for TryFromError {}

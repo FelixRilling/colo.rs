@@ -4,6 +4,7 @@ use crate::component::{
     FLOAT_COMPONENT_VALUE_RANGE, FloatComponent, SINGLE_BYTE_COMPONENT_VALUE_RANGE,
     SingleByteComponent,
 };
+use crate::error::TryFromError;
 
 /// Floating point precision used when creating floats internally.
 /// Chosen arbitrarily, but the current value seems to work based on most exploration tests.
@@ -33,29 +34,51 @@ impl FloatComponent for RgbChannel {
     }
 }
 
+impl From<Float> for RgbChannel {
+    fn from(val: Float) -> Self {
+        RgbChannel::from_value(val)
+    }
+}
+
 impl SingleByteComponent for RgbChannel {
+    type Error = TryFromError;
+
     fn from_u8(component_value: u8) -> RgbChannel {
         let component_value_float = Float::with_val(DEFAULT_RGB_PRECISION, component_value)
             / SINGLE_BYTE_COMPONENT_VALUE_RANGE.end();
         RgbChannel::from_value(component_value_float)
     }
 
-    fn to_u8(&self) -> u8 {
+    fn fits_in_u8(&self) -> bool {
+        let single_byte_component_value_float =
+            self.value().clone() * SINGLE_BYTE_COMPONENT_VALUE_RANGE.end();
+        single_byte_component_value_float.is_integer()
+    }
+
+    fn to_u8(&self) -> Result<u8, Self::Error> {
+        if self.fits_in_u8() {
+            Ok(self.to_u8_round())
+        } else {
+            Err(TryFromError())
+        }
+    }
+
+    fn to_u8_round(&self) -> u8 {
         let single_byte_component_value_float =
             self.value().clone() * SINGLE_BYTE_COMPONENT_VALUE_RANGE.end();
         // Because constructor enforces that value must be >= 0 and <=1, this conversion should never fail.
         single_byte_component_value_float
-            .ceil()// According to CSS color spec, rounding towards infinity is used when value is not an integer
+            .ceil() // According to CSS color spec, rounding towards infinity is used when value is not an integer
             .to_integer()
             .expect("Could not convert channel val to integer.")
             .to_u8()
             .expect("Could not convert channel val to u8.")
     }
+}
 
-    fn fits_in_u8(&self) -> bool {
-        let single_byte_component_value_float =
-            self.value().clone() * SINGLE_BYTE_COMPONENT_VALUE_RANGE.end();
-        single_byte_component_value_float.is_integer()
+impl From<u8> for RgbChannel {
+    fn from(val: u8) -> Self {
+        RgbChannel::from_u8(val)
     }
 }
 
@@ -86,7 +109,7 @@ mod tests {
         let float = Float::with_val(64, 1);
         let channel = RgbChannel::from_value(float);
 
-        assert_eq!(channel.to_u8(), 255);
+        assert_eq!(channel.to_u8_round(), 255);
     }
 
     #[test]
