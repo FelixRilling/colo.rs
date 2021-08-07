@@ -7,14 +7,14 @@ use crate::component::{
 use crate::error::RangeError;
 
 /// Floating point precision used when creating floats internally.
-/// Chosen arbitrarily, but the current value seems to work based on most exploration tests.
+// Chosen arbitrarily, but the current value seems to work based on most exploration tests.
 pub const DEFAULT_RGB_PRECISION: u32 = 64;
 
 pub(crate) fn value_max() -> Float {
     Float::with_val(DEFAULT_RGB_PRECISION, FLOAT_COMPONENT_VALUE_RANGE.end())
 }
 
-/// [RGB](https://en.wikipedia.org/wiki/RGB_color_model) channel.
+/// a single [RGB](https://en.wikipedia.org/wiki/RGB_color_model) channel.
 #[derive(Debug, PartialEq, Clone)]
 pub struct RgbChannel {
     value: Float,
@@ -64,12 +64,12 @@ impl SingleByteComponent for RgbChannel {
     fn to_u8_round(&self) -> u8 {
         let single_byte_component_value_float =
             self.value().clone() * SINGLE_BYTE_COMPONENT_VALUE_RANGE.end();
-        // Because constructor enforces that value must be >= 0 and <=1, this conversion should never fail.
+
         single_byte_component_value_float
             .ceil() // According to CSS color spec, rounding towards infinity is used when value is not an integer
             .to_integer()
             .expect("Could not convert channel val to integer.")
-            .to_u8()
+            .to_u8()// Because constructor enforces that value must be >= 0 and <=1, this conversion should never fail.
             .expect("Could not convert channel val to u8.")
     }
 }

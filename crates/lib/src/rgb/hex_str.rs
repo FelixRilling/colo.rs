@@ -11,7 +11,7 @@ pub enum LetterCase {
     Lowercase,
 }
 
-/// The shorthand (single digit per channel) notation may be used if the double digit notation is the same digit two times.
+/// If shorthand (single digit per channel) notation may be used if the double digit notation is the same digit two times.
 #[derive(Debug, PartialEq, Eq)]
 pub enum ShorthandNotation {
     Never,

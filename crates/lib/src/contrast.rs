@@ -1,3 +1,5 @@
+//! Color contrast handling.
+
 use std::collections::HashSet;
 use std::fmt;
 use std::fmt::Display;

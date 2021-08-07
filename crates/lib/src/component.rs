@@ -8,7 +8,7 @@ use crate::error::RangeError;
 
 pub(crate) const FLOAT_COMPONENT_VALUE_RANGE: RangeInclusive<f64> = 0.0..=1.0;
 
-/// Component that uses percentages, or floats between 0 and 1 for its value.
+/// Component that uses percentages or floats between 0 and 1 for its value.
 ///
 /// In the case of RGB: <https://en.wikipedia.org/wiki/RGB_color_model#Numeric_representations>.
 pub trait FloatComponent: From<Float> {
@@ -34,7 +34,6 @@ pub(crate) const SINGLE_BYTE_COMPONENT_VALUE_RANGE: RangeInclusive<u8> = u8::MIN
 /// which can hold integers between 0 and 255."
 ///
 /// Meant to be used as secondary representation, for example for a color channel that is based on [`FloatComponent`].
-/// Method naming is adapted to avoid confusion.
 pub trait SingleByteComponent: From<u8> {
 
     /// Creates a new channel based on the given value in the range 0 to 255.

@@ -1,3 +1,5 @@
+//! **R**ed **G**reen **B**lue color model.
+
 use std::fmt;
 use std::fmt::Display;
 
@@ -63,7 +65,7 @@ impl Rgb {
     }
 }
 
-/// The alpha channel may be omitted if its opaque.
+/// If the alpha channel may be omitted if its opaque.
 #[derive(Debug, PartialEq, Eq)]
 pub enum OmitAlphaChannel {
     Never,
