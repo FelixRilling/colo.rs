@@ -30,9 +30,9 @@ pub fn print_contrast(color_1: &Rgb, color_2: &Rgb, options: &Options) -> std::i
     let mut stdout = StandardStream::stdout(ColorChoice::Auto);
 
     write!(&mut stdout, "WCAG 2.0 contrast ratio for ")?;
-    print_color(&mut stdout, color_1, options)?;
+    print_color(&mut stdout, color_1, &options.format)?;
     write!(&mut stdout, " to ")?;
-    print_color(&mut stdout, color_2, options)?;
+    print_color(&mut stdout, color_2, &options.format)?;
 
     let contrast_ratio_val_str = if options.verbosity == 0 {
         // Usually only displaying the last 2 digits is enough.

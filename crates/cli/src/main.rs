@@ -1,13 +1,17 @@
+use std::convert::TryInto;
+
 use clap::{App, Arg, ArgGroup, SubCommand};
 use log::LevelFilter;
 
 use color_format::ColorFormat;
 use options::Options;
-use std::convert::TryInto;
+
+use crate::details::print_details;
 
 mod color_format;
 mod color_printing;
 mod contrast;
+mod details;
 mod options;
 
 fn decorate_color_arg<'a>(arg: Arg<'a, 'a>) -> Arg<'a, 'a> {
@@ -45,14 +49,24 @@ fn main() {
                 .arg("rgb-function"),
         )
         .subcommand(
+            SubCommand::with_name("details")
+                .about("Prints details for a color.")
+                .arg(decorate_color_arg(Arg::with_name("color").required(true))),
+        )
+        .subcommand(
             SubCommand::with_name("contrast")
-                .about("Calculate WCAG contrast of two colors.")
-                .arg(decorate_color_arg(Arg::with_name("color-1").required(true)))
-                .arg(decorate_color_arg(Arg::with_name("color-2").required(true))),
+                .about("Calculates WCAG contrast of two colors.")
+                .arg(decorate_color_arg(Arg::with_name("color").required(true)))
+                .arg(decorate_color_arg(
+                    Arg::with_name("other-color").required(true),
+                )),
         )
         .get_matches();
 
-    let verbosity = matches.occurrences_of("v").try_into().expect("Unexpected count of verbosity flags");
+    let verbosity = matches
+        .occurrences_of("v")
+        .try_into()
+        .expect("Unexpected count of verbosity flags");
     env_logger::builder()
         .filter_level(match &verbosity {
             0 => LevelFilter::Error,
@@ -71,20 +85,28 @@ fn main() {
 
     let options = Options { verbosity, format };
 
-    match matches.subcommand_matches("contrast") {
-        Some(matches) => {
-            let color_1_str = matches.value_of("color-1").unwrap();
-            let color_2_str = matches.value_of("color-2").unwrap();
+    match matches.subcommand() {
+        ("details", Some(matches)) => {
+            let color_str = matches.value_of("color").unwrap();
 
-            match color_format::parse_color(color_1_str, &options.format) {
-                Err(e_1) => eprintln!("Could not parse color 1: {}.", e_1),
-                Ok(color_1) => match color_format::parse_color(color_2_str, &options.format) {
-                    Err(e_2) => eprintln!("Could not parse color 2: {}.", e_2),
-                    Ok(color_2) => contrast::print_contrast(&color_1, &color_2, &options)
+            match color_format::parse_color(color_str, &options.format) {
+                Err(e_1) => eprintln!("Could not parse color: {}.", e_1),
+                Ok(color) => print_details(&color, &options).expect("Could not print details.")
+            }
+        }
+        ("contrast", Some(matches)) => {
+            let color_str = matches.value_of("color").unwrap();
+            let other_color_str = matches.value_of("other-color").unwrap();
+
+            match color_format::parse_color(color_str, &options.format) {
+                Err(e_1) => eprintln!("Could not parse color: {}.", e_1),
+                Ok(color) => match color_format::parse_color(other_color_str, &options.format) {
+                    Err(e_2) => eprintln!("Could not parse other color: {}.", e_2),
+                    Ok(other_color) => contrast::print_contrast(&color, &other_color, &options)
                         .expect("Could not print contrast."),
                 },
             }
         }
-        None => eprintln!("No subcommand provided. See --help."),
+        _ => eprintln!("No subcommand provided. See --help."),
     }
 }

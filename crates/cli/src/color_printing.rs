@@ -10,7 +10,6 @@ use color_utils::rgb::{
 };
 
 use crate::color_format::ColorFormat;
-use crate::options::Options;
 
 fn rgb_as_term_color(color: &Rgb) -> termcolor::Color {
     termcolor::Color::Rgb(
@@ -38,8 +37,8 @@ fn get_best_contrast<'a>(initial_color: &'a Rgb, color_options: &'a [Rgb]) -> &'
 }
 
 // TODO: Allow customization of formatting flags.
-fn format_color(color: &Rgb, options: &Options) -> String {
-    match options.format {
+fn format_color(color: &Rgb, format: &ColorFormat) -> String {
+    match format {
         ColorFormat::Auto => color.to_string(),
         ColorFormat::RgbHex => color.to_hex_str(
             OmitAlphaChannel::IfOpaque,
@@ -58,7 +57,7 @@ fn format_color(color: &Rgb, options: &Options) -> String {
 pub fn print_color(
     stdout: &mut StandardStream,
     color: &Rgb,
-    options: &Options,
+    format: &ColorFormat,
 ) -> std::io::Result<()> {
     let black = Rgb::from_channels(
         RgbChannel::from_u8(0),
@@ -78,7 +77,7 @@ pub fn print_color(
             .set_bg(Some(rgb_as_term_color(color)))
             .set_fg(Some(rgb_as_term_color(foreground_color))),
     )?;
-    write!(stdout, "{}", format_color(color, options))?;
+    write!(stdout, "{}", format_color(color, format))?;
     stdout.set_color(&ColorSpec::default())
 }
 
