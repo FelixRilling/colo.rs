@@ -47,14 +47,14 @@ impl From<rug::float::ParseFloatError> for ParsingError<'_> {
     }
 }
 
-/// Error for [`TryFrom`] conversions.
+/// Error for when a conversion fails to due to incompatible ranges.
 #[derive(Debug)]
-pub struct TryFromError();
+pub struct RangeError();
 
-impl Display for TryFromError {
+impl Display for RangeError {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        f.write_str("Could not convert value.")
+        f.write_str("Incompatible range.")
     }
 }
 
-impl Error for TryFromError {}
+impl Error for RangeError {}

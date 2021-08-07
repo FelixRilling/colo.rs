@@ -4,7 +4,7 @@ use crate::component::{
     FLOAT_COMPONENT_VALUE_RANGE, FloatComponent, SINGLE_BYTE_COMPONENT_VALUE_RANGE,
     SingleByteComponent,
 };
-use crate::error::TryFromError;
+use crate::error::RangeError;
 
 /// Floating point precision used when creating floats internally.
 /// Chosen arbitrarily, but the current value seems to work based on most exploration tests.
@@ -41,8 +41,6 @@ impl From<Float> for RgbChannel {
 }
 
 impl SingleByteComponent for RgbChannel {
-    type Error = TryFromError;
-
     fn from_u8(component_value: u8) -> RgbChannel {
         let component_value_float = Float::with_val(DEFAULT_RGB_PRECISION, component_value)
             / SINGLE_BYTE_COMPONENT_VALUE_RANGE.end();
@@ -55,11 +53,11 @@ impl SingleByteComponent for RgbChannel {
         single_byte_component_value_float.is_integer()
     }
 
-    fn to_u8(&self) -> Result<u8, Self::Error> {
+    fn to_u8(&self) -> Result<u8, RangeError> {
         if self.fits_in_u8() {
             Ok(self.to_u8_round())
         } else {
-            Err(TryFromError())
+            Err(RangeError())
         }
     }
 
@@ -105,14 +103,6 @@ mod tests {
     }
 
     #[test]
-    fn to_u8_converts_from_float() {
-        let float = Float::with_val(64, 1);
-        let channel = RgbChannel::from_value(float);
-
-        assert_eq!(channel.to_u8_round(), 255);
-    }
-
-    #[test]
     fn fits_in_u8_false_if_too_precise() {
         let float = Float::with_val(64, 0.0000000001);
         let channel = RgbChannel::from_value(float);
@@ -126,5 +116,37 @@ mod tests {
         let channel = RgbChannel::from_value(float);
 
         assert!(channel.fits_in_u8());
+    }
+
+    #[test]
+    fn to_u8_round_converts_from_float() {
+        let float = Float::with_val(64, 1);
+        let channel = RgbChannel::from_value(float);
+
+        assert_eq!(channel.to_u8_round(), 255);
+    }
+
+    #[test]
+    fn to_u8_round_rounds() {
+        let float = Float::with_val(64, 0.0001);
+        let channel = RgbChannel::from_value(float);
+
+        assert_eq!(channel.to_u8_round(), 1);
+    }
+
+    #[test]
+    fn to_u8_converts_from_float() {
+        let float = Float::with_val(64, 1);
+        let channel = RgbChannel::from_value(float);
+
+        assert_eq!(channel.to_u8().unwrap(), 255);
+    }
+
+    #[test]
+    fn to_u8_round_errors_out_of_range() {
+        let float = Float::with_val(64, 0.0001);
+        let channel = RgbChannel::from_value(float);
+
+        assert!(channel.to_u8().is_err());
     }
 }

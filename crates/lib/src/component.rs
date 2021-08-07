@@ -4,6 +4,8 @@ use std::ops::RangeInclusive;
 
 use rug::Float;
 
+use crate::error::RangeError;
+
 pub(crate) const FLOAT_COMPONENT_VALUE_RANGE: RangeInclusive<f64> = 0.0..=1.0;
 
 /// Component that uses percentages, or floats between 0 and 1 for its value.
@@ -34,7 +36,6 @@ pub(crate) const SINGLE_BYTE_COMPONENT_VALUE_RANGE: RangeInclusive<u8> = u8::MIN
 /// Meant to be used as secondary representation, for example for a color channel that is based on [`FloatComponent`].
 /// Method naming is adapted to avoid confusion.
 pub trait SingleByteComponent: From<u8> {
-    type Error;
 
     /// Creates a new channel based on the given value in the range 0 to 255.
     fn from_u8(single_byte_value: u8) -> Self;
@@ -45,7 +46,7 @@ pub trait SingleByteComponent: From<u8> {
 
     /// Returns the closest value from 0 to 255 based on the channel value.
     /// To check if conversion will fail, use [`fits_in_u8`](#method.fits_in_u8).
-    fn to_u8(&self) -> Result<u8, Self::Error>;
+    fn to_u8(&self) -> Result<u8, RangeError>;
 
     /// Returns the closest value from 0 to 255 based on the channel value. Note that precision may be lost,
     /// if the value does not exactly fit into 8 bit.
