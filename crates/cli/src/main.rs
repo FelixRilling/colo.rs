@@ -6,13 +6,10 @@ use log::LevelFilter;
 use color_format::ColorFormat;
 use options::Options;
 
-use crate::details::print_details;
-
 mod color_format;
 mod color_printing;
-mod contrast;
-mod details;
 mod options;
+mod command;
 
 fn decorate_color_arg<'a>(arg: Arg<'a, 'a>) -> Arg<'a, 'a> {
     arg.takes_value(true)
@@ -91,7 +88,7 @@ fn main() {
 
             match color_format::parse_color(color_str, &options.format) {
                 Err(e_1) => eprintln!("Could not parse color: {}.", e_1),
-                Ok(color) => print_details(&color, &options).expect("Could not print details.")
+                Ok(color) => command::print_details(&color, &options).expect("Could not print details.")
             }
         }
         ("contrast", Some(matches)) => {
@@ -102,7 +99,7 @@ fn main() {
                 Err(e_1) => eprintln!("Could not parse color: {}.", e_1),
                 Ok(color) => match color_format::parse_color(other_color_str, &options.format) {
                     Err(e_2) => eprintln!("Could not parse other color: {}.", e_2),
-                    Ok(other_color) => contrast::print_contrast(&color, &other_color, &options)
+                    Ok(other_color) => command::print_contrast(&color, &other_color, &options)
                         .expect("Could not print contrast."),
                 },
             }
