@@ -24,32 +24,53 @@ fn hash_set_as_sorted_vec<T: Ord>(hash_set: HashSet<T>) -> Vec<T> {
 }
 
 pub fn print_contrast(color_1: &Rgb, color_2: &Rgb, options: &Options) -> std::io::Result<()> {
-    let contrast_ratio_val = contrast_ratio_val(color_1, color_2);
-    let contrast_levels_reached = contrast_ratio_levels_reached(color_1, color_2);
+    let mut out = StandardStream::stdout(ColorChoice::Auto);
 
-    let mut stdout = StandardStream::stdout(ColorChoice::Auto);
+    print_contrast_ratio(&mut out, color_1, color_2, options)?;
 
-    write!(&mut stdout, "WCAG 2.0 contrast ratio for ")?;
-    print_color(&mut stdout, color_1, &options.format)?;
-    write!(&mut stdout, " to ")?;
-    print_color(&mut stdout, color_2, &options.format)?;
+    print_contrast_levels_reached(&mut out, color_1, color_2)
+}
 
-    let contrast_ratio_val_str = if options.verbosity == 0 {
+fn print_contrast_ratio(
+    out: &mut StandardStream,
+    color_1: &Rgb,
+    color_2: &Rgb,
+    options: &Options,
+) -> std::io::Result<()> {
+    write!(out, "WCAG 2.0 contrast ratio for ")?;
+    print_color(out, color_1, &options.format)?;
+    write!(out, " to ")?;
+    print_color(out, color_2, &options.format)?;
+
+    let contrast_ratio = contrast_ratio_val(color_1, color_2);
+    let contrast_ratio_str = if options.verbosity == 0 {
         // Usually only displaying the last 2 digits is enough.
-        let floored_val = floor_n_decimals(contrast_ratio_val, 2);
+        let floored_val = floor_n_decimals(contrast_ratio, 2);
         float_to_string(&floored_val)
     } else {
-        contrast_ratio_val.to_string()
+        contrast_ratio.to_string()
     };
-    writeln!(&mut stdout, " is {}.", contrast_ratio_val_str)?;
+    writeln!(out, " is {}.", contrast_ratio_str)
+}
 
+fn print_contrast_levels_reached(
+    out: &mut StandardStream,
+    color_1: &Rgb,
+    color_2: &Rgb,
+) -> std::io::Result<()> {
+    let contrast_levels_reached = contrast_ratio_levels_reached(color_1, color_2);
     let contrast_levels_reached_str: String = if contrast_levels_reached.is_empty() {
         String::from("None")
     } else {
         hash_set_as_sorted_vec(contrast_levels_reached)
             .iter()
             .map(std::string::ToString::to_string)
-            .collect::<Vec<String>>().join(", ")
+            .collect::<Vec<String>>()
+            .join(", ")
     };
-    writeln!(&mut stdout, "Contrast level(s) reached: {}.", contrast_levels_reached_str)
+    writeln!(
+        out,
+        "Contrast level(s) reached: {}.",
+        contrast_levels_reached_str
+    )
 }
