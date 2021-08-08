@@ -28,7 +28,7 @@ fn clamp_in_channel_range(channel_val: Float) -> Float {
 fn parse_color_channel(seq: &str) -> Result<RgbChannel, ParsingError> {
     let channel_val: Float;
     if is_percentage(seq) {
-        channel_val = parse_percentage(&seq)?;
+        channel_val = parse_percentage(seq)?;
     } else {
         channel_val = parse_number(seq)? / SINGLE_BYTE_COMPONENT_VALUE_RANGE.end();
     }
@@ -39,7 +39,7 @@ fn parse_color_channel(seq: &str) -> Result<RgbChannel, ParsingError> {
 fn parse_alpha_channel(seq: &str) -> Result<RgbChannel, ParsingError> {
     let channel_val: Float;
     if is_percentage(seq) {
-        channel_val = parse_percentage(&seq)?;
+        channel_val = parse_percentage(seq)?;
     } else {
         // When parsing the alpha channel, the value ranges from 0 to 1 already.
         channel_val = parse_number(seq)?;

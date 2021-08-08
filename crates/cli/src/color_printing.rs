@@ -69,7 +69,7 @@ pub fn print_color(
         RgbChannel::from_u8(255),
         RgbChannel::from_u8(255),
     );
-    let foreground_color_options = vec![black, white];
+    let foreground_color_options = [black, white];
     let foreground_color = get_best_contrast(color, &foreground_color_options);
 
     stdout.set_color(
@@ -99,7 +99,7 @@ mod tests {
             RgbChannel::from_u8(255),
             RgbChannel::from_u8(255),
         );
-        let options = vec![black.clone(), white.clone()];
+        let options = [black.clone(), white.clone()];
 
         let bright_color = Rgb::from_hex_str("#ABCDEF").unwrap();
         let bright_color_best_contrast_actual = get_best_contrast(&bright_color, &options);
