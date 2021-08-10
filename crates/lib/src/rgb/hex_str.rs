@@ -156,6 +156,7 @@ impl Rgb {
             &blue_str
         );
 
+        // TODO: also omit alpha if it isn't technically opaque but equals FF after rounding (e.g alpha = 0.999999).
         let mut alpha_str_opt =
             if self.is_opaque() && omit_alpha_channel == OmitAlphaChannel::IfOpaque {
                 trace!("Omitting alpha channel from output.");
