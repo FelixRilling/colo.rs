@@ -1,12 +1,7 @@
 use std::fmt::{Display, Formatter};
 use std::str::FromStr;
 
-use log::debug;
-
-use color_utils::error::ParsingError;
-use color_utils::rgb::Rgb;
-
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Copy, Clone)]
 pub enum ColorFormat {
     Auto,
     RgbHex,
@@ -32,42 +27,6 @@ impl FromStr for ColorFormat {
             "rgb-hex" => Ok(ColorFormat::RgbHex),
             "rgb-function" => Ok(ColorFormat::RgbFunction),
             _ => Err(format!("invalid value: {}", s))
-        }
-    }
-}
-
-pub fn parse_color<'a>(seq: &'a str, format: &ColorFormat) -> Result<Rgb, ParsingError<'a>> {
-    debug!("Attempting to parse '{}' using format '{}'.", seq, format);
-    let result = match format {
-        ColorFormat::Auto => parse_color_auto(seq),
-        ColorFormat::RgbHex => Rgb::from_hex_str(seq),
-        ColorFormat::RgbFunction => Rgb::from_rgb_function_str(seq),
-    };
-
-    if let Ok(ref color) = result {
-        debug!("Parsed '{}' as '{}' using format '{}'.", seq, color, format);
-    }
-
-    result
-}
-
-fn parse_color_auto(seq: &str) -> Result<Rgb, ParsingError> {
-    match Rgb::from_hex_str(seq) {
-        Ok(color) => Ok(color),
-        Err(hex_err) => {
-            debug!("Could not parse '{}' as hex string: {}.", seq, &hex_err);
-            match Rgb::from_rgb_function_str(seq) {
-                Ok(color) => Ok(color),
-                Err(rgb_function_err) => {
-                    debug!(
-                        "Could not parse '{}' as RGB function string: {}.",
-                        seq, &rgb_function_err
-                    );
-                    Err(ParsingError::InvalidSyntax(
-                        "Could not parse color using any supported format",
-                    ))
-                }
-            }
         }
     }
 }
