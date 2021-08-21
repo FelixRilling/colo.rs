@@ -1,6 +1,7 @@
 use std::convert::TryInto;
 
-use clap::{App, Arg, ArgGroup, SubCommand};
+use clap::{App, Arg, SubCommand};
+use clap::value_t;
 use log::LevelFilter;
 
 use color_format::ColorFormat;
@@ -8,8 +9,8 @@ use options::Options;
 
 mod color_format;
 mod color_printing;
-mod options;
 mod command;
+mod options;
 
 fn decorate_color_arg<'a>(arg: Arg<'a, 'a>) -> Arg<'a, 'a> {
     arg.takes_value(true)
@@ -28,22 +29,20 @@ fn main() {
                 .help("Increase message verbosity."),
         )
         .arg(
-            Arg::with_name("rgb-hex")
-                .long("rgb-hex")
-                .takes_value(false)
-                .help("Use RGB hexadecimal format for input/output."),
-        )
-        .arg(
-            Arg::with_name("rgb-function")
-                .long("rgb-function")
-                .takes_value(false)
-                .help("Use RGB function format for input/output."),
-        )
-        .group(
-            ArgGroup::with_name("color-format")
+            Arg::with_name("format")
+                .long("format")
+                .short("F")
+                .takes_value(true)
+                .value_name("format-name")
+                .possible_values(&[
+                    ColorFormat::Auto.to_string().as_str(),
+                    ColorFormat::RgbHex.to_string().as_str(),
+                    ColorFormat::RgbFunction.to_string().as_str(),
+                ])
+                .case_insensitive(true)
                 .required(false)
-                .arg("rgb-hex")
-                .arg("rgb-function"),
+                .default_value("auto")
+                .help("Which color format to use for input/output."),
         )
         .subcommand(
             SubCommand::with_name("details")
@@ -74,11 +73,9 @@ fn main() {
         })
         .init();
 
-    let format = match matches {
-        _ if matches.is_present("rgb-hex") => ColorFormat::RgbHex,
-        _ if matches.is_present("rgb-function") => ColorFormat::RgbFunction,
-        _ => ColorFormat::Auto,
-    };
+    // Unwrapping should be safe as 'possible_values' only allows parseable values
+    // and we either have a value or use a default.
+    let format = value_t!(matches, "format", ColorFormat).unwrap();
 
     let options = Options { verbosity, format };
 
@@ -88,7 +85,9 @@ fn main() {
 
             match color_format::parse_color(color_str, &options.format) {
                 Err(e_1) => eprintln!("Could not parse color: {}.", e_1),
-                Ok(color) => command::print_details(&color, &options).expect("Could not print details.")
+                Ok(color) => {
+                    command::print_details(&color, &options).expect("Could not print details.")
+                }
             }
         }
         ("contrast", Some(matches)) => {
