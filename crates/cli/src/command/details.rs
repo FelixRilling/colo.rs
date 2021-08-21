@@ -12,7 +12,7 @@ pub fn print_details(color: &Rgb, options: &Options) -> std::io::Result<()> {
     let mut out = StandardStream::stdout(ColorChoice::Auto);
 
     write!(&mut out, "Details for color ")?;
-    print_color(&mut out, color, &options.output_format)?;
+    print_color(&mut out, color, &options.format)?;
     writeln!(&mut out, ":")?;
     writeln!(&mut out, "-------")?;
 

@@ -13,14 +13,11 @@ mod color_printing;
 mod command;
 mod options;
 
-const FORMAT_ARG_KEY: &str = "format";
-const INPUT_FORMAT_ARG_KEY: &str = "input-format";
-const OUTPUT_FORMAT_ARG_KEY: &str = "output-format";
-
 fn main() {
     let default_format = ColorFormat::Auto.to_string();
 
-    let color_arg_help = format!("CSS-like color value, e.g. #00FF11 or 'rgb(255 128 0)'. Parsing can be customized via `{}` arg.", INPUT_FORMAT_ARG_KEY);
+    let format_arg_key = "format";
+    let color_arg_help = format!("CSS-like color value, e.g. #00FF11 or 'rgb(255 128 0)'. Parsing can be customized via `{}` arg.", format_arg_key);
 
     let matches = App::new("color-utils")
         .arg(
@@ -31,8 +28,8 @@ fn main() {
                 .help("Increases message verbosity."),
         )
         .arg(
-            Arg::with_name(FORMAT_ARG_KEY)
-                .long(FORMAT_ARG_KEY)
+            Arg::with_name(format_arg_key)
+                .long(format_arg_key)
                 .takes_value(true)
                 .value_name("format-name")
                 .possible_values(&[
@@ -43,38 +40,7 @@ fn main() {
                 .case_insensitive(true)
                 .required(false)
                 .default_value(default_format.as_str())
-                .help(&format!(
-                    "Shorthand to set both `{}` and `{}`.",
-                    INPUT_FORMAT_ARG_KEY, OUTPUT_FORMAT_ARG_KEY
-                )),
-        )
-        .arg(
-            Arg::with_name(INPUT_FORMAT_ARG_KEY)
-                .long(INPUT_FORMAT_ARG_KEY)
-                .takes_value(true)
-                .value_name("format-name")
-                .possible_values(&[
-                    ColorFormat::Auto.to_string().as_str(),
-                    ColorFormat::RgbHex.to_string().as_str(),
-                    ColorFormat::RgbFunction.to_string().as_str(),
-                ])
-                .case_insensitive(true)
-                .required(false)
-                .help("Which color format to use when parsing input colors."),
-        )
-        .arg(
-            Arg::with_name(OUTPUT_FORMAT_ARG_KEY)
-                .long(OUTPUT_FORMAT_ARG_KEY)
-                .takes_value(true)
-                .value_name("format-name")
-                .possible_values(&[
-                    ColorFormat::Auto.to_string().as_str(),
-                    ColorFormat::RgbHex.to_string().as_str(),
-                    ColorFormat::RgbFunction.to_string().as_str(),
-                ])
-                .case_insensitive(true)
-                .required(false)
-                .help("Which color format to use when outputting colors."),
+                .help("Which color format to use for parsing and output"),
         )
         .subcommand(
             SubCommand::with_name("details")
@@ -120,24 +86,18 @@ fn main() {
 
     // Unwrapping should be safe as 'possible_values' only allows parseable values
     // and we either have a value or use a default.
-    let general_format = value_t!(matches, FORMAT_ARG_KEY, ColorFormat).unwrap();
-
-    let input_format =
-        value_t!(matches, INPUT_FORMAT_ARG_KEY, ColorFormat).unwrap_or(general_format);
-    let output_format =
-        value_t!(matches, OUTPUT_FORMAT_ARG_KEY, ColorFormat).unwrap_or(general_format);
+    let format = value_t!(matches, format_arg_key, ColorFormat).unwrap();
 
     let options = Options {
         verbosity,
-        input_format,
-        output_format,
+        format,
     };
 
     match matches.subcommand() {
         ("details", Some(matches)) => {
             let color_str = matches.value_of("color").unwrap();
 
-            match color_parsing::parse_color(color_str, &options.input_format) {
+            match color_parsing::parse_color(color_str, &options.format) {
                 Err(e_1) => eprintln!("Could not parse color: {}.", e_1),
                 Ok(color) => {
                     command::print_details(&color, &options).expect("Could not print details.")
@@ -148,10 +108,10 @@ fn main() {
             let color_str = matches.value_of("color").unwrap();
             let other_color_str = matches.value_of("other-color").unwrap();
 
-            match color_parsing::parse_color(color_str, &options.input_format) {
+            match color_parsing::parse_color(color_str, &options.format) {
                 Err(e_1) => eprintln!("Could not parse color: {}.", e_1),
                 Ok(color) => {
-                    match color_parsing::parse_color(other_color_str, &options.input_format) {
+                    match color_parsing::parse_color(other_color_str, &options.format) {
                         Err(e_2) => eprintln!("Could not parse other color: {}.", e_2),
                         Ok(other_color) => command::print_contrast(&color, &other_color, &options)
                             .expect("Could not print contrast."),
