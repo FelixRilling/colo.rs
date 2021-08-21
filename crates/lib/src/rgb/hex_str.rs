@@ -5,14 +5,14 @@ use crate::error::ParsingError;
 use crate::rgb::{OmitAlphaChannel, Rgb, RgbChannel};
 
 /// Represents the case of hexadecimal letters.
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Copy, Clone)]
 pub enum LetterCase {
     Uppercase,
     Lowercase,
 }
 
 /// If shorthand (single digit per channel) notation may be used if the double digit notation is the same digit two times.
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Copy, Clone)]
 pub enum ShorthandNotation {
     Never,
     IfPossible,

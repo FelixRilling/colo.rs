@@ -75,7 +75,7 @@ impl Rgb {
 }
 
 /// If the alpha channel may be omitted if its opaque.
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Copy, Clone)]
 pub enum OmitAlphaChannel {
     Never,
     IfOpaque,
