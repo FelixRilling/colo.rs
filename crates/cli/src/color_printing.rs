@@ -4,7 +4,7 @@ use rug::Float;
 use termcolor::{ColorSpec, StandardStream, WriteColor};
 
 use color_utils::component::SingleByteComponent;
-use color_utils::contrast::contrast_ratio_val;
+use color_utils::contrast::aa_aaa::contrast_ratio_val;
 use color_utils::rgb::{
     ChannelUnit, LetterCase, OmitAlphaChannel, Rgb, RgbChannel, ShorthandNotation,
 };

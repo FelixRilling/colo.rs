@@ -1,4 +1,6 @@
-//! Color contrast handling.
+//! AA/AAA Guideline contrast
+//!
+//! <https://web.dev/color-and-contrast-accessibility/>
 
 use std::collections::HashSet;
 use std::fmt;
@@ -8,7 +10,7 @@ use rug::Float;
 use rug::ops::Pow;
 
 use crate::component::FloatComponent;
-use crate::rgb::Rgb;
+use crate::rgb::{Rgb, RgbChannel};
 
 /// Contrast target values based on
 /// <https://www.w3.org/TR/2008/REC-WCAG20-20081211/#visual-audio-contrast-contrast>.
@@ -37,7 +39,6 @@ impl Display for ContrastLevel {
         })
     }
 }
-
 
 /// Checks which WCAG contrast ratio levels this combination of colors reach.
 /// An empty set means no level is reached.
@@ -84,13 +85,14 @@ pub fn contrast_ratio_val(color_1: &Rgb, color_2: &Rgb) -> Float {
 }
 
 fn relative_luminance(color: &Rgb) -> Float {
-    // Note that RGB component values, being floats between 0 and 1, conform to the part described as 'sRGB' value in the WCAG spec.
-    return 0.2126 * transform_color_value(color.red().value().clone())
-        + 0.7152 * transform_color_value(color.green().value().clone())
-        + 0.0722 * transform_color_value(color.blue().value().clone());
+    0.2126 * transform_color_value(color.red())
+        + 0.7152 * transform_color_value(color.green())
+        + 0.0722 * transform_color_value(color.blue())
 }
 
-fn transform_color_value(srgb_val: Float) -> Float {
+fn transform_color_value(channel: &RgbChannel) -> Float {
+    // Note that RGB component values, being floats between 0 and 1, conform to the part described as 'sRGB' value in the WCAG spec.
+    let srgb_val = channel.value().clone();
     if srgb_val <= 0.03928 {
         srgb_val / 12.92
     } else {
@@ -182,7 +184,6 @@ mod tests {
         assert!(actual.contains(&ContrastLevel::LargeAAA));
         assert!(actual.contains(&ContrastLevel::AAA));
     }
-
 
     #[test]
     fn contrast_ratio_val_same_color() {

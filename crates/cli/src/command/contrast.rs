@@ -4,7 +4,7 @@ use std::io::Write;
 use rug::Float;
 use termcolor::{ColorChoice, StandardStream};
 
-use color_utils::contrast::{contrast_ratio_levels_reached, contrast_ratio_val};
+use color_utils::contrast::aa_aaa::{contrast_ratio_levels_reached, contrast_ratio_val};
 use color_utils::rgb::Rgb;
 use color_utils_internal::float::float_to_string;
 
@@ -37,7 +37,7 @@ fn print_contrast_ratio(
     color_2: &Rgb,
     options: &Options,
 ) -> std::io::Result<()> {
-    write!(out, "WCAG 2.0 contrast ratio for ")?;
+    write!(out, "WCAG 2.0 AA/AAA contrast ratio for ")?;
     print_color(out, color_1, &options.format)?;
     write!(out, " to ")?;
     print_color(out, color_2, &options.format)?;
