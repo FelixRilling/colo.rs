@@ -42,7 +42,7 @@ fn format_color(color: &Rgb, format: &ColorFormat) -> String {
         ColorFormat::Auto => color.to_string(),
         ColorFormat::RgbHex => color.to_hex_str(
             OmitAlphaChannel::IfOpaque,
-            ShorthandNotation::Never,
+            ShorthandNotation::IfPossible,
             LetterCase::Uppercase,
         ),
         ColorFormat::RgbFunction => color.to_rgb_function_str(

@@ -9,9 +9,9 @@ pub use crate::rgb::rgb_channel::{DEFAULT_RGB_PRECISION, RgbChannel};
 use crate::rgb::rgb_channel::value_max;
 pub use crate::rgb::rgb_function_str::ChannelUnit;
 
+mod hex_str;
 mod rgb_channel;
 mod rgb_function_str;
-mod hex_str;
 
 /// Represents a color in the [RGB color model](https://en.wikipedia.org/wiki/RGB_color_model) (with an alpha channel).
 #[derive(Debug, PartialEq, Clone)]
@@ -47,12 +47,11 @@ impl Rgb {
     /// Checks if this color can be fully represented with channels in a range from 0 to 255.
     /// See [`SingleByteComponent::fits_u8`](SingleByteComponent::fits_in_u8) for details.
     pub fn channels_fit_in_u8(&self) -> bool {
-        self.red().fits_in_u8() &&
-            self.blue().fits_in_u8() &&
-            self.green().fits_in_u8() &&
-            self.alpha().fits_in_u8()
+        self.red().fits_in_u8()
+            && self.blue().fits_in_u8()
+            && self.green().fits_in_u8()
+            && self.alpha().fits_in_u8()
     }
-
 
     /// Creates an opaque color based on the given color channels.
     pub fn from_channels(red: RgbChannel, green: RgbChannel, blue: RgbChannel) -> Rgb {
@@ -60,8 +59,18 @@ impl Rgb {
     }
 
     /// Creates a color based on the given color and alpha channels.
-    pub fn from_channels_with_alpha(red: RgbChannel, green: RgbChannel, blue: RgbChannel, alpha: RgbChannel) -> Rgb {
-        Rgb { red, green, blue, alpha }
+    pub fn from_channels_with_alpha(
+        red: RgbChannel,
+        green: RgbChannel,
+        blue: RgbChannel,
+        alpha: RgbChannel,
+    ) -> Rgb {
+        Rgb {
+            red,
+            green,
+            blue,
+            alpha,
+        }
     }
 }
 
@@ -74,7 +83,19 @@ pub enum OmitAlphaChannel {
 
 impl Display for Rgb {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_str(&self.to_hex_str(OmitAlphaChannel::IfOpaque, ShorthandNotation::Never, LetterCase::Uppercase))
+        if self.channels_fit_in_u8() {
+            f.write_str(&self.to_hex_str(
+                OmitAlphaChannel::IfOpaque,
+                ShorthandNotation::IfPossible,
+                LetterCase::Uppercase,
+            ))
+        } else {
+            f.write_str(&self.to_rgb_function_str(
+                OmitAlphaChannel::IfOpaque,
+                ChannelUnit::Number,
+                ChannelUnit::Number,
+            ))
+        }
     }
 }
 
@@ -91,21 +112,24 @@ mod tests {
             RgbChannel::from_u8(64),
             RgbChannel::from_u8(0),
             RgbChannel::from_u8(254),
-        ).is_opaque());
+        )
+            .is_opaque());
 
         assert!(!Rgb::from_channels_with_alpha(
             RgbChannel::from_u8(128),
             RgbChannel::from_u8(64),
             RgbChannel::from_u8(0),
             RgbChannel::from_u8(128),
-        ).is_opaque());
+        )
+            .is_opaque());
 
         assert!(!Rgb::from_channels_with_alpha(
             RgbChannel::from_u8(128),
             RgbChannel::from_u8(64),
             RgbChannel::from_u8(0),
             RgbChannel::from_u8(0),
-        ).is_opaque());
+        )
+            .is_opaque());
     }
 
     #[test]
@@ -114,14 +138,16 @@ mod tests {
             RgbChannel::from_u8(128),
             RgbChannel::from_u8(64),
             RgbChannel::from_u8(0),
-        ).is_opaque());
+        )
+            .is_opaque());
 
         assert!(Rgb::from_channels_with_alpha(
             RgbChannel::from_u8(128),
             RgbChannel::from_u8(64),
             RgbChannel::from_u8(0),
             RgbChannel::from_u8(255),
-        ).is_opaque());
+        )
+            .is_opaque());
     }
 
     #[test]
@@ -131,7 +157,8 @@ mod tests {
             RgbChannel::from_u8(64),
             RgbChannel::from_u8(0),
             RgbChannel::from_u8(0),
-        ).channels_fit_in_u8());
+        )
+            .channels_fit_in_u8());
     }
 
     #[test]
@@ -141,6 +168,7 @@ mod tests {
             RgbChannel::from_value(Float::with_val(64, 1)),
             RgbChannel::from_value(Float::with_val(64, 1)),
             RgbChannel::from_value(Float::with_val(64, 0.00000001)),
-        ).channels_fit_in_u8());
+        )
+            .channels_fit_in_u8());
     }
 }
