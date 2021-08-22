@@ -51,12 +51,12 @@ impl From<rug::float::ParseFloatError> for ParsingError<'_> {
 
 /// Error for when a conversion fails to due to incompatible ranges.
 #[derive(Debug)]
-pub struct RangeError();
+pub struct RangeError<'a>(pub(crate) &'a str);
 
-impl Display for RangeError {
+impl Display for RangeError<'_> {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        f.write_str("Incompatible range.")
+        f.write_str(self.0)
     }
 }
 
-impl Error for RangeError {}
+impl Error for RangeError<'_> {}

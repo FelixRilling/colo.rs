@@ -21,6 +21,7 @@ pub struct RgbChannel {
 }
 
 impl FloatComponent for RgbChannel {
+    // TODO maybe make this try
     fn from_value(component_value: Float) -> Self {
         assert!(FLOAT_COMPONENT_VALUE_RANGE.contains(&component_value));
 
@@ -57,7 +58,7 @@ impl SingleByteComponent for RgbChannel {
         if self.fits_in_u8() {
             Ok(self.to_u8_round())
         } else {
-            Err(RangeError())
+            Err(RangeError("Value does not fit into 1 byte."))
         }
     }
 
