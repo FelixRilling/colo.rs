@@ -5,7 +5,7 @@ use termcolor::{ColorSpec, StandardStream, WriteColor};
 
 use color_utils::component::SingleByteComponent;
 use color_utils::contrast::aa_aaa::contrast_ratio_val;
-use color_utils::rgb::{
+use color_utils::model::rgb::{
     ChannelUnit, LetterCase, OmitAlphaChannel, Rgb, RgbChannel, ShorthandNotation,
 };
 
@@ -83,7 +83,7 @@ pub fn print_color(
 
 #[cfg(test)]
 mod tests {
-    use color_utils::rgb::Rgb;
+    use color_utils::model::rgb::Rgb;
 
     use super::*;
 

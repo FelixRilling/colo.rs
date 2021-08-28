@@ -10,7 +10,7 @@ use rug::Float;
 use rug::ops::Pow;
 
 use crate::component::FloatComponent;
-use crate::rgb::{Rgb, RgbChannel};
+use crate::model::rgb::{Rgb, RgbChannel};
 
 /// Contrast target values based on
 /// <https://www.w3.org/TR/2008/REC-WCAG20-20081211/#visual-audio-contrast-contrast>.
@@ -103,7 +103,7 @@ fn transform_color_value(channel: &RgbChannel) -> Float {
 
 #[cfg(test)]
 mod tests {
-    use crate::rgb::Rgb;
+    use crate::model::rgb::Rgb;
 
     use super::*;
 

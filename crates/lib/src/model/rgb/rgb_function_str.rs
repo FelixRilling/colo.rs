@@ -9,8 +9,8 @@ use crate::css_types::{
     format_number, format_percentage, is_percentage, parse_number, parse_percentage,
 };
 use crate::error::ParsingError;
-use crate::rgb::{OmitAlphaChannel, RgbChannel};
-use crate::rgb::Rgb;
+use crate::model::rgb::{OmitAlphaChannel, RgbChannel};
+use crate::model::rgb::Rgb;
 
 fn clamp_in_channel_range(channel_val: Float) -> Float {
     if !FLOAT_COMPONENT_VALUE_RANGE.contains(&channel_val) {

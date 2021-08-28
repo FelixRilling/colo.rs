@@ -5,7 +5,7 @@ use rug::Float;
 use termcolor::{ColorChoice, StandardStream};
 
 use color_utils::contrast::aa_aaa::{contrast_ratio_levels_reached, contrast_ratio_val};
-use color_utils::rgb::Rgb;
+use color_utils::model::rgb::Rgb;
 use color_utils_internal::float::float_to_string;
 
 use crate::color_printing::print_color;

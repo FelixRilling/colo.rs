@@ -1,19 +1,22 @@
 //! **R**ed **G**reen **B**lue color model.
 
+
 use std::fmt;
 use std::fmt::Display;
 
 use crate::component::{FloatComponent, SingleByteComponent};
-pub use crate::rgb::hex_str::{LetterCase, ShorthandNotation};
-pub use crate::rgb::rgb_channel::{DEFAULT_RGB_PRECISION, RgbChannel};
-use crate::rgb::rgb_channel::value_max;
-pub use crate::rgb::rgb_function_str::ChannelUnit;
+pub use crate::model::rgb::hex_str::{LetterCase, ShorthandNotation};
+pub use crate::model::rgb::rgb_channel::{DEFAULT_RGB_PRECISION, RgbChannel};
+use crate::model::rgb::rgb_channel::value_max;
+pub use crate::model::rgb::rgb_function_str::ChannelUnit;
 
 mod hex_str;
 mod rgb_channel;
 mod rgb_function_str;
 
 /// Represents a color in the [RGB color model](https://en.wikipedia.org/wiki/RGB_color_model) (with an alpha channel).
+///
+/// Unless specified otherwise, an sRGB color space is assumed (e.g. when used for contrast calculation).
 #[derive(Debug, PartialEq, Clone)]
 pub struct Rgb {
     red: RgbChannel,
@@ -58,6 +61,7 @@ impl Rgb {
         Rgb::from_channels_with_alpha(red, green, blue, RgbChannel::from_value(value_max()))
     }
 
+    // TODO: enforce same precision for all channels
     /// Creates a color based on the given color and alpha channels.
     pub fn from_channels_with_alpha(
         red: RgbChannel,

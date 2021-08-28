@@ -2,7 +2,7 @@ use std::io::Write;
 
 use termcolor::{ColorChoice, StandardStream};
 
-use color_utils::rgb::Rgb;
+use color_utils::model::rgb::Rgb;
 
 use crate::color_format::ColorFormat;
 use crate::color_printing::print_color;

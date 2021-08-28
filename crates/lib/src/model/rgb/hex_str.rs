@@ -2,7 +2,7 @@ use log::trace;
 
 use crate::component::{FloatComponent, SingleByteComponent};
 use crate::error::ParsingError;
-use crate::rgb::{OmitAlphaChannel, Rgb, RgbChannel};
+use crate::model::rgb::{OmitAlphaChannel, Rgb, RgbChannel};
 
 /// Represents the case of hexadecimal letters.
 #[derive(Debug, PartialEq, Eq, Copy, Clone)]

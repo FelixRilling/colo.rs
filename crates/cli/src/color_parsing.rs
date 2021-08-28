@@ -1,7 +1,7 @@
 use log::debug;
 
 use color_utils::error::ParsingError;
-use color_utils::rgb::Rgb;
+use color_utils::model::rgb::Rgb;
 
 use crate::color_format::ColorFormat;
 
