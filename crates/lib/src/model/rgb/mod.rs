@@ -1,8 +1,10 @@
 //! **R**ed **G**reen **B**lue color model.
 
-
 use std::fmt;
 use std::fmt::Display;
+
+use palette::rgb::Rgba;
+use palette::Srgba;
 
 use crate::component::{FloatComponent, SingleByteComponent};
 pub use crate::model::rgb::hex_str::{LetterCase, ShorthandNotation};
@@ -103,6 +105,16 @@ impl Display for Rgb {
     }
 }
 
+impl From<Rgb> for Srgba<f32> {
+    fn from(rgb: Rgb) -> Self {
+        let r = rgb.red.value().to_f32();
+        let g = rgb.green.value().to_f32();
+        let b = rgb.blue.value().to_f32();
+        let a = rgb.alpha.value().to_f32();
+        Rgba::from_components((r,g,b,a))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use rug::Float;
@@ -117,7 +129,7 @@ mod tests {
             RgbChannel::from_u8(0),
             RgbChannel::from_u8(254),
         )
-            .is_opaque());
+        .is_opaque());
 
         assert!(!Rgb::from_channels_with_alpha(
             RgbChannel::from_u8(128),
@@ -125,7 +137,7 @@ mod tests {
             RgbChannel::from_u8(0),
             RgbChannel::from_u8(128),
         )
-            .is_opaque());
+        .is_opaque());
 
         assert!(!Rgb::from_channels_with_alpha(
             RgbChannel::from_u8(128),
@@ -133,7 +145,7 @@ mod tests {
             RgbChannel::from_u8(0),
             RgbChannel::from_u8(0),
         )
-            .is_opaque());
+        .is_opaque());
     }
 
     #[test]
@@ -143,7 +155,7 @@ mod tests {
             RgbChannel::from_u8(64),
             RgbChannel::from_u8(0),
         )
-            .is_opaque());
+        .is_opaque());
 
         assert!(Rgb::from_channels_with_alpha(
             RgbChannel::from_u8(128),
@@ -151,7 +163,7 @@ mod tests {
             RgbChannel::from_u8(0),
             RgbChannel::from_u8(255),
         )
-            .is_opaque());
+        .is_opaque());
     }
 
     #[test]
@@ -162,7 +174,7 @@ mod tests {
             RgbChannel::from_u8(0),
             RgbChannel::from_u8(0),
         )
-            .channels_fit_in_u8());
+        .channels_fit_in_u8());
     }
 
     #[test]
@@ -173,6 +185,6 @@ mod tests {
             RgbChannel::from_value(Float::with_val(64, 1)),
             RgbChannel::from_value(Float::with_val(64, 0.00000001)),
         )
-            .channels_fit_in_u8());
+        .channels_fit_in_u8());
     }
 }

@@ -18,3 +18,8 @@ lazy_static = "1.4.0"
 version = "1.12"
 default-features = false
 features = ["float", "integer"]
+
+[dependencies.palette]
+version = "0.6.0"
+default-features = false
+features = ["std"]

@@ -1,5 +1,6 @@
 use std::io::Write;
 
+use palette::{IntoComponent, Srgba};
 use rug::Float;
 use termcolor::{ColorSpec, StandardStream, WriteColor};
 
@@ -11,11 +12,11 @@ use color_utils::model::rgb::{
 
 use crate::color_format::ColorFormat;
 
-fn rgb_as_term_color(color: &Rgb) -> termcolor::Color {
+fn rgb_as_term_color(color: &Srgba<f32>) -> termcolor::Color {
     termcolor::Color::Rgb(
-        color.red().to_u8_round(),
-        color.green().to_u8_round(),
-        color.blue().to_u8_round(),
+        color.red.into_component(),
+        color.green.into_component(),
+        color.blue.into_component(),
     )
 }
 
@@ -74,8 +75,8 @@ pub fn print_color(
 
     stdout.set_color(
         ColorSpec::new()
-            .set_bg(Some(rgb_as_term_color(color)))
-            .set_fg(Some(rgb_as_term_color(foreground_color))),
+            .set_bg(Some(rgb_as_term_color(color.into())))
+            .set_fg(Some(rgb_as_term_color(foreground_color.into()))),
     )?;
     write!(stdout, "{}", format_color(color, format))?;
     stdout.set_color(&ColorSpec::default())
