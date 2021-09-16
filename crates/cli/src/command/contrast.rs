@@ -1,6 +1,7 @@
 use std::collections::HashSet;
 use std::io::Write;
 
+use palette::Srgba;
 use rug::Float;
 use termcolor::{ColorChoice, StandardStream};
 
@@ -23,7 +24,7 @@ fn hash_set_as_sorted_vec<T: Ord>(hash_set: HashSet<T>) -> Vec<T> {
     set_copy_vec
 }
 
-pub fn print_contrast(color_1: &Rgb, color_2: &Rgb, options: &Options) -> std::io::Result<()> {
+pub fn print_contrast(color_1: &Srgba, color_2: &Srgba, options: &Options) -> std::io::Result<()> {
     let mut out = StandardStream::stdout(ColorChoice::Auto);
 
     print_contrast_ratio(&mut out, color_1, color_2, options)?;
@@ -33,16 +34,16 @@ pub fn print_contrast(color_1: &Rgb, color_2: &Rgb, options: &Options) -> std::i
 
 fn print_contrast_ratio(
     out: &mut StandardStream,
-    color_1: &Rgb,
-    color_2: &Rgb,
+    color_1: &Srgba,
+    color_2: &Srgba,
     options: &Options,
 ) -> std::io::Result<()> {
     write!(out, "WCAG 2.0 AA/AAA contrast ratio for ")?;
-    print_color(out, &color_1.to_owned().into(), &options.format)?;
+    print_color(out, color_1, &options.format)?;
     write!(out, " to ")?;
-    print_color(out, &color_2.to_owned().into(), &options.format)?;
+    print_color(out, color_2, &options.format)?;
 
-    let contrast_ratio = contrast_ratio_val(color_1, color_2);
+    let contrast_ratio = contrast_ratio_val(&color_1.to_owned().into(), &color_2.to_owned().into());
     let contrast_ratio_str = if options.verbosity == 0 {
         // Usually only displaying the last 2 digits is enough.
         let floored_val = floor_n_decimals(contrast_ratio, 2);
@@ -55,10 +56,10 @@ fn print_contrast_ratio(
 
 fn print_contrast_levels_reached(
     out: &mut StandardStream,
-    color_1: &Rgb,
-    color_2: &Rgb,
+    color_1: &Srgba,
+    color_2: &Srgba,
 ) -> std::io::Result<()> {
-    let contrast_levels_reached = contrast_ratio_levels_reached(color_1, color_2);
+    let contrast_levels_reached = contrast_ratio_levels_reached(&color_1.to_owned().into(), &color_2.to_owned().into());
     let contrast_levels_reached_str: String = if contrast_levels_reached.is_empty() {
         String::from("None")
     } else {
