@@ -1,3 +1,5 @@
+extern crate palette;
+
 use std::convert::TryInto;
 
 use clap::{App, Arg, SubCommand};
@@ -100,7 +102,7 @@ fn main() {
             match color_parsing::parse_color(color_str, &options.format) {
                 Err(e_1) => eprintln!("Could not parse color: {}.", e_1),
                 Ok(color) => {
-                    command::print_details(&color, &options).expect("Could not print details.")
+                    command::print_details(&color.into(), &options).expect("Could not print details.")
                 }
             }
         }

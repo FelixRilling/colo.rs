@@ -3,8 +3,9 @@
 use std::fmt;
 use std::fmt::Display;
 
+use palette::{Alpha, Srgba};
 use palette::rgb::Rgba;
-use palette::Srgba;
+use palette::WithAlpha;
 use rug::Float;
 
 use crate::component::{FloatComponent, SingleByteComponent};
@@ -106,24 +107,42 @@ impl Display for Rgb {
     }
 }
 
+// Temporary helpers until migration completes
+
 impl From<Rgb> for Srgba {
     fn from(rgb: Rgb) -> Self {
         let r = rgb.red.value().to_f32();
         let g = rgb.green.value().to_f32();
         let b = rgb.blue.value().to_f32();
         let a = rgb.alpha.value().to_f32();
-        Rgba::from_components((r,g,b,a))
+        Rgba::from_components((r, g, b, a))
     }
 }
 
-impl From<Srgba> for Rgb{
+impl From<Srgba> for Rgb {
     fn from(srgba: Srgba) -> Self {
-        let r = Float::with_val(64,srgba.red);
-        let g = Float::with_val(64,srgba.green);
-        let b = Float::with_val(64,srgba.blue);
-        let a = Float::with_val(64,srgba.alpha);
-        Rgb::from_channels_with_alpha(r.into(),g.into(),b.into(),a.into())
+        let r = Float::with_val(64, srgba.red);
+        let g = Float::with_val(64, srgba.green);
+        let b = Float::with_val(64, srgba.blue);
+        let a = Float::with_val(64, srgba.alpha);
+        Rgb::from_channels_with_alpha(r.into(), g.into(), b.into(), a.into())
     }
+}
+
+// /home/rilling/.cargo/registry/src/github.com-1ecc6299db9ec823/palette-0.6.0/src/alpha.rs:70
+pub fn is_opaque(srgba: &Srgba<f32>) -> bool {
+    srgba.alpha == 1.0
+}
+pub fn channels_fit_in_u8(srgba: &Srgba<f32>) -> bool {
+    channel_fit_in_u8(srgba.red)
+        && channel_fit_in_u8(srgba.green)
+        && channel_fit_in_u8(srgba.blue)
+        && channel_fit_in_u8(srgba.alpha)
+}
+
+fn channel_fit_in_u8(channel: f32) -> bool {
+    let maxed = channel * 255.0;
+    maxed.floor() == maxed
 }
 
 #[cfg(test)]
