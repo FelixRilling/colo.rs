@@ -3,9 +3,8 @@
 use std::fmt;
 use std::fmt::Display;
 
-use palette::{Alpha, Srgba};
+use palette::Srgba;
 use palette::rgb::Rgba;
-use palette::WithAlpha;
 use rug::Float;
 
 use crate::component::{FloatComponent, SingleByteComponent};

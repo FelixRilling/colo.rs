@@ -1,13 +1,10 @@
 use std::io::Write;
 
 use palette::{IntoComponent, RelativeContrast, Srgb, Srgba, WithAlpha};
-use rug::Float;
 use termcolor::{ColorSpec, StandardStream, WriteColor};
 
-use color_utils::component::SingleByteComponent;
-use color_utils::contrast::aa_aaa::contrast_ratio_val;
 use color_utils::model::rgb::{
-    ChannelUnit, LetterCase, OmitAlphaChannel, Rgb, RgbChannel, ShorthandNotation,
+    ChannelUnit, LetterCase, OmitAlphaChannel, Rgb, ShorthandNotation,
 };
 
 use crate::color_format::ColorFormat;
@@ -39,7 +36,7 @@ fn get_best_contrast<'a>(initial_color: &'a Srgb, color_options: &'a [Srgb]) -> 
 
 // TODO: Allow customization of formatting flags.
 fn format_color(color: &Srgba, format: &ColorFormat) -> String {
-    let rgb:Rgb = color.to_owned().into();
+    let rgb: Rgb = color.to_owned().into();
     match format {
         ColorFormat::Auto => rgb.to_string(),
         ColorFormat::RgbHex => rgb.to_hex_str(
@@ -68,7 +65,7 @@ pub fn print_color(
     let foreground_color_options = [black, white];
     let foreground_color = get_best_contrast(
         &opaque_color,
-        &foreground_color_options
+        &foreground_color_options,
     );
 
     stdout.set_color(
@@ -82,8 +79,6 @@ pub fn print_color(
 
 #[cfg(test)]
 mod tests {
-    use color_utils::model::rgb::Rgb;
-
     use super::*;
 
     #[test]

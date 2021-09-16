@@ -3,7 +3,7 @@ use std::io::Write;
 use palette::Srgba;
 use termcolor::{ColorChoice, StandardStream};
 
-use color_utils::model::rgb::{channels_fit_in_u8, is_opaque, Rgb};
+use color_utils::model::rgb::{channels_fit_in_u8, is_opaque};
 
 use crate::color_format::ColorFormat;
 use crate::color_printing::print_color;

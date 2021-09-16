@@ -10,12 +10,12 @@ pub fn parse_color<'a>(seq: &'a str, format: &ColorFormat) -> Result<Srgba, Pars
     debug!("Attempting to parse '{}' using format '{}'.", seq, format);
     let result = match format {
         ColorFormat::Auto => parse_color_auto(seq),
-        ColorFormat::RgbHex => Rgb::from_hex_str(seq).map(|rgb|rgb.into()),
-        ColorFormat::RgbFunction => Rgb::from_rgb_function_str(seq).map(|rgb|rgb.into()),
+        ColorFormat::RgbHex => Rgb::from_hex_str(seq).map(|rgb| rgb.into()),
+        ColorFormat::RgbFunction => Rgb::from_rgb_function_str(seq).map(|rgb| rgb.into()),
     };
 
     if let Ok(ref color) = result {
-        let rgb:Rgb = color.to_owned().into();
+        let rgb: Rgb = color.to_owned().into();
         debug!("Parsed '{}' as '{}' using format '{}'.", seq, rgb, format);
     }
 
