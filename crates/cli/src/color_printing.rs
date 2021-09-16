@@ -38,15 +38,16 @@ fn get_best_contrast<'a>(initial_color: &'a Srgb, color_options: &'a [Srgb]) -> 
 }
 
 // TODO: Allow customization of formatting flags.
-fn format_color(color: &Rgb, format: &ColorFormat) -> String {
+fn format_color(color: &Srgba, format: &ColorFormat) -> String {
+    let rgb:Rgb = color.to_owned().into();
     match format {
-        ColorFormat::Auto => color.to_string(),
-        ColorFormat::RgbHex => color.to_hex_str(
+        ColorFormat::Auto => rgb.to_string(),
+        ColorFormat::RgbHex => rgb.to_hex_str(
             OmitAlphaChannel::IfOpaque,
             ShorthandNotation::IfPossible,
             LetterCase::Uppercase,
         ),
-        ColorFormat::RgbFunction => color.to_rgb_function_str(
+        ColorFormat::RgbFunction => rgb.to_rgb_function_str(
             OmitAlphaChannel::IfOpaque,
             ChannelUnit::Number,
             ChannelUnit::Number,
@@ -57,10 +58,10 @@ fn format_color(color: &Rgb, format: &ColorFormat) -> String {
 /// Prints colored color value to stream. Stream color is reset afterwards.
 pub fn print_color(
     stdout: &mut StandardStream,
-    color: &Rgb,
+    color: &Srgba,
     format: &ColorFormat,
 ) -> std::io::Result<()> {
-    let opaque_color: Srgb = Srgba::from(Rgb::to_owned(color)).without_alpha();
+    let opaque_color: Srgb = color.without_alpha();
 
     let black = Srgb::from_components((0.0, 0.0, 0.0));
     let white = Srgb::from_components((1.0, 1.0, 1.0));

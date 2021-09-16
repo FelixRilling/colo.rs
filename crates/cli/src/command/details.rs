@@ -12,7 +12,7 @@ pub fn print_details(color: &Rgb, options: &Options) -> std::io::Result<()> {
     let mut out = StandardStream::stdout(ColorChoice::Auto);
 
     write!(&mut out, "Details for color ")?;
-    print_color(&mut out, color, &options.format)?;
+    print_color(&mut out, &color.to_owned().into(), &options.format)?;
     writeln!(&mut out, ":")?;
     writeln!(&mut out, "-------")?;
 
@@ -35,13 +35,13 @@ fn print_format_details(out: &mut StandardStream, color: &Rgb) -> std::io::Resul
     writeln!(out, "Formats: ")?;
 
     write!(out, "\tIn RGB hexadecimal notation: ")?;
-    print_color(out, color, &ColorFormat::RgbHex)?;
+    print_color(out, &color.to_owned().into(), &ColorFormat::RgbHex)?;
     if !color.channels_fit_in_u8() {
         write!(out, " (Warning: Channel values were rounded)")?;
     }
     writeln!(out, ".")?;
 
     write!(out, "\tIn RGB function notation: ")?;
-    print_color(out, color, &ColorFormat::RgbFunction)?;
+    print_color(out, &color.to_owned().into(), &ColorFormat::RgbFunction)?;
     writeln!(out, ".")
 }
