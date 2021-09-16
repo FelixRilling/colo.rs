@@ -1,6 +1,6 @@
 use std::io::Write;
 
-use palette::{IntoComponent, Srgba};
+use palette::{IntoComponent, RelativeContrast, Srgb, Srgba, WithAlpha};
 use rug::Float;
 use termcolor::{ColorSpec, StandardStream, WriteColor};
 
@@ -12,7 +12,7 @@ use color_utils::model::rgb::{
 
 use crate::color_format::ColorFormat;
 
-fn rgb_as_term_color(color: &Srgba<f32>) -> termcolor::Color {
+fn rgb_as_term_color(color: &Srgb) -> termcolor::Color {
     termcolor::Color::Rgb(
         color.red.into_component(),
         color.green.into_component(),
@@ -21,13 +21,13 @@ fn rgb_as_term_color(color: &Srgba<f32>) -> termcolor::Color {
 }
 
 /// Finds and returns the `color_options` value that has the best contrast to `initial_color`.
-fn get_best_contrast<'a>(initial_color: &'a Rgb, color_options: &'a [Rgb]) -> &'a Rgb {
-    let mut best_contrast_ratio: Float = Float::with_val(1, 0.0);
+fn get_best_contrast<'a>(initial_color: &'a Srgb, color_options: &'a [Srgb]) -> &'a Srgb {
+    let mut best_contrast_ratio: f32 = 0.0;
     // Default value only matters if all options have zero contrast, so they should be the same as initial_color anyways.
-    let mut best_contrast_ratio_color: &Rgb = initial_color;
+    let mut best_contrast_ratio_color: &Srgb = initial_color;
 
     for color_option in color_options {
-        let contrast_ratio = contrast_ratio_val(initial_color, color_option);
+        let contrast_ratio = initial_color.get_contrast_ratio(color_option);
         if contrast_ratio > best_contrast_ratio {
             best_contrast_ratio = contrast_ratio;
             best_contrast_ratio_color = color_option;
@@ -60,23 +60,20 @@ pub fn print_color(
     color: &Rgb,
     format: &ColorFormat,
 ) -> std::io::Result<()> {
-    let black = Rgb::from_channels(
-        RgbChannel::from_u8(0),
-        RgbChannel::from_u8(0),
-        RgbChannel::from_u8(0),
-    );
-    let white = Rgb::from_channels(
-        RgbChannel::from_u8(255),
-        RgbChannel::from_u8(255),
-        RgbChannel::from_u8(255),
-    );
+    let opaque_color: Srgb = Srgba::from(Rgb::to_owned(color)).without_alpha();
+
+    let black = Srgb::from_components((0.0, 0.0, 0.0));
+    let white = Srgb::from_components((1.0, 1.0, 1.0));
     let foreground_color_options = [black, white];
-    let foreground_color = get_best_contrast(color, &foreground_color_options);
+    let foreground_color = get_best_contrast(
+        &opaque_color,
+        &foreground_color_options
+    );
 
     stdout.set_color(
         ColorSpec::new()
-            .set_bg(Some(rgb_as_term_color(color.into())))
-            .set_fg(Some(rgb_as_term_color(foreground_color.into()))),
+            .set_bg(Some(rgb_as_term_color(&opaque_color)))
+            .set_fg(Some(rgb_as_term_color(foreground_color))),
     )?;
     write!(stdout, "{}", format_color(color, format))?;
     stdout.set_color(&ColorSpec::default())
@@ -90,23 +87,15 @@ mod tests {
 
     #[test]
     fn get_best_contrast_finds_result() {
-        let black = Rgb::from_channels(
-            RgbChannel::from_u8(0),
-            RgbChannel::from_u8(0),
-            RgbChannel::from_u8(0),
-        );
-        let white = Rgb::from_channels(
-            RgbChannel::from_u8(255),
-            RgbChannel::from_u8(255),
-            RgbChannel::from_u8(255),
-        );
+        let black = Srgb::from_components((0.0, 0.0, 0.0));
+        let white = Srgb::from_components((1.0, 1.0, 1.0));
         let options = [black.clone(), white.clone()];
 
-        let bright_color = Rgb::from_hex_str("#ABCDEF").unwrap();
+        let bright_color = Srgb::from_components((0.9, 0.85, 1.0));
         let bright_color_best_contrast_actual = get_best_contrast(&bright_color, &options);
         assert_eq!(*bright_color_best_contrast_actual, black);
 
-        let dark_color = Rgb::from_hex_str("#696969").unwrap();
+        let dark_color = Srgb::from_components((0.0, 0.1, 0.25));
         let dark_color_best_contrast_actual = get_best_contrast(&dark_color, &options);
         assert_eq!(*dark_color_best_contrast_actual, white);
     }

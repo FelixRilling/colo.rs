@@ -5,6 +5,7 @@ use std::fmt::Display;
 
 use palette::rgb::Rgba;
 use palette::Srgba;
+use rug::Float;
 
 use crate::component::{FloatComponent, SingleByteComponent};
 pub use crate::model::rgb::hex_str::{LetterCase, ShorthandNotation};
@@ -105,13 +106,23 @@ impl Display for Rgb {
     }
 }
 
-impl From<Rgb> for Srgba<f32> {
+impl From<Rgb> for Srgba {
     fn from(rgb: Rgb) -> Self {
         let r = rgb.red.value().to_f32();
         let g = rgb.green.value().to_f32();
         let b = rgb.blue.value().to_f32();
         let a = rgb.alpha.value().to_f32();
         Rgba::from_components((r,g,b,a))
+    }
+}
+
+impl From<Srgba> for Rgb{
+    fn from(srgba: Srgba) -> Self {
+        let r = Float::with_val(64,srgba.red);
+        let g = Float::with_val(64,srgba.green);
+        let b = Float::with_val(64,srgba.blue);
+        let a = Float::with_val(64,srgba.alpha);
+        Rgb::from_channels_with_alpha(r.into(),g.into(),b.into(),a.into())
     }
 }
 
