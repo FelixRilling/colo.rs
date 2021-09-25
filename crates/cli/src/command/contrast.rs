@@ -1,15 +1,56 @@
+use core::fmt;
 use std::collections::HashSet;
+use std::fmt::Display;
 use std::io::Write;
 
 use palette::{RelativeContrast, Srgba};
-use rug::Float;
 use termcolor::{ColorChoice, StandardStream};
-
-use color_utils::contrast::aa_aaa::{contrast_ratio_levels_reached, contrast_ratio_val};
-use color_utils_internal::float::float_to_string;
 
 use crate::color_printing::print_color;
 use crate::options::Options;
+
+/// Contrast target values based on
+/// <https://www.w3.org/TR/2008/REC-WCAG20-20081211/#visual-audio-contrast-contrast>.
+#[derive(Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
+enum ContrastLevel {
+    /// Enhanced contrast for text.
+    AAA,
+
+    /// Enhanced contrast for large text.
+    LargeAAA,
+
+    /// Minimum contrast for text.
+    AA,
+
+    /// Minimum contrast for large text.
+    LargeAA,
+}
+
+impl Display for ContrastLevel {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(match &self {
+            ContrastLevel::AAA => "AAA",
+            ContrastLevel::LargeAAA => "AAA (Large Text)",
+            ContrastLevel::AA => "AA",
+            ContrastLevel::LargeAA => "AA (Large Text)",
+        })
+    }
+}
+
+fn contrast_ratio_levels_reached(color_1: &Srgba, color_2: &Srgba) -> HashSet<ContrastLevel> {
+    let mut reached = HashSet::with_capacity(4);
+    if color_1.has_min_contrast_large_text(color_2) {
+        reached.insert(ContrastLevel::LargeAA);
+        if color_1.has_min_contrast_text(color_2) {
+            reached.insert(ContrastLevel::AA);
+            reached.insert(ContrastLevel::LargeAAA);
+            if color_1.has_enhanced_contrast_text(color_2) {
+                reached.insert(ContrastLevel::AAA);
+            }
+        }
+    }
+    reached
+}
 
 fn floor_n_decimals(val: f32, n: u32) -> f32 {
     let factor: f32 = 10_i16.pow(n).into();
