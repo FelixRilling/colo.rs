@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 use std::io::Write;
 
-use palette::Srgba;
+use palette::{RelativeContrast, Srgba};
 use rug::Float;
 use termcolor::{ColorChoice, StandardStream};
 
@@ -11,8 +11,8 @@ use color_utils_internal::float::float_to_string;
 use crate::color_printing::print_color;
 use crate::options::Options;
 
-fn floor_n_decimals(val: Float, n: u32) -> Float {
-    let factor = 10_i32.pow(n);
+fn floor_n_decimals(val: f32, n: u32) -> f32 {
+    let factor: f32 = 10_i16.pow(n).into();
     let tmp = val * factor;
     tmp.floor() / factor
 }
@@ -42,11 +42,11 @@ fn print_contrast_ratio(
     write!(out, " to ")?;
     print_color(out, color_2, &options.format)?;
 
-    let contrast_ratio = contrast_ratio_val(&color_1.to_owned().into(), &color_2.to_owned().into());
+    let contrast_ratio = color_1.get_contrast_ratio(color_2);
     let contrast_ratio_str = if options.verbosity == 0 {
         // Usually only displaying the last 2 digits is enough.
         let floored_val = floor_n_decimals(contrast_ratio, 2);
-        float_to_string(&floored_val)
+        floored_val.to_string()
     } else {
         contrast_ratio.to_string()
     };
@@ -58,7 +58,8 @@ fn print_contrast_levels_reached(
     color_1: &Srgba,
     color_2: &Srgba,
 ) -> std::io::Result<()> {
-    let contrast_levels_reached = contrast_ratio_levels_reached(&color_1.to_owned().into(), &color_2.to_owned().into());
+    let contrast_levels_reached =
+        contrast_ratio_levels_reached(&color_1.to_owned().into(), &color_2.to_owned().into());
     let contrast_levels_reached_str: String = if contrast_levels_reached.is_empty() {
         String::from("None")
     } else {
