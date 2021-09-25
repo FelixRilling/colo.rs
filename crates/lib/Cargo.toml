@@ -10,6 +10,7 @@ edition = "2018"
 [dependencies]
 color-utils-internal = { version = "0.2.0", path = "../internal" }
 
+cssparser = "0.29.0"
 regex = "1.5.4"
 log = "0.4.14"
 lazy_static = "1.4.0"
