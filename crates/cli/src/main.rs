@@ -99,7 +99,7 @@ fn main() {
         ("details", Some(matches)) => {
             let color_str = matches.value_of("color").unwrap();
 
-            match color_parsing::parse_color(color_str, &options.format) {
+            match color_parsing::parse_color(color_str) {
                 Err(e_1) => eprintln!("Could not parse color: {}.", e_1),
                 Ok(color) => {
                     command::print_details(&color.into(), &options).expect("Could not print details.")
@@ -110,10 +110,10 @@ fn main() {
             let color_str = matches.value_of("color").unwrap();
             let other_color_str = matches.value_of("other-color").unwrap();
 
-            match color_parsing::parse_color(color_str, &options.format) {
+            match color_parsing::parse_color(color_str) {
                 Err(e_1) => eprintln!("Could not parse color: {}.", e_1),
                 Ok(color) => {
-                    match color_parsing::parse_color(other_color_str, &options.format) {
+                    match color_parsing::parse_color(other_color_str) {
                         Err(e_2) => eprintln!("Could not parse other color: {}.", e_2),
                         Ok(other_color) => command::print_contrast(&color, &other_color, &options)
                             .expect("Could not print contrast."),
