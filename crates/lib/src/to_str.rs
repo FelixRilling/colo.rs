@@ -1,7 +1,5 @@
-use lazy_static::lazy_static;
-use log::{trace, warn};
-use palette::{Alpha, IntoColor, Srgba, WithAlpha};
-use palette::rgb::Rgb;
+use log::trace;
+use palette::Srgba;
 
 use crate::model::rgb::is_opaque;
 
@@ -202,13 +200,11 @@ pub fn to_rgb_function_str(
 
 #[cfg(test)]
 mod tests {
-    use palette::rgb::Rgba;
-
     use super::*;
 
     #[test]
     fn to_hex_str_omit_alpha_channel_opaque() {
-        let color: Srgba = Srgba::<u8>::from_components((0x11, 0xff, 0x0a, 0xff)).into_format();
+        let color: Srgba = Srgba::<u8>::new(0x11, 0xff, 0x0a, 0xff).into_format();
 
         let hex_string = to_hex_str(
             &color,
@@ -221,7 +217,7 @@ mod tests {
 
     #[test]
     fn to_hex_str_omit_alpha_channel_non_opaque() {
-        let color: Srgba = Srgba::<u8>::from_components((0x11, 0xff, 0x0a, 0x99)).into_format();
+        let color: Srgba = Srgba::<u8>::new(0x11, 0xff, 0x0a, 0x99).into_format();
 
         let hex_string = to_hex_str(
             &color,
@@ -234,7 +230,7 @@ mod tests {
 
     #[test]
     fn to_hex_str_omit_alpha_never() {
-        let color: Srgba = Srgba::<u8>::from_components((0x11, 0xff, 0x0a, 0xff)).into_format();
+        let color: Srgba = Srgba::<u8>::new(0x11, 0xff, 0x0a, 0xff).into_format();
 
         let hex_string = to_hex_str(
             &color,
@@ -247,7 +243,7 @@ mod tests {
 
     #[test]
     fn to_hex_str_shorthand_notation_possible() {
-        let color: Srgba = Srgba::<u8>::from_components((0x11, 0xff, 0x00, 0xff)).into_format();
+        let color: Srgba = Srgba::<u8>::new(0x11, 0xff, 0x00, 0xff).into_format();
 
         let hex_string = to_hex_str(
             &color,
@@ -260,7 +256,7 @@ mod tests {
 
     #[test]
     fn to_hex_str_shorthand_notation_not_possible() {
-        let color: Srgba = Srgba::<u8>::from_components((0x1b, 0xf7, 0x01, 0xff)).into_format();
+        let color: Srgba = Srgba::<u8>::new(0x1b, 0xf7, 0x01, 0xff).into_format();
 
         let hex_string = to_hex_str(
             &color,
@@ -273,7 +269,7 @@ mod tests {
 
     #[test]
     fn to_hex_str_shorthand_notation_never() {
-        let color: Srgba = Srgba::<u8>::from_components((0x11, 0xff, 0x00, 0xff)).into_format();
+        let color: Srgba = Srgba::<u8>::new(0x11, 0xff, 0x00, 0xff).into_format();
 
         let hex_string = to_hex_str(
             &color,
@@ -286,7 +282,7 @@ mod tests {
 
     #[test]
     fn to_hex_str_shorthand_notation_possible_alpha() {
-        let color: Srgba = Srgba::<u8>::from_components((0x11, 0xff, 0x00, 0x66)).into_format();
+        let color: Srgba = Srgba::<u8>::new(0x11, 0xff, 0x00, 0x66).into_format();
 
         let hex_string = to_hex_str(
             &color,
@@ -299,7 +295,7 @@ mod tests {
 
     #[test]
     fn to_hex_str_shorthand_notation_not_possible_alpha() {
-        let color: Srgba = Srgba::<u8>::from_components((0x11, 0xff, 0x00, 0xab)).into_format();
+        let color: Srgba = Srgba::<u8>::new(0x11, 0xff, 0x00, 0xab).into_format();
 
         let hex_string = to_hex_str(
             &color,
@@ -312,7 +308,7 @@ mod tests {
 
     #[test]
     fn to_hex_str_uppercase() {
-        let color: Srgba = Srgba::<u8>::from_components((0x11, 0xff, 0x0a, 0xff)).into_format();
+        let color: Srgba = Srgba::<u8>::new(0x11, 0xff, 0x0a, 0xff).into_format();
 
         let hex_string = to_hex_str(
             &color,
@@ -325,7 +321,7 @@ mod tests {
 
     #[test]
     fn to_hex_str_lowercase() {
-        let color: Srgba = Srgba::<u8>::from_components((0x11, 0xff, 0x0a, 0xff)).into_format();
+        let color: Srgba = Srgba::<u8>::new(0x11, 0xff, 0x0a, 0xff).into_format();
 
         let hex_string = to_hex_str(
             &color,
@@ -415,7 +411,7 @@ mod tests {
 
     #[test]
     fn to_rgb_str_percentage_color_channel_decimals() {
-        let color: Srgba = Srgba::<f32>::new(0.05f32, 1f32, 0f32, 1f32);
+        let color: Srgba = Srgba::<f32>::new(0.005f32, 1f32, 0f32, 1f32);
 
         let rgb_string = to_rgb_function_str(&color,
             OmitAlphaChannel::IfOpaque,

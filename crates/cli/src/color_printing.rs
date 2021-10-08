@@ -3,8 +3,9 @@ use std::io::Write;
 use palette::{IntoComponent, RelativeContrast, Srgb, Srgba, WithAlpha};
 use termcolor::{ColorSpec, StandardStream, WriteColor};
 
-use color_utils::model::rgb::{
-    ChannelUnit, LetterCase, OmitAlphaChannel, Rgb, ShorthandNotation,
+use color_utils::to_str::{
+    ChannelUnit, LetterCase, OmitAlphaChannel, ShorthandNotatio, ShorthandNotation, to_hex_str,
+    to_rgb_function_str,
 };
 
 use crate::color_format::ColorFormat;
@@ -36,15 +37,21 @@ fn get_best_contrast<'a>(initial_color: &'a Srgb, color_options: &'a [Srgb]) -> 
 
 // TODO: Allow customization of formatting flags.
 fn format_color(color: &Srgba, format: &ColorFormat) -> String {
-    let rgb: Rgb = color.to_owned().into();
     match format {
-        ColorFormat::Auto => rgb.to_string(),
-        ColorFormat::RgbHex => rgb.to_hex_str(
+        ColorFormat::Auto => to_hex_str(
+            color,
             OmitAlphaChannel::IfOpaque,
             ShorthandNotation::IfPossible,
             LetterCase::Uppercase,
         ),
-        ColorFormat::RgbFunction => rgb.to_rgb_function_str(
+        ColorFormat::RgbHex => to_hex_str(
+            color,
+            OmitAlphaChannel::IfOpaque,
+            ShorthandNotation::IfPossible,
+            LetterCase::Uppercase,
+        ),
+        ColorFormat::RgbFunction => to_rgb_function_str(
+            color,
             OmitAlphaChannel::IfOpaque,
             ChannelUnit::Number,
             ChannelUnit::Number,
@@ -63,10 +70,7 @@ pub fn print_color(
     let black = Srgb::from_components((0.0, 0.0, 0.0));
     let white = Srgb::from_components((1.0, 1.0, 1.0));
     let foreground_color_options = [black, white];
-    let foreground_color = get_best_contrast(
-        &opaque_color,
-        &foreground_color_options,
-    );
+    let foreground_color = get_best_contrast(&opaque_color, &foreground_color_options);
 
     stdout.set_color(
         ColorSpec::new()

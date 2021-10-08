@@ -1,21 +1,14 @@
 //! **R**ed **G**reen **B**lue color model.
 
-use std::fmt;
-use std::fmt::Display;
-
-use palette::Srgba;
 use palette::rgb::Rgba;
+use palette::Srgba;
 use rug::Float;
 
 use crate::component::{FloatComponent, SingleByteComponent};
-pub use crate::model::rgb::hex_str::{LetterCase, ShorthandNotation};
 pub use crate::model::rgb::rgb_channel::{DEFAULT_RGB_PRECISION, RgbChannel};
 use crate::model::rgb::rgb_channel::value_max;
-pub use crate::model::rgb::rgb_function_str::ChannelUnit;
 
-mod hex_str;
 mod rgb_channel;
-mod rgb_function_str;
 
 /// Represents a color in the [RGB color model](https://en.wikipedia.org/wiki/RGB_color_model) (with an alpha channel).
 ///
@@ -88,23 +81,6 @@ pub enum OmitAlphaChannel {
     IfOpaque,
 }
 
-impl Display for Rgb {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        if self.channels_fit_in_u8() {
-            f.write_str(&self.to_hex_str(
-                OmitAlphaChannel::IfOpaque,
-                ShorthandNotation::IfPossible,
-                LetterCase::Uppercase,
-            ))
-        } else {
-            f.write_str(&self.to_rgb_function_str(
-                OmitAlphaChannel::IfOpaque,
-                ChannelUnit::Number,
-                ChannelUnit::Number,
-            ))
-        }
-    }
-}
 
 // Temporary helpers until migration completes
 
