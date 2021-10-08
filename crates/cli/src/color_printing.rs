@@ -4,7 +4,7 @@ use palette::{IntoComponent, RelativeContrast, Srgb, Srgba, WithAlpha};
 use termcolor::{ColorSpec, StandardStream, WriteColor};
 
 use color_utils::to_str::{
-    ChannelUnit, LetterCase, OmitAlphaChannel, ShorthandNotatio, ShorthandNotation, to_hex_str,
+    ChannelUnit, LetterCase, OmitAlphaChannel, ShorthandNotation, to_hex_str,
     to_rgb_function_str,
 };
 

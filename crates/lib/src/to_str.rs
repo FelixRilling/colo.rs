@@ -1,7 +1,7 @@
 use log::trace;
 use palette::Srgba;
 
-use crate::model::rgb::is_opaque;
+use crate::util::is_opaque;
 
 /// If the alpha channel may be omitted if its opaque.
 #[derive(Debug, PartialEq, Eq, Copy, Clone)]
@@ -131,7 +131,7 @@ pub fn to_hex_str(
 
 /// Formats a float as a CSS number (e.g. `0.6` as `'0.6'`).
 fn format_number(val: f32) -> String {
-    val.to_string()
+    format!("{}", val)
 }
 
 /// Formats a float as a CSS percentage (e.g. `0.6` as `'60%'`).
@@ -401,7 +401,8 @@ mod tests {
     fn to_rgb_str_percentage_color_channel() {
         let color: Srgba = Srgba::<u8>::new(0, 255, 0, 255).into_format();
 
-        let rgb_string = to_rgb_function_str(&color,
+        let rgb_string = to_rgb_function_str(
+            &color,
             OmitAlphaChannel::IfOpaque,
             ChannelUnit::Percentage,
             ChannelUnit::Number,
@@ -413,7 +414,8 @@ mod tests {
     fn to_rgb_str_percentage_color_channel_decimals() {
         let color: Srgba = Srgba::<f32>::new(0.005f32, 1f32, 0f32, 1f32);
 
-        let rgb_string = to_rgb_function_str(&color,
+        let rgb_string = to_rgb_function_str(
+            &color,
             OmitAlphaChannel::IfOpaque,
             ChannelUnit::Percentage,
             ChannelUnit::Number,
@@ -425,7 +427,8 @@ mod tests {
     fn to_rgb_str_number_alpha_channel() {
         let color: Srgba = Srgba::<u8>::new(0, 255, 0, 255).into_format();
 
-        let rgb_string = to_rgb_function_str(&color,
+        let rgb_string = to_rgb_function_str(
+            &color,
             OmitAlphaChannel::Never,
             ChannelUnit::Percentage,
             ChannelUnit::Number,
@@ -437,7 +440,8 @@ mod tests {
     fn to_rgb_str_percentage_alpha_channel() {
         let color: Srgba = Srgba::<u8>::new(0, 255, 0, 255).into_format();
 
-        let rgb_string = to_rgb_function_str(&color,
+        let rgb_string = to_rgb_function_str(
+            &color,
             OmitAlphaChannel::Never,
             ChannelUnit::Percentage,
             ChannelUnit::Percentage,
