@@ -1,17 +1,22 @@
 use log::trace;
 use palette::Srgba;
 
+use color_utils_internal::ceil_n_decimals;
+
 use crate::to_str::OmitAlphaChannel;
 use crate::util::is_opaque;
 
+// 2 decimal places seems to be good enough to avoid most float-related issues and still preserve most information.
+const RELEVANT_DECIMAL_PLACES: u8 = 2;
+
 /// Formats a float as a CSS number (e.g. `0.6` as `'0.6'`).
 fn format_number(val: f32) -> String {
-    format!("{}", val)
+    format!("{}", ceil_n_decimals(val as f64, RELEVANT_DECIMAL_PLACES))
 }
 
 /// Formats a float as a CSS percentage (e.g. `0.6` as `'60%'`).
 fn format_percentage(val: f32) -> String {
-    format!("{}%", val * 100f32)
+    format!("{}%", ceil_n_decimals((val * 100f32).into(), RELEVANT_DECIMAL_PLACES))
 }
 
 fn format_color_channel(color_channel: f32, unit: &ChannelUnit) -> String {
@@ -141,7 +146,7 @@ mod tests {
             ChannelUnit::Number,
             ChannelUnit::Number,
         );
-        assert_eq!(rgb_string, "rgb(0.5 0.123 0.9)");
+        assert_eq!(rgb_string, "rgb(0.5 255 0)");
     }
 
     #[test]

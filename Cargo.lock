@@ -110,7 +110,7 @@ dependencies = [
 name = "color-utils-internal"
 version = "0.2.0"
 dependencies = [
- "rug",
+ "num-traits",
 ]
 
 [[package]]

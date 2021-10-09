@@ -6,6 +6,8 @@ use std::io::Write;
 use palette::{RelativeContrast, Srgba};
 use termcolor::{ColorChoice, StandardStream};
 
+use color_utils_internal::floor_n_decimals;
+
 use crate::color_printing::print_color;
 use crate::options::Options;
 
@@ -52,12 +54,6 @@ fn contrast_ratio_levels_reached(color_1: &Srgba, color_2: &Srgba) -> HashSet<Co
     reached
 }
 
-fn floor_n_decimals(val: f32, n: u32) -> f32 {
-    let factor: f32 = 10_i16.pow(n).into();
-    let tmp = val * factor;
-    tmp.floor() / factor
-}
-
 fn hash_set_as_sorted_vec<T: Ord>(hash_set: HashSet<T>) -> Vec<T> {
     let mut set_copy_vec = hash_set.into_iter().collect::<Vec<_>>();
     set_copy_vec.sort();
@@ -86,8 +82,7 @@ fn print_contrast_ratio(
     let contrast_ratio = color_1.get_contrast_ratio(color_2);
     let contrast_ratio_str = if options.verbosity == 0 {
         // Usually only displaying the last 2 digits is enough.
-        let floored_val = floor_n_decimals(contrast_ratio, 2);
-        floored_val.to_string()
+        floor_n_decimals(contrast_ratio.into(), 2).to_string()
     } else {
         contrast_ratio.to_string()
     };
