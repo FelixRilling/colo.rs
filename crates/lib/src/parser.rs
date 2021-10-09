@@ -21,8 +21,8 @@ pub fn parse_color(seq: &str) -> Result<Srgba, ParsingError> {
         Color::CurrentColor => Err(ParsingError::InvalidSyntax(
             "currentcolor is not supported in this context.",
         )),
-        Color::RGBA(rgba) => Ok(Srgba::from_components((
+        Color::RGBA(rgba) => Ok(Srgba::new(
             rgba.red_f32(), rgba.green_f32(), rgba.blue_f32(), rgba.alpha_f32(),
-        ))),
+        )),
     }
 }
