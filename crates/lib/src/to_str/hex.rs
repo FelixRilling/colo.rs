@@ -34,19 +34,17 @@ fn shorthand_hexadecimal_channel(channel_hex_str: &str) -> String {
 /// Creates a CSS-style hex color notation string for this color.
 /// For details see the [CSS color specification](https://www.w3.org/TR/css-color-4/#hex-notation).
 ///
-/// Note that values more precise than the 8 bit supported for the hexadecimal notation will lose precision in the output.
-/// A RGB function string should be used instead for these. See [`channels_fit_in_u8`](#method.channels_fit_in_u8) for details.
+/// Note that values more precise than the 8 bit supported for the hexadecimal notation must be cast beforehand, which might be lossy.
 pub fn to_hex_str(
-    color: &Srgba,
+    color: &Srgba<u8>,
     omit_alpha_channel: OmitAlphaChannel,
     shorthand_notation: ShorthandNotation,
     letter_case: LetterCase,
 ) -> String {
-    let color_u8: Srgba<u8> = color.into_format().into();
 
-    let mut red_str = format!("{:02X}", color_u8.red);
-    let mut green_str = format!("{:02X}", color_u8.green);
-    let mut blue_str = format!("{:02X}", color_u8.blue);
+    let mut red_str = format!("{:02X}", color.red);
+    let mut green_str = format!("{:02X}", color.green);
+    let mut blue_str = format!("{:02X}", color.blue);
     trace!(
         "Formatted color channel values r='{}', g='{}', b='{}'.",
         &red_str,
@@ -55,12 +53,12 @@ pub fn to_hex_str(
     );
 
     // TODO: also omit alpha if it isn't technically opaque but equals FF after rounding (e.g alpha = 0.999999).
-    let mut alpha_str_opt = if is_opaque(color) && omit_alpha_channel == OmitAlphaChannel::IfOpaque
+    let mut alpha_str_opt = if is_opaque(&color.into_format()) && omit_alpha_channel == OmitAlphaChannel::IfOpaque
     {
         trace!("Omitting alpha channel from output.");
         None
     } else {
-        let alpha_str = format!("{:02X}", color_u8.alpha);
+        let alpha_str = format!("{:02X}", color.alpha);
         trace!("Formatted alpha channel value a='{}'.", &alpha_str);
         Some(alpha_str)
     };
@@ -130,7 +128,7 @@ mod tests {
 
     #[test]
     fn to_hex_str_omit_alpha_channel_opaque() {
-        let color: Srgba = Srgba::<u8>::new(0x11, 0xff, 0x0a, 0xff).into_format();
+        let color = Srgba::<u8>::new(0x11, 0xff, 0x0a, 0xff);
 
         let hex_string = to_hex_str(
             &color,
@@ -143,7 +141,7 @@ mod tests {
 
     #[test]
     fn to_hex_str_omit_alpha_channel_non_opaque() {
-        let color: Srgba = Srgba::<u8>::new(0x11, 0xff, 0x0a, 0x99).into_format();
+        let color = Srgba::<u8>::new(0x11, 0xff, 0x0a, 0x99);
 
         let hex_string = to_hex_str(
             &color,
@@ -156,7 +154,7 @@ mod tests {
 
     #[test]
     fn to_hex_str_omit_alpha_never() {
-        let color: Srgba = Srgba::<u8>::new(0x11, 0xff, 0x0a, 0xff).into_format();
+        let color = Srgba::<u8>::new(0x11, 0xff, 0x0a, 0xff);
 
         let hex_string = to_hex_str(
             &color,
@@ -169,7 +167,7 @@ mod tests {
 
     #[test]
     fn to_hex_str_shorthand_notation_possible() {
-        let color: Srgba = Srgba::<u8>::new(0x11, 0xff, 0x00, 0xff).into_format();
+        let color = Srgba::<u8>::new(0x11, 0xff, 0x00, 0xff);
 
         let hex_string = to_hex_str(
             &color,
@@ -182,7 +180,7 @@ mod tests {
 
     #[test]
     fn to_hex_str_shorthand_notation_not_possible() {
-        let color: Srgba = Srgba::<u8>::new(0x1b, 0xf7, 0x01, 0xff).into_format();
+        let color = Srgba::<u8>::new(0x1b, 0xf7, 0x01, 0xff);
 
         let hex_string = to_hex_str(
             &color,
@@ -195,7 +193,7 @@ mod tests {
 
     #[test]
     fn to_hex_str_shorthand_notation_never() {
-        let color: Srgba = Srgba::<u8>::new(0x11, 0xff, 0x00, 0xff).into_format();
+        let color = Srgba::<u8>::new(0x11, 0xff, 0x00, 0xff);
 
         let hex_string = to_hex_str(
             &color,
@@ -208,7 +206,7 @@ mod tests {
 
     #[test]
     fn to_hex_str_shorthand_notation_possible_alpha() {
-        let color: Srgba = Srgba::<u8>::new(0x11, 0xff, 0x00, 0x66).into_format();
+        let color = Srgba::<u8>::new(0x11, 0xff, 0x00, 0x66);
 
         let hex_string = to_hex_str(
             &color,
@@ -221,7 +219,7 @@ mod tests {
 
     #[test]
     fn to_hex_str_shorthand_notation_not_possible_alpha() {
-        let color: Srgba = Srgba::<u8>::new(0x11, 0xff, 0x00, 0xab).into_format();
+        let color = Srgba::<u8>::new(0x11, 0xff, 0x00, 0xab);
 
         let hex_string = to_hex_str(
             &color,
@@ -234,7 +232,7 @@ mod tests {
 
     #[test]
     fn to_hex_str_uppercase() {
-        let color: Srgba = Srgba::<u8>::new(0x11, 0xff, 0x0a, 0xff).into_format();
+        let color = Srgba::<u8>::new(0x11, 0xff, 0x0a, 0xff);
 
         let hex_string = to_hex_str(
             &color,
@@ -247,7 +245,7 @@ mod tests {
 
     #[test]
     fn to_hex_str_lowercase() {
-        let color: Srgba = Srgba::<u8>::new(0x11, 0xff, 0x0a, 0xff).into_format();
+        let color = Srgba::<u8>::new(0x11, 0xff, 0x0a, 0xff);
 
         let hex_string = to_hex_str(
             &color,

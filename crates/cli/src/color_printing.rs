@@ -39,13 +39,13 @@ fn get_best_contrast<'a>(initial_color: &'a Srgb, color_options: &'a [Srgb]) -> 
 fn format_color(color: &Srgba, format: &ColorFormat) -> String {
     match format {
         ColorFormat::Auto => to_hex_str(
-            color,
+            &color.into_format(),
             OmitAlphaChannel::IfOpaque,
             ShorthandNotation::IfPossible,
             LetterCase::Uppercase,
         ),
         ColorFormat::RgbHex => to_hex_str(
-            color,
+            &color.into_format(),
             OmitAlphaChannel::IfOpaque,
             ShorthandNotation::IfPossible,
             LetterCase::Uppercase,
