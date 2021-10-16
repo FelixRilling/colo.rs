@@ -43,11 +43,6 @@ impl From<std::num::ParseIntError> for ParsingError<'_> {
     }
 }
 
-impl From<rug::float::ParseFloatError> for ParsingError<'_> {
-    fn from(err: rug::float::ParseFloatError) -> Self {
-        ParsingError::NumberConversionFailed(Box::new(err))
-    }
-}
 
 /// Error for when a conversion fails to due to incompatible ranges.
 #[derive(Debug)]

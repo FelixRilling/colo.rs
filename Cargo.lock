@@ -89,7 +89,6 @@ dependencies = [
  "log",
  "palette",
  "regex",
- "rug",
 ]
 
 [[package]]

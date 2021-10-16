@@ -1,17 +1,17 @@
-use palette::Srgba;
+use palette::{Srgba, WithAlpha};
 
-// /home/rilling/.cargo/registry/src/github.com-1ecc6299db9ec823/palette-0.6.0/src/alpha.rs:70
 pub fn is_opaque(srgba: &Srgba) -> bool {
-    srgba.alpha == 1.0
-}
-pub fn channels_fit_in_u8(srgba: &Srgba) -> bool {
-    channel_fit_in_u8(srgba.red)
-        && channel_fit_in_u8(srgba.green)
-        && channel_fit_in_u8(srgba.blue)
-        && channel_fit_in_u8(srgba.alpha)
+    srgba.eq(&srgba.with_alpha(1.0))
 }
 
-fn channel_fit_in_u8(channel: f32) -> bool {
-    let maxed = channel * 255.0;
-    maxed.floor() == maxed
+pub fn channels_fit_in_u8(srgba: &Srgba<f32>) -> bool {
+    channel_fits_in_u8(srgba.red)
+        && channel_fits_in_u8(srgba.green)
+        && channel_fits_in_u8(srgba.blue)
+        && channel_fits_in_u8(srgba.alpha)
+}
+
+pub fn channel_fits_in_u8(channel: f32) -> bool {
+    let tmp = channel * 255.0;
+    tmp == tmp.floor()
 }

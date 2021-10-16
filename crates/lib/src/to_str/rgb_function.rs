@@ -56,7 +56,7 @@ pub fn to_rgb_function_str(
         &blue_str
     );
 
-    let alpha_str_opt = if is_opaque(&color) && omit_alpha_channel == OmitAlphaChannel::IfOpaque {
+    let alpha_str_opt = if is_opaque(color) && omit_alpha_channel == OmitAlphaChannel::IfOpaque {
         trace!("Omitting alpha channel from output.");
         None
     } else {

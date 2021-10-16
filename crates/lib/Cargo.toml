@@ -15,11 +15,6 @@ regex = "1.5.4"
 log = "0.4.14"
 lazy_static = "1.4.0"
 
-[dependencies.rug]
-version = "1.12"
-default-features = false
-features = ["float", "integer"]
-
 [dependencies.palette]
 version = "0.6.0"
 default-features = false
