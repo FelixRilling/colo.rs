@@ -40,6 +40,8 @@ pub enum ChannelUnit {
     Percentage,
 }
 
+/// Creates a CSS-style RGB function string for this color.
+/// For details see the [CSS color specification](https://www.w3.org/TR/css-color-4/#rgb-functions).
 pub fn to_rgb_function_str(
     color: &Srgba,
     omit_alpha_channel: OmitAlphaChannel,

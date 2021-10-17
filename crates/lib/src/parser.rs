@@ -12,7 +12,7 @@ impl From<BasicParseError<'_>> for ParsingError<'_> {
     }
 }
 
-/// Parses CSS color string,
+/// Parses CSS color string.
 // Wraps cssparser and converts to common color struct.
 pub fn parse_color(seq: &str) -> Result<Srgba, ParsingError> {
     let mut input = ParserInput::new(seq);

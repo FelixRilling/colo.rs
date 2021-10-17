@@ -11,7 +11,7 @@ pub enum LetterCase {
     Lowercase,
 }
 
-/// If shorthand (single digit per channel) notation may be used if the double digit notation is the same digit two times.
+/// If shorthand (single digit per channel) notation may be used if the double-digit notation is the same digit two times.
 #[derive(Debug, PartialEq, Eq, Copy, Clone)]
 pub enum ShorthandNotation {
     Never,
@@ -41,7 +41,6 @@ pub fn to_hex_str(
     shorthand_notation: ShorthandNotation,
     letter_case: LetterCase,
 ) -> String {
-
     let mut red_str = format!("{:02X}", color.red);
     let mut green_str = format!("{:02X}", color.green);
     let mut blue_str = format!("{:02X}", color.blue);
@@ -52,16 +51,15 @@ pub fn to_hex_str(
         &blue_str
     );
 
-    // TODO: also omit alpha if it isn't technically opaque but equals FF after rounding (e.g alpha = 0.999999).
-    let mut alpha_str_opt = if is_opaque(&color.into_format()) && omit_alpha_channel == OmitAlphaChannel::IfOpaque
-    {
-        trace!("Omitting alpha channel from output.");
-        None
-    } else {
-        let alpha_str = format!("{:02X}", color.alpha);
-        trace!("Formatted alpha channel value a='{}'.", &alpha_str);
-        Some(alpha_str)
-    };
+    let mut alpha_str_opt =
+        if is_opaque(&color.into_format()) && omit_alpha_channel == OmitAlphaChannel::IfOpaque {
+            trace!("Omitting alpha channel from output.");
+            None
+        } else {
+            let alpha_str = format!("{:02X}", color.alpha);
+            trace!("Formatted alpha channel value a='{}'.", &alpha_str);
+            Some(alpha_str)
+        };
 
     if shorthand_notation == ShorthandNotation::IfPossible
         && can_shorthand_hexadecimal_channel(&red_str)
@@ -120,7 +118,6 @@ pub fn to_hex_str(
         hex_str
     }
 }
-
 
 #[cfg(test)]
 mod tests {
