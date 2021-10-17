@@ -11,17 +11,17 @@ const RELEVANT_DECIMAL_PLACES: u8 = 2;
 
 /// Formats a float as a CSS number (e.g. `0.6` as `'0.6'`).
 fn format_number(val: f32) -> String {
-    format!("{}", ceil_n_decimals(val as f64, RELEVANT_DECIMAL_PLACES))
+    format!("{}", ceil_n_decimals(val.into(), RELEVANT_DECIMAL_PLACES))
 }
 
 /// Formats a float as a CSS percentage (e.g. `0.6` as `'60%'`).
 fn format_percentage(val: f32) -> String {
-    format!("{}%", ceil_n_decimals((val * 100f32).into(), RELEVANT_DECIMAL_PLACES))
+    format!("{}%", ceil_n_decimals((val * 100.0).into(), RELEVANT_DECIMAL_PLACES))
 }
 
 fn format_color_channel(color_channel: f32, unit: &ChannelUnit) -> String {
     match unit {
-        ChannelUnit::Number => format_number(color_channel * 255f32),
+        ChannelUnit::Number => format_number(color_channel * 255.0),
         ChannelUnit::Percentage => format_percentage(color_channel),
     }
 }
