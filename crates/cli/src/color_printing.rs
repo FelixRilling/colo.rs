@@ -89,7 +89,7 @@ mod tests {
     fn get_best_contrast_finds_result() {
         let black = Srgb::from_components((0.0, 0.0, 0.0));
         let white = Srgb::from_components((1.0, 1.0, 1.0));
-        let options = [black.clone(), white.clone()];
+        let options = [black, white];
 
         let bright_color = Srgb::from_components((0.9, 0.85, 1.0));
         let bright_color_best_contrast_actual = get_best_contrast(&bright_color, &options);

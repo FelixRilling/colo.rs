@@ -95,7 +95,7 @@ fn print_contrast_levels_reached(
     color_2: &Srgba,
 ) -> std::io::Result<()> {
     let contrast_levels_reached =
-        contrast_ratio_levels_reached(&color_1.to_owned().into(), &color_2.to_owned().into());
+        contrast_ratio_levels_reached(&color_1.to_owned(), &color_2.to_owned());
     let contrast_levels_reached_str: String = if contrast_levels_reached.is_empty() {
         String::from("None")
     } else {

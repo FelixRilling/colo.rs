@@ -13,7 +13,7 @@ pub fn parse_color(seq: &str) -> Result<Srgba, ParsingError> {
             "Parsed '{}' as '{}'.",
             seq,
             to_rgb_function_str(
-                &color,
+                color,
                 OmitAlphaChannel::Never,
                 ChannelUnit::Number,
                 ChannelUnit::Number
