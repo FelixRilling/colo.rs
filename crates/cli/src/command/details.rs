@@ -24,12 +24,13 @@ pub fn print_details(color: &Srgba, options: &Options) -> std::io::Result<()> {
 
 fn print_general_details(out: &mut StandardStream, color: &Srgba) -> std::io::Result<()> {
 	writeln!(out, "General: ")?;
-	writeln!(out, "\tIs opaque: {}.", is_opaque(color))?;
-	writeln!(
-		out,
-		"\tEvery channel can be represented by a single byte: {}.",
-		channels_fit_in_u8(color)
-	)
+	writeln!(out, "\tIs opaque: {}.", is_opaque(color))
+	// Disabled because currently color parser only supports u8-based colors anyways
+	// writeln!(
+	// 	out,
+	// 	"\tEvery channel can be represented by a single byte: {}.",
+	// 	channels_fit_in_u8(color)
+	// )
 }
 
 fn print_format_details(out: &mut StandardStream, color: &Srgba) -> std::io::Result<()> {
