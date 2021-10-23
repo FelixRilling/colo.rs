@@ -11,7 +11,8 @@ pub enum LetterCase {
 	Lowercase,
 }
 
-/// If shorthand (single digit per channel) notation may be used if the double-digit notation is the same digit two times.
+/// If the shorthand (single digit per channel) notation may be used if the double-digit notation is
+/// the same digit two times.
 #[derive(Debug, PartialEq, Eq, Copy, Clone)]
 pub enum ShorthandNotation {
 	Never,
@@ -31,6 +32,10 @@ fn shorthand_hexadecimal_channel(channel_hex_str: &str) -> String {
 	String::from(&channel_hex_str[0..1])
 }
 
+fn format_hex(channel: u8) -> String {
+	format!("{:02X}", channel)
+}
+
 /// Creates a CSS-style hex color notation string for this color.
 /// For details see the [CSS color specification](https://www.w3.org/TR/css-color-4/#hex-notation).
 ///
@@ -41,9 +46,9 @@ pub fn to_hex_str(
 	shorthand_notation: ShorthandNotation,
 	letter_case: LetterCase,
 ) -> String {
-	let mut red_str = format!("{:02X}", color.red);
-	let mut green_str = format!("{:02X}", color.green);
-	let mut blue_str = format!("{:02X}", color.blue);
+	let mut red_str = format_hex(color.red);
+	let mut green_str = format_hex(color.green);
+	let mut blue_str = format_hex(color.blue);
 	trace!(
 		"Formatted color channel values r='{}', g='{}', b='{}'.",
 		&red_str,
@@ -56,7 +61,7 @@ pub fn to_hex_str(
 			trace!("Omitting alpha channel from output.");
 			None
 		} else {
-			let alpha_str = format!("{:02X}", color.alpha);
+			let alpha_str = format_hex(color.alpha);
 			trace!("Formatted alpha channel value a='{}'.", &alpha_str);
 			Some(alpha_str)
 		};
