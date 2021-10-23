@@ -16,25 +16,25 @@ use crate::options::Options;
 #[derive(Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
 enum ContrastLevel {
 	/// Enhanced contrast for text.
-	AAA,
+	Aaa,
 
 	/// Enhanced contrast for large text.
-	LargeAAA,
+	LargeAaa,
 
 	/// Minimum contrast for text.
-	AA,
+	Aa,
 
 	/// Minimum contrast for large text.
-	LargeAA,
+	LargeAa,
 }
 
 impl Display for ContrastLevel {
 	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
 		f.write_str(match &self {
-			ContrastLevel::AAA => "AAA",
-			ContrastLevel::LargeAAA => "AAA (Large Text)",
-			ContrastLevel::AA => "AA",
-			ContrastLevel::LargeAA => "AA (Large Text)",
+			ContrastLevel::Aaa => "AAA",
+			ContrastLevel::LargeAaa => "AAA (Large Text)",
+			ContrastLevel::Aa => "AA",
+			ContrastLevel::LargeAa => "AA (Large Text)",
 		})
 	}
 }
@@ -42,12 +42,12 @@ impl Display for ContrastLevel {
 fn contrast_ratio_levels_reached(color_1: &Srgba, color_2: &Srgba) -> HashSet<ContrastLevel> {
 	let mut reached = HashSet::with_capacity(4);
 	if color_1.has_min_contrast_large_text(color_2) {
-		reached.insert(ContrastLevel::LargeAA);
+		reached.insert(ContrastLevel::LargeAa);
 		if color_1.has_min_contrast_text(color_2) {
-			reached.insert(ContrastLevel::AA);
-			reached.insert(ContrastLevel::LargeAAA);
+			reached.insert(ContrastLevel::Aa);
+			reached.insert(ContrastLevel::LargeAaa);
 			if color_1.has_enhanced_contrast_text(color_2) {
-				reached.insert(ContrastLevel::AAA);
+				reached.insert(ContrastLevel::Aaa);
 			}
 		}
 	}
