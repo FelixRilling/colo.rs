@@ -5,7 +5,7 @@ authors = ["FelixRilling <contact@rilling.dev>"]
 description = """
 Binary for command line usage of color-utils.
 """
-edition = "2018"
+edition = "2021"
 
 [[bin]]
 name = "colu"
