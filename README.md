@@ -16,7 +16,6 @@ This is a personal project that I use to learn the Rust programming language.
 
 ### Usage
 
-The command line application can be started via the `colu` binary. Usage help can be viewed
-via `colu --help`.
+The command line application can be started via the `colu` binary. Usage help can be viewed via `colu --help`.
 
 

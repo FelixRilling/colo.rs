@@ -1,7 +1,7 @@
 [workspace]
 
 members = [
-    "crates/internal",
-    "crates/lib",
-    "crates/cli",
+	"crates/internal",
+	"crates/lib",
+	"crates/cli",
 ]

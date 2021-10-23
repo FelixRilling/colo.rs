@@ -7,6 +7,6 @@ mod rgb_function;
 /// If the alpha channel may be omitted if it is opaque.
 #[derive(Debug, PartialEq, Eq, Copy, Clone)]
 pub enum OmitAlphaChannel {
-    Never,
-    IfOpaque,
+	Never,
+	IfOpaque,
 }
