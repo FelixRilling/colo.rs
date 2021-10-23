@@ -22,14 +22,14 @@ fn format_percentage(val: f32) -> String {
 	)
 }
 
-fn format_color_channel(color_channel: f32, unit: &ChannelUnit) -> String {
+fn format_color_channel(color_channel: f32, unit: ChannelUnit) -> String {
 	match unit {
 		ChannelUnit::Number => format_number(color_channel * 255.0),
 		ChannelUnit::Percentage => format_percentage(color_channel),
 	}
 }
 
-fn format_alpha_channel(alpha_channel: f32, unit: &ChannelUnit) -> String {
+fn format_alpha_channel(alpha_channel: f32, unit: ChannelUnit) -> String {
 	match unit {
 		ChannelUnit::Number => format_number(alpha_channel),
 		ChannelUnit::Percentage => format_percentage(alpha_channel),
@@ -37,7 +37,7 @@ fn format_alpha_channel(alpha_channel: f32, unit: &ChannelUnit) -> String {
 }
 
 /// Possible CSS types able to represent an RGB component value.
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Copy, Clone)]
 pub enum ChannelUnit {
 	Number,
 	Percentage,
@@ -51,9 +51,9 @@ pub fn to_rgb_function_str(
 	color_channel_unit: ChannelUnit,
 	alpha_channel_unit: ChannelUnit,
 ) -> String {
-	let red_str = format_color_channel(color.red, &color_channel_unit);
-	let green_str = format_color_channel(color.green, &color_channel_unit);
-	let blue_str = format_color_channel(color.blue, &color_channel_unit);
+	let red_str = format_color_channel(color.red, color_channel_unit);
+	let green_str = format_color_channel(color.green, color_channel_unit);
+	let blue_str = format_color_channel(color.blue, color_channel_unit);
 	trace!(
 		"Formatted color channel values r='{}', g='{}', b='{}'.",
 		&red_str,
@@ -65,7 +65,7 @@ pub fn to_rgb_function_str(
 		trace!("Omitting alpha channel from output.");
 		None
 	} else {
-		let alpha_str = format_alpha_channel(color.alpha, &alpha_channel_unit);
+		let alpha_str = format_alpha_channel(color.alpha, alpha_channel_unit);
 		trace!("Formatted alpha channel value a='{}'.", &alpha_str);
 		Some(alpha_str)
 	};

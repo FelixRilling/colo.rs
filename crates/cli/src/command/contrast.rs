@@ -75,9 +75,9 @@ fn print_contrast_ratio(
 	options: &Options,
 ) -> std::io::Result<()> {
 	write!(out, "WCAG 2.0 AA/AAA contrast ratio for ")?;
-	print_color(out, color_1, &options.format)?;
+	print_color(out, color_1, options.format)?;
 	write!(out, " to ")?;
-	print_color(out, color_2, &options.format)?;
+	print_color(out, color_2, options.format)?;
 
 	let contrast_ratio = color_1.get_contrast_ratio(color_2);
 	let contrast_ratio_str = if options.verbosity == 0 {

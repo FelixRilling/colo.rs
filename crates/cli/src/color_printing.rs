@@ -35,7 +35,7 @@ fn get_best_contrast<'a>(initial_color: &'a Srgb, color_options: &'a [Srgb]) -> 
 }
 
 // TODO: Allow customization of formatting flags.
-fn format_color(color: &Srgba, format: &ColorFormat) -> String {
+fn format_color(color: &Srgba, format: ColorFormat) -> String {
 	match format {
 		ColorFormat::Auto => to_hex_str(
 			&color.into_format(),
@@ -62,7 +62,7 @@ fn format_color(color: &Srgba, format: &ColorFormat) -> String {
 pub fn print_color(
 	stdout: &mut StandardStream,
 	color: &Srgba,
-	format: &ColorFormat,
+	format: ColorFormat,
 ) -> std::io::Result<()> {
 	let opaque_color: Srgb = color.without_alpha();
 
