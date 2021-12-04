@@ -10,7 +10,7 @@ edition = "2021"
 [dependencies]
 color-utils-internal = { version = "0.2.0", path = "../internal" }
 
-cssparser = "0.29.0"
+cssparser = "0.29.1"
 log = "0.4.14"
 
 [dependencies.palette]

@@ -16,8 +16,8 @@ color-utils-internal = { version = "0.2.0", path = "../internal" }
 color-utils = { version = "0.2.0", path = "../lib" }
 
 log = "0.4.14"
-env_logger = "0.8.4"
-clap = "2.33.3"
+env_logger = "0.9.0"
+clap = "2.34.0"
 termcolor = "1.1.2"
 
 [dependencies.palette]
