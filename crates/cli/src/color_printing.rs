@@ -4,7 +4,7 @@ use palette::{IntoComponent, RelativeContrast, Srgb, Srgba, WithAlpha};
 use termcolor::{ColorSpec, StandardStream, WriteColor};
 
 use color_utils::to_str::{
-	ChannelUnit, LetterCase, OmitAlphaChannel, ShorthandNotation, to_hex_str, to_rgb_function_str,
+	ChannelUnit, LetterCase, OmitAlphaChannel, ShorthandNotation, to_rgb_function_str, to_rgb_hex_str,
 };
 
 use crate::color_format::ColorFormat;
@@ -37,13 +37,13 @@ fn get_best_contrast<'a>(initial_color: &'a Srgb, color_options: &'a [Srgb]) -> 
 // TODO: Allow customization of formatting flags.
 fn format_color(color: &Srgba, format: ColorFormat) -> String {
 	match format {
-		ColorFormat::Auto => to_hex_str(
+		ColorFormat::Auto => to_rgb_hex_str(
 			&color.into_format(),
 			OmitAlphaChannel::IfOpaque,
 			ShorthandNotation::IfPossible,
 			LetterCase::Uppercase,
 		),
-		ColorFormat::RgbHex => to_hex_str(
+		ColorFormat::RgbHex => to_rgb_hex_str(
 			&color.into_format(),
 			OmitAlphaChannel::IfOpaque,
 			ShorthandNotation::IfPossible,
