@@ -1,5 +1,5 @@
 pub use crate::to_str::rgb_function::{ChannelUnit, to_rgb_function_str};
-pub use crate::to_str::rgb_hex::{LetterCase, ShorthandNotation, to_hex_str};
+pub use crate::to_str::rgb_hex::{LetterCase, ShorthandNotation, to_rgb_hex_str};
 
 mod rgb_hex;
 mod rgb_function;
