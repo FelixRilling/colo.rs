@@ -1,8 +1,8 @@
 use log::trace;
 use palette::Srgba;
 
-use crate::to_str::css_util::{format_alpha_value, format_number, format_percentage};
-use crate::to_str::OmitAlphaChannel;
+use crate::to_str::{ChannelUnit, OmitAlphaChannel};
+use crate::to_str::css_types::{format_alpha_value, format_number, format_percentage};
 use crate::util::is_opaque;
 
 fn format_color_channel(color_channel: f32, unit: ChannelUnit) -> String {
@@ -10,13 +10,6 @@ fn format_color_channel(color_channel: f32, unit: ChannelUnit) -> String {
 		ChannelUnit::Number => format_number(color_channel * 255.0),
 		ChannelUnit::Percentage => format_percentage(color_channel),
 	}
-}
-
-/// Possible CSS types able to represent an RGB component value.
-#[derive(Debug, PartialEq, Eq, Copy, Clone)]
-pub enum ChannelUnit {
-	Number,
-	Percentage,
 }
 
 /// Creates a CSS-style RGB function string for this color.

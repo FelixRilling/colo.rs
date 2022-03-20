@@ -1,8 +1,8 @@
 use log::trace;
-use palette::{FromColor, Hsl, Hsla, IntoColor, IntoComponent, Srgba, WithAlpha};
+use palette::{Hsla, IntoColor};
 
 use crate::to_str::{ChannelUnit, OmitAlphaChannel};
-use crate::to_str::css_util::{format_alpha_value, format_hue, format_number};
+use crate::to_str::css_types::{format_alpha_value, format_hue, format_number};
 use crate::util::is_opaque;
 
 pub fn to_hsl_function_str(
@@ -56,7 +56,7 @@ pub fn to_hsl_function_str(
 
 #[cfg(test)]
 mod tests {
-	use palette::{RgbHue, Srgba};
+	use palette::RgbHue;
 
 	use super::*;
 

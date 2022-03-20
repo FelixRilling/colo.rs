@@ -20,6 +20,7 @@ pub(crate) fn format_percentage(val: f32) -> String {
 	)
 }
 
+/// Formats a float as an alpha-value.
 pub(crate) fn format_alpha_value(alpha: f32, unit: ChannelUnit) -> String {
 	match unit {
 		ChannelUnit::Number => format_number(alpha),
@@ -27,6 +28,7 @@ pub(crate) fn format_alpha_value(alpha: f32, unit: ChannelUnit) -> String {
 	}
 }
 
+/// Formats a hue as degrees.
 pub(crate) fn format_hue(hue: RgbHue) -> String {
 	format!("{}deg", format_number(hue.to_positive_degrees()))
 }
