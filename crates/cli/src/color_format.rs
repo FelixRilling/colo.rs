@@ -6,6 +6,7 @@ pub enum ColorFormat {
 	Auto,
 	RgbHex,
 	RgbFunction,
+	HslFunction,
 }
 
 impl Display for ColorFormat {
@@ -14,6 +15,7 @@ impl Display for ColorFormat {
 			ColorFormat::Auto => f.write_str("auto"),
 			ColorFormat::RgbHex => f.write_str("rgb-hex"),
 			ColorFormat::RgbFunction => f.write_str("rgb-function"),
+			ColorFormat::HslFunction => f.write_str("hsl-function"),
 		}
 	}
 }
@@ -26,6 +28,7 @@ impl FromStr for ColorFormat {
 			"auto" => Ok(ColorFormat::Auto),
 			"rgb-hex" => Ok(ColorFormat::RgbHex),
 			"rgb-function" => Ok(ColorFormat::RgbFunction),
+			"hsl-function" => Ok(ColorFormat::HslFunction),
 			_ => Err(format!("invalid value: {}", s)),
 		}
 	}
