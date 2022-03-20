@@ -1,38 +1,14 @@
 use log::trace;
 use palette::Srgba;
 
-use color_utils_internal::ceil_n_decimals;
-
+use crate::to_str::css_util::{format_alpha_value, format_number, format_percentage};
 use crate::to_str::OmitAlphaChannel;
 use crate::util::is_opaque;
-
-// 2 decimal places seems to be good enough to avoid most float-related issues and still preserve most information.
-const RELEVANT_DECIMAL_PLACES: u8 = 2;
-
-/// Formats a float as a CSS number (e.g. `0.6` as `'0.6'`).
-fn format_number(val: f32) -> String {
-	format!("{}", ceil_n_decimals(val.into(), RELEVANT_DECIMAL_PLACES))
-}
-
-/// Formats a float as a CSS percentage (e.g. `0.6` as `'60%'`).
-fn format_percentage(val: f32) -> String {
-	format!(
-		"{}%",
-		ceil_n_decimals((val * 100.0).into(), RELEVANT_DECIMAL_PLACES)
-	)
-}
 
 fn format_color_channel(color_channel: f32, unit: ChannelUnit) -> String {
 	match unit {
 		ChannelUnit::Number => format_number(color_channel * 255.0),
 		ChannelUnit::Percentage => format_percentage(color_channel),
-	}
-}
-
-fn format_alpha_channel(alpha_channel: f32, unit: ChannelUnit) -> String {
-	match unit {
-		ChannelUnit::Number => format_number(alpha_channel),
-		ChannelUnit::Percentage => format_percentage(alpha_channel),
 	}
 }
 
@@ -65,17 +41,17 @@ pub fn to_rgb_function_str(
 		trace!("Omitting alpha channel from output.");
 		None
 	} else {
-		let alpha_str = format_alpha_channel(color.alpha, alpha_channel_unit);
+		let alpha_str = format_alpha_value(color.alpha, alpha_channel_unit);
 		trace!("Formatted alpha channel value a='{}'.", &alpha_str);
 		Some(alpha_str)
 	};
 
 	let rgb_function_str = alpha_str_opt.map_or_else(
 		|| format!("rgb({} {} {})", &red_str, &green_str, &blue_str),
-		|alpha| {
+		|alpha_str| {
 			format!(
 				"rgb({} {} {} / {})",
-				&red_str, &green_str, &blue_str, &alpha
+				&red_str, &green_str, &blue_str, &alpha_str
 			)
 		},
 	);
@@ -90,7 +66,7 @@ mod tests {
 	use super::*;
 
 	#[test]
-	fn to_rgb_str_omit_alpha_channel_opaque() {
+	fn to_rgb_function_str_omit_alpha_channel_opaque() {
 		let color: Srgba = Srgba::<u8>::new(128, 255, 0, 255).into_format();
 
 		let rgb_string = to_rgb_function_str(
@@ -103,7 +79,7 @@ mod tests {
 	}
 
 	#[test]
-	fn to_rgb_str_omit_alpha_channel_non_opaque() {
+	fn to_rgb_function_str_omit_alpha_channel_non_opaque() {
 		let color: Srgba = Srgba::<u8>::new(128, 255, 0, 0).into_format();
 
 		let rgb_string = to_rgb_function_str(
@@ -116,7 +92,7 @@ mod tests {
 	}
 
 	#[test]
-	fn to_rgb_str_omit_alpha_never() {
+	fn to_rgb_function_str_omit_alpha_never() {
 		let color: Srgba = Srgba::<u8>::new(128, 255, 0, 255).into_format();
 
 		let rgb_string = to_rgb_function_str(
@@ -129,7 +105,7 @@ mod tests {
 	}
 
 	#[test]
-	fn to_rgb_str_number_color_channel() {
+	fn to_rgb_function_str_number_color_channel() {
 		let color: Srgba = Srgba::<u8>::new(128, 255, 0, 255).into_format();
 
 		let rgb_string = to_rgb_function_str(
@@ -142,7 +118,7 @@ mod tests {
 	}
 
 	#[test]
-	fn to_rgb_str_number_color_channel_decimals() {
+	fn to_rgb_function_str_number_color_channel_decimals() {
 		let color: Srgba = Srgba::<f32>::new(1f32 / 512f32, 1f32, 0f32, 1f32);
 
 		let rgb_string = to_rgb_function_str(
@@ -155,7 +131,7 @@ mod tests {
 	}
 
 	#[test]
-	fn to_rgb_str_percentage_color_channel() {
+	fn to_rgb_function_str_percentage_color_channel() {
 		let color: Srgba = Srgba::<u8>::new(0, 255, 0, 255).into_format();
 
 		let rgb_string = to_rgb_function_str(
@@ -168,7 +144,7 @@ mod tests {
 	}
 
 	#[test]
-	fn to_rgb_str_percentage_color_channel_decimals() {
+	fn to_rgb_function_str_percentage_color_channel_decimals() {
 		let color: Srgba = Srgba::<f32>::new(0.005f32, 1f32, 0f32, 1f32);
 
 		let rgb_string = to_rgb_function_str(
@@ -181,7 +157,7 @@ mod tests {
 	}
 
 	#[test]
-	fn to_rgb_str_number_alpha_channel() {
+	fn to_rgb_function_str_number_alpha_channel() {
 		let color: Srgba = Srgba::<u8>::new(0, 255, 0, 255).into_format();
 
 		let rgb_string = to_rgb_function_str(
@@ -194,7 +170,7 @@ mod tests {
 	}
 
 	#[test]
-	fn to_rgb_str_percentage_alpha_channel() {
+	fn to_rgb_function_str_percentage_alpha_channel() {
 		let color: Srgba = Srgba::<u8>::new(0, 255, 0, 255).into_format();
 
 		let rgb_string = to_rgb_function_str(
