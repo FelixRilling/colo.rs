@@ -3,7 +3,7 @@ use std::io::Write;
 use palette::Srgba;
 use termcolor::{ColorChoice, StandardStream};
 
-use color_utils::util::{channels_fit_in_u8, is_opaque};
+use color_utils::util::is_opaque;
 
 use crate::color_format::ColorFormat;
 use crate::color_printing::print_color;
@@ -25,12 +25,7 @@ pub fn print_details(color: &Srgba, options: &Options) -> std::io::Result<()> {
 fn print_general_details(out: &mut StandardStream, color: &Srgba) -> std::io::Result<()> {
 	writeln!(out, "General: ")?;
 	writeln!(out, "\tIs opaque: {}.", is_opaque(color))
-	// Disabled because currently color parser only supports u8-based colors anyways
-	// writeln!(
-	// 	out,
-	// 	"\tEvery channel can be represented by a single byte: {}.",
-	// 	channels_fit_in_u8(color)
-	// )
+	// TODO: output if color fits in 8 bit channel
 }
 
 fn print_format_details(out: &mut StandardStream, color: &Srgba) -> std::io::Result<()> {
@@ -38,9 +33,7 @@ fn print_format_details(out: &mut StandardStream, color: &Srgba) -> std::io::Res
 
 	write!(out, "\tIn RGB hexadecimal notation: ")?;
 	print_color(out, color, ColorFormat::RgbHex)?;
-	if !channels_fit_in_u8(color) {
-		write!(out, " (Warning: Channel values were rounded)")?;
-	}
+	// TODO: output if precision is lost in this form
 	writeln!(out, ".")?;
 
 	write!(out, "\tIn RGB function notation: ")?;
