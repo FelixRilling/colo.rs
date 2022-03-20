@@ -1,7 +1,7 @@
 use palette::{Srgba, WithAlpha};
 
 /// Checks if the color is fully opaque
-pub fn is_opaque(srgba: &Srgba) -> bool {
+pub fn is_opaque(srgba: &Srgba) -> bool { // TODO: allow any `WithAlpha` type
 	srgba.eq(&srgba.with_alpha(1.0))
 }
 

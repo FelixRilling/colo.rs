@@ -20,7 +20,7 @@ pub fn to_hsl_function_str(
 		&lightness_str
 	);
 
-	let alpha_str_opt = if is_opaque(&color.clone().into_color())
+	let alpha_str_opt = if is_opaque(&(*color).into_color())
 		&& omit_alpha_channel == OmitAlphaChannel::IfOpaque
 	{
 		trace!("Omitting alpha channel from output.");
