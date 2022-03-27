@@ -1,8 +1,8 @@
 use palette::{Hwba, IntoColor};
 
 use crate::to_str::{ChannelUnit, OmitAlphaChannel};
-use crate::to_str::css_types::{format_alpha_value, format_hue, format_percentage};
-use crate::util::is_opaque;
+use crate::to_str::common::format_alpha_value_conditionally;
+use crate::to_str::css_types::{format_hue, format_percentage};
 
 /// Creates a CSS-style HWB function string for this color.
 /// For details see the [CSS color specification](https://www.w3.org/TR/css-color-4/#the-hwb-notation).
@@ -14,14 +14,11 @@ pub fn to_hwb_function_str(
 	let hue_str = format_hue(color.hue);
 	let whiteness_str = format_percentage(color.whiteness);
 	let blackness_str = format_percentage(color.blackness);
-
-	let alpha_str_opt = if is_opaque(&(*color).into_color())
-		&& omit_alpha_channel == OmitAlphaChannel::IfOpaque
-	{
-		None
-	} else {
-		Some(format_alpha_value(color.alpha, alpha_channel_unit))
-	};
+	let alpha_str_opt = format_alpha_value_conditionally(
+		&(*color).into_color(),
+		alpha_channel_unit,
+		omit_alpha_channel,
+	);
 
 	alpha_str_opt.map_or_else(
 		|| {
@@ -54,44 +51,44 @@ mod tests {
 	fn to_hwb_function_str_omit_alpha_channel_opaque() {
 		let color: Hwba = Hwba::new(RgbHue::from_degrees(180.0), 0.5, 0.75, 1.0);
 
-		let hsl_string =
+		let result =
 			to_hwb_function_str(&color, OmitAlphaChannel::IfOpaque, ChannelUnit::Percentage);
-		assert_eq!(hsl_string, "hwb(180deg 50% 75%)");
+		assert_eq!(result, "hwb(180deg 50% 75%)");
 	}
 
 	#[test]
 	fn to_hwb_function_str_omit_alpha_channel_non_opaque() {
 		let color: Hwba = Hwba::new(RgbHue::from_degrees(180.0), 0.5, 0.75, 0.0);
 
-		let hsl_string =
+		let result =
 			to_hwb_function_str(&color, OmitAlphaChannel::IfOpaque, ChannelUnit::Percentage);
-		assert_eq!(hsl_string, "hwb(180deg 50% 75% / 0%)");
+		assert_eq!(result, "hwb(180deg 50% 75% / 0%)");
 	}
 
 	#[test]
 	fn to_hwb_function_str_omit_alpha_never() {
 		let color: Hwba = Hwba::new(RgbHue::from_degrees(180.0), 0.5, 0.75, 1.0);
 
-		let hsl_string =
+		let result =
 			to_hwb_function_str(&color, OmitAlphaChannel::Never, ChannelUnit::Percentage);
-		assert_eq!(hsl_string, "hwb(180deg 50% 75% / 100%)");
+		assert_eq!(result, "hwb(180deg 50% 75% / 100%)");
 	}
 
 	#[test]
 	fn to_hwb_function_str_number_alpha_channel() {
 		let color: Hwba = Hwba::new(RgbHue::from_degrees(180.0), 0.5, 0.75, 1.0);
 
-		let hsl_string =
+		let result =
 			to_hwb_function_str(&color, OmitAlphaChannel::Never, ChannelUnit::Number);
-		assert_eq!(hsl_string, "hwb(180deg 50% 75% / 1)");
+		assert_eq!(result, "hwb(180deg 50% 75% / 1)");
 	}
 
 	#[test]
 	fn to_hwb_function_str_percentage_alpha_channel() {
 		let color: Hwba = Hwba::new(RgbHue::from_degrees(180.0), 0.5, 0.75, 1.0);
 
-		let hsl_string =
+		let result =
 			to_hwb_function_str(&color, OmitAlphaChannel::Never, ChannelUnit::Percentage);
-		assert_eq!(hsl_string, "hwb(180deg 50% 75% / 100%)");
+		assert_eq!(result, "hwb(180deg 50% 75% / 100%)");
 	}
 }

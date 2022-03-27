@@ -4,6 +4,7 @@ pub use crate::to_str::rgb_function::to_rgb_function_str;
 pub use crate::to_str::rgb_hex::{LetterCase, ShorthandNotation, to_rgb_hex_str};
 
 mod css_types;
+mod common;
 mod rgb_hex;
 mod rgb_function;
 mod hsl_function;
