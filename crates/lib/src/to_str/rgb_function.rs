@@ -1,4 +1,3 @@
-use log::trace;
 use palette::Srgba;
 
 use crate::to_str::{ChannelUnit, OmitAlphaChannel};
@@ -23,23 +22,14 @@ pub fn to_rgb_function_str(
 	let red_str = format_color_channel(color.red, color_channel_unit);
 	let green_str = format_color_channel(color.green, color_channel_unit);
 	let blue_str = format_color_channel(color.blue, color_channel_unit);
-	trace!(
-		"Formatted color channel values r='{}', g='{}', b='{}'.",
-		&red_str,
-		&green_str,
-		&blue_str
-	);
 
 	let alpha_str_opt = if is_opaque(color) && omit_alpha_channel == OmitAlphaChannel::IfOpaque {
-		trace!("Omitting alpha channel from output.");
 		None
 	} else {
-		let alpha_str = format_alpha_value(color.alpha, alpha_channel_unit);
-		trace!("Formatted alpha channel value a='{}'.", &alpha_str);
-		Some(alpha_str)
+		Some(format_alpha_value(color.alpha, alpha_channel_unit))
 	};
 
-	let rgb_function_str = alpha_str_opt.map_or_else(
+	alpha_str_opt.map_or_else(
 		|| format!("rgb({} {} {})", &red_str, &green_str, &blue_str),
 		|alpha_str| {
 			format!(
@@ -47,9 +37,7 @@ pub fn to_rgb_function_str(
 				&red_str, &green_str, &blue_str, &alpha_str
 			)
 		},
-	);
-	trace!("Created RGB function string '{}'.", &rgb_function_str);
-	rgb_function_str
+	)
 }
 
 #[cfg(test)]

@@ -1,4 +1,3 @@
-use log::trace;
 use palette::{Hwba, IntoColor};
 
 use crate::to_str::{ChannelUnit, OmitAlphaChannel};
@@ -15,25 +14,16 @@ pub fn to_hwb_function_str(
 	let hue_str = format_hue(color.hue);
 	let whiteness_str = format_percentage(color.whiteness);
 	let blackness_str = format_percentage(color.blackness);
-	trace!(
-		"Formatted channel values hue='{}', whiteness='{}', blackness='{}'.",
-		&hue_str,
-		&whiteness_str,
-		&blackness_str
-	);
 
 	let alpha_str_opt = if is_opaque(&(*color).into_color())
 		&& omit_alpha_channel == OmitAlphaChannel::IfOpaque
 	{
-		trace!("Omitting alpha channel from output.");
 		None
 	} else {
-		let alpha_str = format_alpha_value(color.alpha, alpha_channel_unit);
-		trace!("Formatted alpha channel value a='{}'.", &alpha_str);
-		Some(alpha_str)
+		Some(format_alpha_value(color.alpha, alpha_channel_unit))
 	};
 
-	let hsl_function_str = alpha_str_opt.map_or_else(
+	alpha_str_opt.map_or_else(
 		|| {
 			format!(
 				"hwb({} {} {})",
@@ -51,9 +41,7 @@ pub fn to_hwb_function_str(
 				&alpha_str
 			)
 		},
-	);
-	trace!("Created HWB function string '{}'.", &hsl_function_str);
-	hsl_function_str
+	)
 }
 
 #[cfg(test)]

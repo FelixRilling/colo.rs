@@ -1,4 +1,3 @@
-use log::trace;
 use palette::Srgba;
 
 use crate::to_str::OmitAlphaChannel;
@@ -49,20 +48,12 @@ pub fn to_rgb_hex_str(
 	let mut red_str = format_hex(color.red);
 	let mut green_str = format_hex(color.green);
 	let mut blue_str = format_hex(color.blue);
-	trace!(
-		"Formatted color channel values r='{}', g='{}', b='{}'.",
-		&red_str,
-		&green_str,
-		&blue_str
-	);
 
 	let mut alpha_str_opt =
 		if is_opaque(&color.into_format()) && omit_alpha_channel == OmitAlphaChannel::IfOpaque {
-			trace!("Omitting alpha channel from output.");
 			None
 		} else {
 			let alpha_str = format_hex(color.alpha);
-			trace!("Formatted alpha channel value a='{}'.", &alpha_str);
 			Some(alpha_str)
 		};
 
@@ -71,40 +62,19 @@ pub fn to_rgb_hex_str(
 		&& can_shorthand_hexadecimal_channel(&green_str)
 		&& can_shorthand_hexadecimal_channel(&blue_str)
 	{
-		trace!("Color channels support shorthand syntax.");
 		if let Some(ref alpha) = alpha_str_opt {
 			if can_shorthand_hexadecimal_channel(alpha) {
-				trace!("Alpha channel supports shorthand syntax.");
-
 				red_str = shorthand_hexadecimal_channel(&red_str);
 				green_str = shorthand_hexadecimal_channel(&green_str);
 				blue_str = shorthand_hexadecimal_channel(&blue_str);
-				trace!(
-					"Shorthanded color channel values r='{}', g='{}', b='{}'.",
-					&red_str,
-					&green_str,
-					&blue_str
-				);
 
 				let shorthand_alpha_str = shorthand_hexadecimal_channel(alpha);
-				trace!(
-					"Shorthanded alpha channel value a='{}'.",
-					&shorthand_alpha_str
-				);
 				alpha_str_opt = Some(shorthand_alpha_str);
 			}
 		} else {
-			trace!("Alpha channel does not exist, skipping alpha shorthand check.");
-
 			red_str = shorthand_hexadecimal_channel(&red_str);
 			green_str = shorthand_hexadecimal_channel(&green_str);
 			blue_str = shorthand_hexadecimal_channel(&blue_str);
-			trace!(
-				"Shorthanded color channel values r='{}', g='{}', b='{}'.",
-				&red_str,
-				&green_str,
-				&blue_str
-			);
 		}
 	}
 
@@ -112,14 +82,10 @@ pub fn to_rgb_hex_str(
 		|| format!("#{}{}{}", &red_str, &green_str, &blue_str),
 		|alpha_str| format!("#{}{}{}{}", &red_str, &green_str, &blue_str, &alpha_str),
 	);
-	trace!("Created hex string '{}'.", &hex_str);
 
 	if letter_case == LetterCase::Lowercase {
-		let lowercase_hex_str = hex_str.to_lowercase();
-		trace!("Use lowercase hex string '{}'.", &lowercase_hex_str);
-		lowercase_hex_str
+		hex_str.to_lowercase()
 	} else {
-		trace!("Use uppercase hex string '{}'.", &hex_str);
 		hex_str
 	}
 }

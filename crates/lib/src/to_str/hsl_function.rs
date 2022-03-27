@@ -1,4 +1,3 @@
-use log::trace;
 use palette::{Hsla, IntoColor};
 
 use crate::to_str::{ChannelUnit, OmitAlphaChannel};
@@ -15,25 +14,16 @@ pub fn to_hsl_function_str(
 	let hue_str = format_hue(color.hue);
 	let saturation_str = format_percentage(color.saturation);
 	let lightness_str = format_percentage(color.lightness);
-	trace!(
-		"Formatted channel values hue='{}', saturation='{}', lightness='{}'.",
-		&hue_str,
-		&saturation_str,
-		&lightness_str
-	);
 
 	let alpha_str_opt = if is_opaque(&(*color).into_color())
 		&& omit_alpha_channel == OmitAlphaChannel::IfOpaque
 	{
-		trace!("Omitting alpha channel from output.");
 		None
 	} else {
-		let alpha_str = format_alpha_value(color.alpha, alpha_channel_unit);
-		trace!("Formatted alpha channel value a='{}'.", &alpha_str);
-		Some(alpha_str)
+		Some(format_alpha_value(color.alpha, alpha_channel_unit))
 	};
 
-	let hsl_function_str = alpha_str_opt.map_or_else(
+	alpha_str_opt.map_or_else(
 		|| {
 			format!(
 				"hsl({} {} {})",
@@ -51,9 +41,7 @@ pub fn to_hsl_function_str(
 				&alpha_str
 			)
 		},
-	);
-	trace!("Created HSL function string '{}'.", &hsl_function_str);
-	hsl_function_str
+	)
 }
 
 #[cfg(test)]

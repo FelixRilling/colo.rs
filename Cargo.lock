@@ -79,7 +79,6 @@ version = "0.2.0"
 dependencies = [
  "color-utils-internal",
  "cssparser",
- "log",
  "palette",
 ]
 
