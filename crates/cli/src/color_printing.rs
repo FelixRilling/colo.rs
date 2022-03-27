@@ -5,7 +5,7 @@ use termcolor::{ColorSpec, StandardStream, WriteColor};
 
 use color_utils::to_str::{
 	ChannelUnit, LetterCase, OmitAlphaChannel, ShorthandNotation, to_hsl_function_str,
-	to_rgb_function_str, to_rgb_hex_str,
+	to_hwb_function_str, to_rgb_function_str, to_rgb_hex_str,
 };
 
 use crate::color_format::ColorFormat;
@@ -56,10 +56,16 @@ fn format_color(color: &Srgba, format: ColorFormat) -> String {
 			ChannelUnit::Number,
 			ChannelUnit::Number,
 		),
-		ColorFormat::HslFunction => {
-			to_hsl_function_str(&(*color).into_color(), OmitAlphaChannel::IfOpaque,
-								ChannelUnit::Number)
-		}
+		ColorFormat::HslFunction => to_hsl_function_str(
+			&(*color).into_color(),
+			OmitAlphaChannel::IfOpaque,
+			ChannelUnit::Number,
+		),
+		ColorFormat::HwbFunction => to_hwb_function_str(
+			&(*color).into_color(),
+			OmitAlphaChannel::IfOpaque,
+			ChannelUnit::Number,
+		),
 	}
 }
 

@@ -1,4 +1,5 @@
 pub use crate::to_str::hsl_function::to_hsl_function_str;
+pub use crate::to_str::hwb_function::to_hwb_function_str;
 pub use crate::to_str::rgb_function::to_rgb_function_str;
 pub use crate::to_str::rgb_hex::{LetterCase, ShorthandNotation, to_rgb_hex_str};
 
@@ -6,6 +7,7 @@ mod css_types;
 mod rgb_hex;
 mod rgb_function;
 mod hsl_function;
+mod hwb_function;
 
 /// If the alpha channel may be omitted if it is opaque.
 #[derive(Debug, PartialEq, Eq, Copy, Clone)]

@@ -42,5 +42,9 @@ fn print_format_details(out: &mut StandardStream, color: &Srgba) -> std::io::Res
 
 	write!(out, "\tIn HSL function notation: ")?;
 	print_color(out, color, ColorFormat::HslFunction)?;
+	writeln!(out, ".")?;
+
+	write!(out, "\tIn HWB function notation: ")?;
+	print_color(out, color, ColorFormat::HwbFunction)?;
 	writeln!(out, ".")
 }
