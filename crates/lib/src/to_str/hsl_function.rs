@@ -2,17 +2,19 @@ use log::trace;
 use palette::{Hsla, IntoColor};
 
 use crate::to_str::{ChannelUnit, OmitAlphaChannel};
-use crate::to_str::css_types::{format_alpha_value, format_hue, format_number};
+use crate::to_str::css_types::{format_alpha_value, format_hue, format_percentage};
 use crate::util::is_opaque;
 
+/// Creates a CSS-style HSL function string for this color.
+/// For details see the [CSS color specification](https://www.w3.org/TR/css-color-4/#the-hsl-notation).
 pub fn to_hsl_function_str(
 	color: &Hsla,
 	omit_alpha_channel: OmitAlphaChannel,
 	alpha_channel_unit: ChannelUnit,
 ) -> String {
 	let hue_str = format_hue(color.hue);
-	let saturation_str = format_number(color.saturation);
-	let lightness_str = format_number(color.lightness);
+	let saturation_str = format_percentage(color.saturation);
+	let lightness_str = format_percentage(color.lightness);
 	trace!(
 		"Formatted channel values hue='{}', saturation='{}', lightness='{}'.",
 		&hue_str,
@@ -66,7 +68,7 @@ mod tests {
 
 		let hsl_string =
 			to_hsl_function_str(&color, OmitAlphaChannel::IfOpaque, ChannelUnit::Percentage);
-		assert_eq!(hsl_string, "hsl(180deg 0.5 0.75)");
+		assert_eq!(hsl_string, "hsl(180deg 50% 75%)");
 	}
 
 	#[test]
@@ -75,7 +77,7 @@ mod tests {
 
 		let hsl_string =
 			to_hsl_function_str(&color, OmitAlphaChannel::IfOpaque, ChannelUnit::Percentage);
-		assert_eq!(hsl_string, "hsl(180deg 0.5 0.75 / 0%)");
+		assert_eq!(hsl_string, "hsl(180deg 50% 75% / 0%)");
 	}
 
 	#[test]
@@ -84,7 +86,7 @@ mod tests {
 
 		let hsl_string =
 			to_hsl_function_str(&color, OmitAlphaChannel::Never, ChannelUnit::Percentage);
-		assert_eq!(hsl_string, "hsl(180deg 0.5 0.75 / 100%)");
+		assert_eq!(hsl_string, "hsl(180deg 50% 75% / 100%)");
 	}
 
 	#[test]
@@ -93,7 +95,7 @@ mod tests {
 
 		let hsl_string =
 			to_hsl_function_str(&color, OmitAlphaChannel::Never, ChannelUnit::Number);
-		assert_eq!(hsl_string, "hsl(180deg 0.5 0.75 / 1)");
+		assert_eq!(hsl_string, "hsl(180deg 50% 75% / 1)");
 	}
 
 	#[test]
@@ -102,6 +104,6 @@ mod tests {
 
 		let hsl_string =
 			to_hsl_function_str(&color, OmitAlphaChannel::Never, ChannelUnit::Percentage);
-		assert_eq!(hsl_string, "hsl(180deg 0.5 0.75 / 100%)");
+		assert_eq!(hsl_string, "hsl(180deg 50% 75% / 100%)");
 	}
 }
