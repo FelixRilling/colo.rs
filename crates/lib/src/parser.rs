@@ -17,7 +17,6 @@ impl From<BasicParseError<'_>> for ParsingError<'_> {
 /// # Errors
 /// - If color is keyword 'currentcolor'.
 /// - All other errors: See `cssparser` `Color::parse`
-// Wraps cssparser and converts to common color struct.
 pub fn parse_color(seq: &str) -> Result<Srgba, ParsingError> {
 	let mut input = ParserInput::new(seq);
 	let color = Color::parse(&mut Parser::new(&mut input))?;

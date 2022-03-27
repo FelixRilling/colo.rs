@@ -98,129 +98,129 @@ mod tests {
 	fn to_rgb_hex_str_omit_alpha_channel_opaque() {
 		let color = Srgba::<u8>::new(0x11, 0xff, 0x0a, 0xff);
 
-		let hex_string = to_rgb_hex_str(
+		let result = to_rgb_hex_str(
 			&color,
 			OmitAlphaChannel::IfOpaque,
 			ShorthandNotation::Never,
 			LetterCase::Uppercase,
 		);
-		assert_eq!(hex_string, "#11FF0A");
+		assert_eq!(result, "#11FF0A");
 	}
 
 	#[test]
 	fn to_rgb_hex_str_omit_alpha_channel_non_opaque() {
 		let color = Srgba::<u8>::new(0x11, 0xff, 0x0a, 0x99);
 
-		let hex_string = to_rgb_hex_str(
+		let result = to_rgb_hex_str(
 			&color,
 			OmitAlphaChannel::IfOpaque,
 			ShorthandNotation::Never,
 			LetterCase::Uppercase,
 		);
-		assert_eq!(hex_string, "#11FF0A99");
+		assert_eq!(result, "#11FF0A99");
 	}
 
 	#[test]
 	fn to_rgb_hex_str_omit_alpha_never() {
 		let color = Srgba::<u8>::new(0x11, 0xff, 0x0a, 0xff);
 
-		let hex_string = to_rgb_hex_str(
+		let result = to_rgb_hex_str(
 			&color,
 			OmitAlphaChannel::Never,
 			ShorthandNotation::Never,
 			LetterCase::Uppercase,
 		);
-		assert_eq!(hex_string, "#11FF0AFF");
+		assert_eq!(result, "#11FF0AFF");
 	}
 
 	#[test]
 	fn to_rgb_hex_str_shorthand_notation_possible() {
 		let color = Srgba::<u8>::new(0x11, 0xff, 0x00, 0xff);
 
-		let hex_string = to_rgb_hex_str(
+		let result = to_rgb_hex_str(
 			&color,
 			OmitAlphaChannel::IfOpaque,
 			ShorthandNotation::IfPossible,
 			LetterCase::Uppercase,
 		);
-		assert_eq!(hex_string, "#1F0");
+		assert_eq!(result, "#1F0");
 	}
 
 	#[test]
 	fn to_rgb_hex_str_shorthand_notation_not_possible() {
 		let color = Srgba::<u8>::new(0x1b, 0xf7, 0x01, 0xff);
 
-		let hex_string = to_rgb_hex_str(
+		let result = to_rgb_hex_str(
 			&color,
 			OmitAlphaChannel::IfOpaque,
 			ShorthandNotation::IfPossible,
 			LetterCase::Uppercase,
 		);
-		assert_eq!(hex_string, "#1BF701");
+		assert_eq!(result, "#1BF701");
 	}
 
 	#[test]
 	fn to_rgb_hex_str_shorthand_notation_never() {
 		let color = Srgba::<u8>::new(0x11, 0xff, 0x00, 0xff);
 
-		let hex_string = to_rgb_hex_str(
+		let result = to_rgb_hex_str(
 			&color,
 			OmitAlphaChannel::IfOpaque,
 			ShorthandNotation::Never,
 			LetterCase::Uppercase,
 		);
-		assert_eq!(hex_string, "#11FF00");
+		assert_eq!(result, "#11FF00");
 	}
 
 	#[test]
 	fn to_rgb_hex_str_shorthand_notation_possible_alpha() {
 		let color = Srgba::<u8>::new(0x11, 0xff, 0x00, 0x66);
 
-		let hex_string = to_rgb_hex_str(
+		let result = to_rgb_hex_str(
 			&color,
 			OmitAlphaChannel::IfOpaque,
 			ShorthandNotation::IfPossible,
 			LetterCase::Uppercase,
 		);
-		assert_eq!(hex_string, "#1F06");
+		assert_eq!(result, "#1F06");
 	}
 
 	#[test]
 	fn to_rgb_hex_str_shorthand_notation_not_possible_alpha() {
 		let color = Srgba::<u8>::new(0x11, 0xff, 0x00, 0xab);
 
-		let hex_string = to_rgb_hex_str(
+		let result = to_rgb_hex_str(
 			&color,
 			OmitAlphaChannel::IfOpaque,
 			ShorthandNotation::IfPossible,
 			LetterCase::Uppercase,
 		);
-		assert_eq!(hex_string, "#11FF00AB");
+		assert_eq!(result, "#11FF00AB");
 	}
 
 	#[test]
 	fn to_rgb_hex_str_uppercase() {
 		let color = Srgba::<u8>::new(0x11, 0xff, 0x0a, 0xff);
 
-		let hex_string = to_rgb_hex_str(
+		let result = to_rgb_hex_str(
 			&color,
 			OmitAlphaChannel::IfOpaque,
 			ShorthandNotation::Never,
 			LetterCase::Uppercase,
 		);
-		assert_eq!(hex_string, "#11FF0A");
+		assert_eq!(result, "#11FF0A");
 	}
 
 	#[test]
 	fn to_rgb_hex_str_lowercase() {
 		let color = Srgba::<u8>::new(0x11, 0xff, 0x0a, 0xff);
 
-		let hex_string = to_rgb_hex_str(
+		let result = to_rgb_hex_str(
 			&color,
 			OmitAlphaChannel::IfOpaque,
 			ShorthandNotation::Never,
 			LetterCase::Lowercase,
 		);
-		assert_eq!(hex_string, "#11ff0a");
+		assert_eq!(result, "#11ff0a");
 	}
 }
