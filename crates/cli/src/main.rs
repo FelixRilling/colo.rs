@@ -2,8 +2,7 @@ extern crate palette;
 
 use std::convert::TryInto;
 
-use clap::{App, Arg, SubCommand};
-use clap::value_t;
+use clap::{Arg, Command};
 use log::LevelFilter;
 
 use color_format::ColorFormat;
@@ -15,59 +14,59 @@ mod color_printing;
 mod command;
 mod options;
 
+const COLOR_ARG_HELP: &str =
+	"CSS-like color value, e.g. #00FF11 or 'rgb(255 128 0)'. Parsing can be \
+	customized via the `format` arg.";
+
 fn main() {
-	let default_format = ColorFormat::Auto.to_string();
-
-	let format_arg_key = "format";
-	let color_arg_help = format!("CSS-like color value, e.g. #00FF11 or 'rgb(255 128 0)'. Parsing can be customized via `{}` arg.", format_arg_key);
-
-	let matches = App::new("color-utils")
+	let matches = Command::new("color-utils")
 		.arg(
-			Arg::with_name("v")
-				.short("v")
-				.multiple(true)
+			Arg::new("v")
+				.short('v')
+				.multiple_occurrences(true)
 				.takes_value(false)
 				.help("Increases message verbosity."),
 		)
 		.arg(
-			Arg::with_name(format_arg_key)
-				.long(format_arg_key)
+			Arg::new("format")
+				.long("format")
 				.takes_value(true)
 				.value_name("format-name")
 				.possible_values(&[
 					ColorFormat::Auto.to_string().as_str(),
 					ColorFormat::RgbHex.to_string().as_str(),
 					ColorFormat::RgbFunction.to_string().as_str(),
+					ColorFormat::HslFunction.to_string().as_str(),
+					ColorFormat::HwbFunction.to_string().as_str(),
 				])
-				.case_insensitive(true)
 				.required(false)
-				.default_value(default_format.as_str())
+				.default_value(ColorFormat::Auto.to_string().as_str())
 				.help("Which color format to use for parsing and output"),
 		)
 		.subcommand(
-			SubCommand::with_name("details")
+			Command::new("details")
 				.about("Prints details for a color.")
 				.arg(
-					Arg::with_name("color")
+					Arg::new("color")
 						.required(true)
 						.takes_value(true)
-						.help(&color_arg_help),
+						.help(COLOR_ARG_HELP),
 				),
 		)
 		.subcommand(
-			SubCommand::with_name("contrast")
+			Command::new("contrast")
 				.about("Calculates WCAG contrast of two colors.")
 				.arg(
-					Arg::with_name("color")
+					Arg::new("color")
 						.required(true)
 						.takes_value(true)
-						.help(&color_arg_help),
+						.help(COLOR_ARG_HELP),
 				)
 				.arg(
-					Arg::with_name("other-color")
+					Arg::new("other-color")
 						.required(true)
 						.takes_value(true)
-						.help(&color_arg_help),
+						.help(COLOR_ARG_HELP),
 				),
 		)
 		.get_matches();
@@ -86,14 +85,14 @@ fn main() {
 		})
 		.init();
 
-	// Unwrapping should be safe as 'possible_values' only allows parseable values
+	// Unwrapping should be safe as 'possible_values' only allows parseable values,
 	// and we either have a value or use a default.
-	let format = value_t!(matches, format_arg_key, ColorFormat).unwrap();
+	let format = matches.value_of_t("format").unwrap();
 
 	let options = Options { verbosity, format };
 
 	match matches.subcommand() {
-		("details", Some(matches)) => {
+		Some(("details", matches)) => {
 			let color_str = matches.value_of("color").unwrap();
 
 			match color_parsing::parse_color(color_str) {
@@ -103,7 +102,7 @@ fn main() {
 				}
 			}
 		}
-		("contrast", Some(matches)) => {
+		Some(("contrast", matches)) => {
 			let color_str = matches.value_of("color").unwrap();
 			let other_color_str = matches.value_of("other-color").unwrap();
 
