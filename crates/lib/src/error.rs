@@ -26,7 +26,7 @@ impl Display for ParsingError<'_> {
 }
 
 impl Error for ParsingError<'_> {
-	fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+	fn source(&self) -> Option<&(dyn Error + 'static)> {
 		match self {
 			ParsingError::InvalidSyntax(_) => None,
 			ParsingError::UnsupportedValue(_) => None,
