@@ -1,8 +1,7 @@
 extern crate palette;
 
-use std::convert::TryInto;
 
-use clap::{Arg, Command};
+use clap::{Arg, ArgAction, Command};
 use log::LevelFilter;
 
 use color_format::ColorFormat;
@@ -18,13 +17,13 @@ const COLOR_ARG_HELP: &str =
 	"CSS-like color value, e.g. #00FF11 or 'rgb(255 128 0)'. Parsing can be \
 	customized via the `format` arg.";
 
+
 fn main() {
 	let matches = Command::new("color-utils")
 		.arg(
 			Arg::new("v")
 				.short('v')
-				.multiple_occurrences(true)
-				.takes_value(false)
+				.action(ArgAction::Count)
 				.help("Increases message verbosity."),
 		)
 		.arg(
@@ -71,10 +70,7 @@ fn main() {
 		)
 		.get_matches();
 
-	let verbosity = matches
-		.occurrences_of("v")
-		.try_into()
-		.expect("Unexpected count of verbosity flags");
+	let verbosity = matches.get_count("v");
 	env_logger::builder()
 		.filter_level(match &verbosity {
 			0 => LevelFilter::Error,
@@ -87,13 +83,13 @@ fn main() {
 
 	// Unwrapping should be safe as 'possible_values' only allows parseable values,
 	// and we either have a value or use a default.
-	let format = matches.value_of_t("format").unwrap();
+	let format: ColorFormat = *matches.get_one::<ColorFormat>("format").unwrap();
 
 	let options = Options { verbosity, format };
 
 	match matches.subcommand() {
 		Some(("details", matches)) => {
-			let color_str = matches.value_of("color").unwrap();
+			let color_str = matches.get_one::<String>("color").unwrap();
 
 			match color_parsing::parse_color(color_str) {
 				Err(e_1) => eprintln!("Could not parse color: {}.", e_1),
@@ -103,8 +99,8 @@ fn main() {
 			}
 		}
 		Some(("contrast", matches)) => {
-			let color_str = matches.value_of("color").unwrap();
-			let other_color_str = matches.value_of("other-color").unwrap();
+			let color_str = matches.get_one::<String>("color").unwrap();
+			let other_color_str = matches.get_one::<String>("other-color").unwrap();
 
 			match color_parsing::parse_color(color_str) {
 				Err(e_1) => eprintln!("Could not parse color: {}.", e_1),
