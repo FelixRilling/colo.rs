@@ -1,7 +1,7 @@
 extern crate palette;
 
-
-use clap::{Arg, ArgAction, Command};
+use clap::{Arg, ArgAction, Command, PossibleValue, ValueEnum};
+use clap::builder::EnumValueParser;
 use log::LevelFilter;
 
 use color_format::ColorFormat;
@@ -17,6 +17,27 @@ const COLOR_ARG_HELP: &str =
 	"CSS-like color value, e.g. #00FF11 or 'rgb(255 128 0)'. Parsing can be \
 	customized via the `format` arg.";
 
+impl ValueEnum for ColorFormat {
+	fn value_variants<'a>() -> &'a [Self] {
+		&[
+			ColorFormat::Auto,
+			ColorFormat::RgbHex,
+			ColorFormat::RgbFunction,
+			ColorFormat::HslFunction,
+			ColorFormat::HwbFunction,
+		]
+	}
+
+	fn to_possible_value<'a>(&self) -> Option<PossibleValue<'a>> {
+		match self {
+			ColorFormat::Auto => Some(PossibleValue::new("auto")),
+			ColorFormat::RgbHex => Some(PossibleValue::new("rgb-hex")),
+			ColorFormat::RgbFunction => Some(PossibleValue::new("rgb-function")),
+			ColorFormat::HslFunction => Some(PossibleValue::new("hsl-function")),
+			ColorFormat::HwbFunction => Some(PossibleValue::new("hwb-function")),
+		}
+	}
+}
 
 fn main() {
 	let matches = Command::new("color-utils")
@@ -29,15 +50,8 @@ fn main() {
 		.arg(
 			Arg::new("format")
 				.long("format")
-				.takes_value(true)
 				.value_name("format-name")
-				.possible_values(&[
-					ColorFormat::Auto.to_string().as_str(),
-					ColorFormat::RgbHex.to_string().as_str(),
-					ColorFormat::RgbFunction.to_string().as_str(),
-					ColorFormat::HslFunction.to_string().as_str(),
-					ColorFormat::HwbFunction.to_string().as_str(),
-				])
+				.value_parser(EnumValueParser::<ColorFormat>::new())
 				.required(false)
 				.default_value(ColorFormat::Auto.to_string().as_str())
 				.help("Which color format to use for parsing and output"),
