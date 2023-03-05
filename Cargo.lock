@@ -84,15 +84,15 @@ dependencies = [
 
 [[package]]
 name = "color-utils-cli"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
- "clap",
- "color-utils",
- "color-utils-internal",
- "env_logger",
- "log",
- "palette",
- "termcolor",
+	"clap",
+	"color-utils",
+	"color-utils-internal",
+	"env_logger",
+	"log",
+	"palette",
+	"termcolor",
 ]
 
 [[package]]

@@ -1,6 +1,6 @@
 [package]
 name = "color-utils-cli"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["FelixRilling <contact@rilling.dev>"]
 description = """
 Binary for command line usage of color-utils.
