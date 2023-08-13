@@ -1,5 +1,5 @@
 use cssparser::{BasicParseError, BasicParseErrorKind, Color, Parser, ParserInput};
-use palette::Srgba;
+use palette::rgb::Rgba;
 
 use crate::error::ParsingError;
 
@@ -16,15 +16,15 @@ impl From<BasicParseError<'_>> for ParsingError<'_> {
 ///
 /// # Errors
 /// - If color is keyword 'currentcolor'.
-/// - All other errors: See `cssparser` `Color::parse`
-pub fn parse_color(seq: &str) -> Result<Srgba, ParsingError> {
+/// - All other errors: See `cssparser` `Color::parse`.
+pub fn parse_color(seq: &str) -> Result<Rgba, ParsingError> {
 	let mut input = ParserInput::new(seq);
 	let color = Color::parse(&mut Parser::new(&mut input))?;
 	match color {
 		Color::CurrentColor => Err(ParsingError::UnsupportedValue(
 			"currentcolor is not supported in this context",
 		)),
-		Color::RGBA(rgba) => Ok(Srgba::new(
+		Color::RGBA(rgba) => Ok(Rgba::new(
 			rgba.red_f32(),
 			rgba.green_f32(),
 			rgba.blue_f32(),

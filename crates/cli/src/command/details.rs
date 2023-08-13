@@ -1,6 +1,6 @@
 use std::io::Write;
 
-use palette::Srgba;
+use palette::rgb::Rgba;
 use termcolor::{ColorChoice, StandardStream};
 
 use color_utils::util::is_opaque;
@@ -9,7 +9,7 @@ use crate::color_format::ColorFormat;
 use crate::color_printing::print_color;
 use crate::options::Options;
 
-pub fn print_details(color: &Srgba, options: &Options) -> std::io::Result<()> {
+pub fn print_details(color: &Rgba, options: &Options) -> std::io::Result<()> {
 	let mut out = StandardStream::stdout(ColorChoice::Auto);
 
 	write!(&mut out, "Details for color ")?;
@@ -22,13 +22,13 @@ pub fn print_details(color: &Srgba, options: &Options) -> std::io::Result<()> {
 	print_format_details(&mut out, color)
 }
 
-fn print_general_details(out: &mut StandardStream, color: &Srgba) -> std::io::Result<()> {
+fn print_general_details(out: &mut StandardStream, color: &Rgba) -> std::io::Result<()> {
 	writeln!(out, "General: ")?;
 	writeln!(out, "\tIs opaque: {}.", is_opaque(color))
 	// TODO: output if color fits in 8 bit channel
 }
 
-fn print_format_details(out: &mut StandardStream, color: &Srgba) -> std::io::Result<()> {
+fn print_format_details(out: &mut StandardStream, color: &Rgba) -> std::io::Result<()> {
 	writeln!(out, "Formats: ")?;
 
 	write!(out, "\tIn RGB hexadecimal notation: ")?;
