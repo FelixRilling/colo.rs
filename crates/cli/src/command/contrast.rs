@@ -3,8 +3,8 @@ use std::collections::HashSet;
 use std::fmt::Display;
 use std::io::Write;
 
-use palette::Srgba;
 use palette::color_difference::Wcag21RelativeContrast;
+use palette::rgb::{Rgb, Rgba};
 use termcolor::{ColorChoice, StandardStream};
 
 use color_utils_internal::floor_n_decimals;
@@ -40,15 +40,14 @@ impl Display for ContrastLevel {
 	}
 }
 
-fn contrast_ratio_levels_reached(color_1: &Srgba, color_2: &Srgba) -> HashSet<ContrastLevel> {
+fn contrast_ratio_levels_reached(color_1: &Rgb, color_2: &Rgb) -> HashSet<ContrastLevel> {
 	let mut reached = HashSet::with_capacity(4);
-	let rgb = **color_2;
-	if color_1.has_min_contrast_large_text(rgb) {
+	if color_1.has_min_contrast_large_text(*color_2) {
 		reached.insert(ContrastLevel::LargeAa);
-		if color_1.has_min_contrast_text(rgb) {
+		if color_1.has_min_contrast_text(*color_2) {
 			reached.insert(ContrastLevel::Aa);
 			reached.insert(ContrastLevel::LargeAaa);
-			if color_1.has_enhanced_contrast_text(rgb) {
+			if color_1.has_enhanced_contrast_text(*color_2) {
 				reached.insert(ContrastLevel::Aaa);
 			}
 		}
@@ -62,7 +61,7 @@ fn hash_set_as_sorted_vec<T: Ord>(hash_set: HashSet<T>) -> Vec<T> {
 	set_copy_vec
 }
 
-pub fn print_contrast(color_1: &Srgba, color_2: &Srgba, options: &Options) -> std::io::Result<()> {
+pub fn print_contrast(color_1: &Rgba, color_2: &Rgba, options: &Options) -> std::io::Result<()> {
 	let mut out = StandardStream::stdout(ColorChoice::Auto);
 
 	print_contrast_ratio(&mut out, color_1, color_2, options)?;
@@ -72,8 +71,8 @@ pub fn print_contrast(color_1: &Srgba, color_2: &Srgba, options: &Options) -> st
 
 fn print_contrast_ratio(
 	out: &mut StandardStream,
-	color_1: &Srgba,
-	color_2: &Srgba,
+	color_1: &Rgba,
+	color_2: &Rgba,
 	options: &Options,
 ) -> std::io::Result<()> {
 	write!(out, "WCAG 2.0 AA/AAA contrast ratio for ")?;
@@ -93,8 +92,8 @@ fn print_contrast_ratio(
 
 fn print_contrast_levels_reached(
 	out: &mut StandardStream,
-	color_1: &Srgba,
-	color_2: &Srgba,
+	color_1: &Rgba,
+	color_2: &Rgba,
 ) -> std::io::Result<()> {
 	let contrast_levels_reached =
 		contrast_ratio_levels_reached(color_1, color_2);
