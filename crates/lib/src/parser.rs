@@ -1,13 +1,13 @@
-use cssparser::{BasicParseError, BasicParseErrorKind, Color, Parser, ParserInput};
+use cssparser::{Color, ParseError, ParseErrorKind, Parser, ParserInput};
 use palette::{Hsl, Hwb, IntoColor, Lab, Lch, Oklab, Oklch, WithAlpha};
 use palette::rgb::{Rgb, Rgba};
 
 use crate::error::ParsingError;
 
-impl From<BasicParseError<'_>> for ParsingError<'_> {
-	fn from(err: BasicParseError) -> Self {
+impl From<ParseError<'_, ()>> for ParsingError<'_> {
+	fn from(err: ParseError<'_, ()>) -> Self {
 		ParsingError::InvalidSyntax(match err.kind {
-			BasicParseErrorKind::UnexpectedToken(_) => "Unexpected token",
+			ParseErrorKind::Basic(_) => "Invalid syntax",
 			_ => "Unknown error",
 		})
 	}
@@ -20,9 +20,7 @@ impl From<BasicParseError<'_>> for ParsingError<'_> {
 /// - All other errors: See `cssparser` `Color::parse`.
 pub fn parse_color(seq: &str) -> Result<Rgba, ParsingError> {
 	let mut input = ParserInput::new(seq);
-	let mut parser = Parser::new(&mut input);
-	let color =
-		Color::parse(&mut parser).map_err(|_| ParsingError::InvalidSyntax("invalid syntax"))?;
+	let color = Color::parse(&mut Parser::new(&mut input))?;
 
 	match color {
 		Color::CurrentColor => Err(ParsingError::UnsupportedValue(
