@@ -13,6 +13,6 @@ color-utils-internal = { version = "0.2.0", path = "../internal" }
 cssparser = "0.29.6"
 
 [dependencies.palette]
-version = "0.6.1"
+version = "0.7.3"
 default-features = false
 features = ["std"]

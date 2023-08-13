@@ -30,5 +30,5 @@ pub(crate) fn format_alpha_value(alpha: f32, unit: ChannelUnit) -> String {
 
 /// Formats a hue as degrees.
 pub(crate) fn format_hue(hue: RgbHue) -> String {
-	format!("{}deg", format_number(hue.to_positive_degrees()))
+	format!("{}deg", format_number(hue.into_positive_degrees()))
 }

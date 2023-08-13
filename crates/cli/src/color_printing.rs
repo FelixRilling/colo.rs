@@ -1,6 +1,7 @@
 use std::io::Write;
 
-use palette::{IntoColor, IntoComponent, RelativeContrast, Srgb, Srgba, WithAlpha};
+use palette::{IntoColor, Srgb, Srgba, WithAlpha};
+use palette::color_difference::Wcag21RelativeContrast;
 use termcolor::{ColorSpec, StandardStream, WriteColor};
 
 use color_utils::to_str::{
@@ -10,12 +11,9 @@ use color_utils::to_str::{
 
 use crate::color_format::ColorFormat;
 
-fn rgb_as_term_color(color: &Srgb) -> termcolor::Color {
-	termcolor::Color::Rgb(
-		color.red.into_component(),
-		color.green.into_component(),
-		color.blue.into_component(),
-	)
+fn rgb_as_term_color(color: Srgb) -> termcolor::Color {
+	let converted: Srgb<u8> = color.into_format();
+	termcolor::Color::Rgb(converted.red, converted.green, converted.blue)
 }
 
 /// Finds and returns the `color_options` value that has the best contrast to `initial_color`.
@@ -25,7 +23,7 @@ fn get_best_contrast<'a>(initial_color: &'a Srgb, color_options: &'a [Srgb]) -> 
 	let mut best_contrast_ratio_color: &Srgb = initial_color;
 
 	for color_option in color_options {
-		let contrast_ratio = initial_color.get_contrast_ratio(color_option);
+		let contrast_ratio = initial_color.relative_contrast(*color_option);
 		if contrast_ratio > best_contrast_ratio {
 			best_contrast_ratio = contrast_ratio;
 			best_contrast_ratio_color = color_option;
@@ -84,8 +82,8 @@ pub fn print_color(
 
 	stdout.set_color(
 		ColorSpec::new()
-			.set_bg(Some(rgb_as_term_color(&opaque_color)))
-			.set_fg(Some(rgb_as_term_color(foreground_color))),
+			.set_bg(Some(rgb_as_term_color(opaque_color.into_format())))
+			.set_fg(Some(rgb_as_term_color(foreground_color.into_format()))),
 	)?;
 	write!(stdout, "{}", format_color(color, format))?;
 	stdout.set_color(&ColorSpec::default())

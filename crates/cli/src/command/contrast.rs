@@ -3,7 +3,8 @@ use std::collections::HashSet;
 use std::fmt::Display;
 use std::io::Write;
 
-use palette::{RelativeContrast, Srgba};
+use palette::Srgba;
+use palette::color_difference::Wcag21RelativeContrast;
 use termcolor::{ColorChoice, StandardStream};
 
 use color_utils_internal::floor_n_decimals;
@@ -41,12 +42,13 @@ impl Display for ContrastLevel {
 
 fn contrast_ratio_levels_reached(color_1: &Srgba, color_2: &Srgba) -> HashSet<ContrastLevel> {
 	let mut reached = HashSet::with_capacity(4);
-	if color_1.has_min_contrast_large_text(color_2) {
+	let rgb = **color_2;
+	if color_1.has_min_contrast_large_text(rgb) {
 		reached.insert(ContrastLevel::LargeAa);
-		if color_1.has_min_contrast_text(color_2) {
+		if color_1.has_min_contrast_text(rgb) {
 			reached.insert(ContrastLevel::Aa);
 			reached.insert(ContrastLevel::LargeAaa);
-			if color_1.has_enhanced_contrast_text(color_2) {
+			if color_1.has_enhanced_contrast_text(rgb) {
 				reached.insert(ContrastLevel::Aaa);
 			}
 		}
@@ -79,7 +81,7 @@ fn print_contrast_ratio(
 	write!(out, " to ")?;
 	print_color(out, color_2, options.format)?;
 
-	let contrast_ratio = color_1.get_contrast_ratio(color_2);
+	let contrast_ratio = color_1.relative_contrast(**color_2);
 	let contrast_ratio_str = if options.verbosity == 0 {
 		// Usually only displaying the last 2 digits is enough.
 		floor_n_decimals(contrast_ratio.into(), 2).to_string()
