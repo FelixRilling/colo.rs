@@ -31,7 +31,6 @@ pub fn parse_color(seq: &str) -> Result<Rgba, ParsingError> {
 		Color::Rgba(rgba) => Ok(Rgb::new(rgba.red, rgba.green, rgba.blue)
 			.with_alpha(rgba.alpha)
 			.into_format()),
-
 		Color::Hsl(hsl) => Ok(Hsl::new(
 			hsl.hue.unwrap_or(0.0),
 			hsl.saturation.unwrap_or(0.0),
@@ -43,8 +42,8 @@ pub fn parse_color(seq: &str) -> Result<Rgba, ParsingError> {
 			hwb.hue.unwrap_or(0.0),
 			hwb.whiteness.unwrap_or(0.0),
 			hwb.blackness.unwrap_or(0.0),
-		).with_alpha(hwb.alpha.unwrap_or(1.0))
-			.into_format()
+		)
+			.with_alpha(hwb.alpha.unwrap_or(1.0))
 			.into_color()),
 		Color::Lab(lab) => Ok(Lab::new(
 			lab.lightness.unwrap_or(0.0),
@@ -53,9 +52,19 @@ pub fn parse_color(seq: &str) -> Result<Rgba, ParsingError> {
 		)
 			.with_alpha(lab.alpha.unwrap_or(1.0))
 			.into_color()),
-		Color::Lch(lch) => Ok(todo!()),
-		Color::Oklab(_) => { todo!() }
-		Color::Oklch(_) => { todo!() }
+		Color::Lch(lch) => Ok(Lch::new(
+			lch.lightness.unwrap_or(0.0),
+			lch.chroma.unwrap_or(0.0),
+			lch.hue.unwrap_or(0.0),
+		)
+			.with_alpha(lch.alpha.unwrap_or(1.0))
+			.into_color()),
+		Color::Oklab(_) => {
+			todo!()
+		}
+		Color::Oklch(_) => {
+			todo!()
+		}
 		Color::ColorFunction(_) => Err(ParsingError::UnsupportedValue("format is not supported")),
 	}
 }
