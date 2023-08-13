@@ -1,5 +1,5 @@
 use cssparser::{BasicParseError, BasicParseErrorKind, Color, Parser, ParserInput};
-use palette::{Hsl, IntoColor, WithAlpha};
+use palette::{Hsl, IntoColor, Lab, WithAlpha};
 use palette::rgb::{Rgb, Rgba};
 
 use crate::error::ParsingError;
@@ -37,8 +37,19 @@ pub fn parse_color(seq: &str) -> Result<Rgba, ParsingError> {
 			hsl.saturation.unwrap_or(0.0),
 			hsl.lightness.unwrap_or(0.0),
 		)
-			.with_alpha(hsl.alpha.unwrap_or(0.0))
+			.with_alpha(hsl.alpha.unwrap_or(1.0))
 			.into_color()),
-		_ => Err(ParsingError::UnsupportedValue("format is not supported")),
+		Color::Hwb(_) => { todo!() }
+		Color::Lab(lab) => Ok(Lab::new(
+			lab.lightness.unwrap_or(0.0),
+			lab.a.unwrap_or(0.0),
+			lab.b.unwrap_or(0.0),
+		)
+			.with_alpha(lab.alpha.unwrap_or(1.0))
+			.into_color()),
+		Color::Lch(lch) => Ok(todo!()),
+		Color::Oklab(_) => { todo!() }
+		Color::Oklch(_) => { todo!() }
+		Color::ColorFunction(_) => Err(ParsingError::UnsupportedValue("format is not supported")),
 	}
 }
