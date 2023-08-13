@@ -1,5 +1,5 @@
 use cssparser::{BasicParseError, BasicParseErrorKind, Color, Parser, ParserInput};
-use palette::{Hsl, IntoColor, Lab, WithAlpha};
+use palette::{Hsl, Hwb, IntoColor, Lab, Lch, WithAlpha};
 use palette::rgb::{Rgb, Rgba};
 
 use crate::error::ParsingError;
@@ -39,7 +39,13 @@ pub fn parse_color(seq: &str) -> Result<Rgba, ParsingError> {
 		)
 			.with_alpha(hsl.alpha.unwrap_or(1.0))
 			.into_color()),
-		Color::Hwb(_) => { todo!() }
+		Color::Hwb(hwb) => Ok(Hwb::new(
+			hwb.hue.unwrap_or(0.0),
+			hwb.whiteness.unwrap_or(0.0),
+			hwb.blackness.unwrap_or(0.0),
+		).with_alpha(hwb.alpha.unwrap_or(1.0))
+			.into_format()
+			.into_color()),
 		Color::Lab(lab) => Ok(Lab::new(
 			lab.lightness.unwrap_or(0.0),
 			lab.a.unwrap_or(0.0),
