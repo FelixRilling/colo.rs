@@ -8,8 +8,6 @@ Library for programatic usage of color-utils.
 edition = "2021"
 
 [dependencies]
-color-utils-internal = { version = "0.2.0", path = "../internal" }
-
 cssparser = "0.32.0"
 
 [dependencies.palette]

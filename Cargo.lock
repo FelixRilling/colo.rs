@@ -77,7 +77,6 @@ dependencies = [
 name = "color-utils"
 version = "0.2.0"
 dependencies = [
- "color-utils-internal",
  "cssparser",
  "palette",
 ]
@@ -92,13 +91,6 @@ dependencies = [
 	"log",
 	"palette",
 	"termcolor",
-]
-
-[[package]]
-name = "color-utils-internal"
-version = "0.2.0"
-dependencies = [
- "num-traits",
 ]
 
 [[package]]
