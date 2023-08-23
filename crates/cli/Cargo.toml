@@ -15,8 +15,8 @@ path = "src/main.rs"
 color-utils = { version = "0.2.0", path = "../lib" }
 
 log = "0.4.17"
-env_logger = "0.9.3"
-clap = "3.2.23"
+env_logger = "0.10.0"
+clap = "3.2.25"
 termcolor = "1.2.0"
 
 [dependencies.palette]
