@@ -1,7 +1,7 @@
 extern crate palette;
 
-use clap::{Arg, ArgAction, Command, PossibleValue, ValueEnum};
-use clap::builder::EnumValueParser;
+use clap::{Arg, ArgAction, Command, ValueEnum};
+use clap::builder::{EnumValueParser, PossibleValue};
 use log::LevelFilter;
 
 use color_format::ColorFormat;
@@ -14,8 +14,9 @@ mod command;
 mod options;
 
 const COLOR_ARG_HELP: &str =
-	"CSS-like color value, e.g. #00FF11 or 'rgb(255 128 0)'. Parsing can be \
-	customized via the `format` arg.";
+	"CSS-like color value, e.g. #00FF11 or 'rgb(255 128 0)'.";
+
+const COLOR_FORMAT_AUTO: &str = "auto";
 
 impl ValueEnum for ColorFormat {
 	fn value_variants<'a>() -> &'a [Self] {
@@ -28,9 +29,9 @@ impl ValueEnum for ColorFormat {
 		]
 	}
 
-	fn to_possible_value<'a>(&self) -> Option<PossibleValue<'a>> {
+	fn to_possible_value<'a>(&self) -> Option<PossibleValue> {
 		match self {
-			ColorFormat::Auto => Some(PossibleValue::new("auto")),
+			ColorFormat::Auto => Some(PossibleValue::new(COLOR_FORMAT_AUTO)),
 			ColorFormat::RgbHex => Some(PossibleValue::new("rgb-hex")),
 			ColorFormat::RgbFunction => Some(PossibleValue::new("rgb-function")),
 			ColorFormat::HslFunction => Some(PossibleValue::new("hsl-function")),
@@ -45,40 +46,45 @@ fn main() {
 			Arg::new("v")
 				.short('v')
 				.action(ArgAction::Count)
-				.help("Increases message verbosity."),
+				.help("Increases message verbosity"),
 		)
 		.arg(
 			Arg::new("format")
 				.long("format")
 				.value_name("format-name")
-				.value_parser(EnumValueParser::<ColorFormat>::new())
 				.required(false)
-				.default_value(ColorFormat::Auto.to_string().as_str())
-				.help("Which color format to use for parsing and output"),
+				.num_args(1)
+				.action(ArgAction::Set)
+				.value_parser(EnumValueParser::<ColorFormat>::new())
+				.default_value(COLOR_FORMAT_AUTO)
+				.help("Which color format to use for output"),
 		)
 		.subcommand(
 			Command::new("details")
-				.about("Prints details for a color.")
+				.about("Prints details for a color")
 				.arg(
 					Arg::new("color")
 						.required(true)
-						.takes_value(true)
+						.num_args(1)
+						.action(ArgAction::Set)
 						.help(COLOR_ARG_HELP),
 				),
 		)
 		.subcommand(
 			Command::new("contrast")
-				.about("Calculates WCAG contrast of two colors.")
+				.about("Calculates WCAG contrast of two colors")
 				.arg(
 					Arg::new("color")
 						.required(true)
-						.takes_value(true)
+						.num_args(1)
+						.action(ArgAction::Set)
 						.help(COLOR_ARG_HELP),
 				)
 				.arg(
 					Arg::new("other-color")
 						.required(true)
-						.takes_value(true)
+						.num_args(1)
+						.action(ArgAction::Set)
 						.help(COLOR_ARG_HELP),
 				),
 		)
