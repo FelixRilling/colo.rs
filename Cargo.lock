@@ -88,7 +88,6 @@ version = "0.2.0"
 dependencies = [
 	"clap",
 	"color-utils",
-	"color-utils-internal",
 	"env_logger",
 	"log",
 	"palette",

@@ -7,8 +7,6 @@ use palette::color_difference::Wcag21RelativeContrast;
 use palette::rgb::{Rgb, Rgba};
 use termcolor::{ColorChoice, StandardStream};
 
-use color_utils_internal::floor_n_decimals;
-
 use crate::color_printing::print_color;
 use crate::options::Options;
 
@@ -83,7 +81,7 @@ fn print_contrast_ratio(
 	let contrast_ratio = color_1.relative_contrast(**color_2);
 	let contrast_ratio_str = if options.verbosity == 0 {
 		// Usually only displaying the last 2 digits is enough.
-		floor_n_decimals(contrast_ratio.into(), 2).to_string()
+		format!("{:.2}", contrast_ratio)
 	} else {
 		contrast_ratio.to_string()
 	};
@@ -95,8 +93,7 @@ fn print_contrast_levels_reached(
 	color_1: &Rgba,
 	color_2: &Rgba,
 ) -> std::io::Result<()> {
-	let contrast_levels_reached =
-		contrast_ratio_levels_reached(color_1, color_2);
+	let contrast_levels_reached = contrast_ratio_levels_reached(color_1, color_2);
 	let contrast_levels_reached_str: String = if contrast_levels_reached.is_empty() {
 		String::from("None")
 	} else {
