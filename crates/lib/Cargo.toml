@@ -8,7 +8,8 @@ Library for programatic usage of color-utils.
 edition = "2021"
 
 [dependencies]
-cssparser = "0.32.0"
+cssparser = "0.33.0"
+cssparser-color = "0.1.0"
 
 [dependencies.palette]
 version = "0.7.3"

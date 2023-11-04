@@ -112,6 +112,7 @@ name = "color-utils"
 version = "0.2.0"
 dependencies = [
  "cssparser",
+	"cssparser-color",
  "palette",
 ]
 
@@ -135,15 +136,24 @@ checksum = "acbf1af155f9b9ef647e42cdc158db4b64a1b61f743629225fde6f3e0be2a7c7"
 
 [[package]]
 name = "cssparser"
-version = "0.32.0"
+version = "0.33.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2d54fe63cb80af11947c98a880393db44448d0b512f9b6c318398ae355794cb9"
+checksum = "9be934d936a0fbed5bcdc01042b770de1398bf79d0e192f49fa7faea0e99281e"
 dependencies = [
  "cssparser-macros",
  "dtoa-short",
  "itoa",
 	"phf",
  "smallvec",
+]
+
+[[package]]
+name = "cssparser-color"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "556c099a61d85989d7af52b692e35a8d68a57e7df8c6d07563dc0778b3960c9f"
+dependencies = [
+	"cssparser",
 ]
 
 [[package]]

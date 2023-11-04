@@ -1,4 +1,5 @@
-use cssparser::{Color, ParseError, ParseErrorKind, Parser, ParserInput};
+use cssparser::{ParseError, ParseErrorKind, Parser, ParserInput};
+use cssparser_color::Color;
 use palette::{Hsl, Hwb, IntoColor, Lab, Lch, Oklab, Oklch, WithAlpha};
 use palette::rgb::{Rgb, Rgba};
 
