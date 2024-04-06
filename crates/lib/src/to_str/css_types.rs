@@ -7,12 +7,12 @@ fn ceil_two_decimal_places(val: f32) -> f32 {
 	(val * 100.0).ceil() / 100.0
 }
 
-/// Formats a float as a CSS number (e.g. `0.6` as `'0.6'`).
+/// Formats a float as a CSS number (e.g., `0.6` as `'0.6'`).
 pub(crate) fn format_number(val: f32) -> String {
 	format!("{}", ceil_two_decimal_places(val))
 }
 
-/// Formats a float as a CSS percentage (e.g. `0.6` as `'60%'`).
+/// Formats a float as a CSS percentage (e.g., `0.6` as `'60%'`).
 pub(crate) fn format_percentage(val: f32) -> String {
 	format!("{}%", ceil_two_decimal_places(val * 100.0))
 }

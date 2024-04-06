@@ -68,7 +68,7 @@ fn format_color(color: &Rgba, format: ColorFormat) -> String {
 	}
 }
 
-/// Prints colored color value to stream. Stream color is reset afterwards.
+/// Prints colored color value to stream. Stream color is reset afterward.
 pub fn print_color(
 	stdout: &mut StandardStream,
 	color: &Rgba,
