@@ -12,6 +12,6 @@ cssparser = "0.33.0"
 cssparser-color = "0.1.0"
 
 [dependencies.palette]
-version = "0.7.5"
+version = "0.7.6"
 default-features = false
 features = ["std"]
