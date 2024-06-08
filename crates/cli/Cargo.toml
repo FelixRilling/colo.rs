@@ -1,7 +1,10 @@
 [package]
 name = "color-utils-cli"
 version = "0.2.0"
-authors = ["FelixRilling <contact@rilling.dev>"]
+authors = ["F. Rilling <contact@rilling.dev>"]
+license = "GPL-3"
+readme = "../../README.md"
+repository = "https://github.com/RillingDev/color-utils"
 description = """
 Binary for command line usage of color-utils.
 """
@@ -14,9 +17,9 @@ path = "src/main.rs"
 [dependencies]
 color-utils = { version = "0.2.0", path = "../lib" }
 
-log = "0.4.21"
-env_logger = "0.11.3"
-clap = "4.5.4"
+log = "0.4.22"
+env_logger = "0.11.5"
+clap = "4.5.11"
 termcolor = "1.4.1"
 
 [dependencies.palette]
