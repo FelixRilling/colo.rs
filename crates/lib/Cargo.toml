@@ -6,7 +6,7 @@ license = "GPL-3"
 readme = "../../README.md"
 repository = "https://github.com/RillingDev/color-utils"
 description = """
-Library for programatic usage of color-utils.
+Library for programmatic usage of color-utils.
 """
 edition = "2021"
 
