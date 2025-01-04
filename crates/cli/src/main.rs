@@ -1,7 +1,7 @@
 extern crate palette;
 
-use clap::{Arg, ArgAction, Command, ValueEnum};
 use clap::builder::{EnumValueParser, PossibleValue};
+use clap::{Arg, ArgAction, Command, ValueEnum};
 use log::LevelFilter;
 
 use color_format::ColorFormat;
@@ -13,8 +13,7 @@ mod color_printing;
 mod command;
 mod options;
 
-const COLOR_ARG_HELP: &str =
-	"CSS-like color value, e.g. #00FF11 or 'rgb(255 128 0)'.";
+const COLOR_ARG_HELP: &str = "CSS-like color value, e.g. #00FF11 or 'rgb(255 128 0)'.";
 
 const COLOR_FORMAT_AUTO: &str = "auto";
 

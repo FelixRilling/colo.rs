@@ -2,7 +2,7 @@ use log::debug;
 use palette::Srgba;
 
 use color_utils::error::ParsingError;
-use color_utils::to_str::{ChannelUnit, OmitAlphaChannel, to_rgb_function_str};
+use color_utils::to_str::{to_rgb_function_str, ChannelUnit, OmitAlphaChannel};
 
 pub fn parse_color(seq: &str) -> Result<Srgba, ParsingError> {
 	debug!("Attempting to parse '{}'.", seq);

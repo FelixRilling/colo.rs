@@ -1,7 +1,7 @@
 use cssparser::{ParseError, ParseErrorKind, Parser, ParserInput};
 use cssparser_color::Color;
-use palette::{Hsl, Hwb, IntoColor, Lab, Lch, Oklab, Oklch, WithAlpha};
 use palette::rgb::{Rgb, Rgba};
+use palette::{Hsl, Hwb, IntoColor, Lab, Lch, Oklab, Oklch, WithAlpha};
 
 use crate::error::ParsingError;
 
@@ -35,43 +35,43 @@ pub fn parse_color(seq: &str) -> Result<Rgba, ParsingError> {
 			hsl.saturation.unwrap_or(0.0),
 			hsl.lightness.unwrap_or(0.0),
 		)
-			.with_alpha(hsl.alpha.unwrap_or(1.0))
-			.into_color()),
+		.with_alpha(hsl.alpha.unwrap_or(1.0))
+		.into_color()),
 		Color::Hwb(hwb) => Ok(Hwb::new(
 			hwb.hue.unwrap_or(0.0),
 			hwb.whiteness.unwrap_or(0.0),
 			hwb.blackness.unwrap_or(0.0),
 		)
-			.with_alpha(hwb.alpha.unwrap_or(1.0))
-			.into_color()),
+		.with_alpha(hwb.alpha.unwrap_or(1.0))
+		.into_color()),
 		Color::Lab(lab) => Ok(Lab::new(
 			lab.lightness.unwrap_or(0.0),
 			lab.a.unwrap_or(0.0),
 			lab.b.unwrap_or(0.0),
 		)
-			.with_alpha(lab.alpha.unwrap_or(1.0))
-			.into_color()),
+		.with_alpha(lab.alpha.unwrap_or(1.0))
+		.into_color()),
 		Color::Lch(lch) => Ok(Lch::new(
 			lch.lightness.unwrap_or(0.0),
 			lch.chroma.unwrap_or(0.0),
 			lch.hue.unwrap_or(0.0),
 		)
-			.with_alpha(lch.alpha.unwrap_or(1.0))
-			.into_color()),
+		.with_alpha(lch.alpha.unwrap_or(1.0))
+		.into_color()),
 		Color::Oklab(oklab) => Ok(Oklab::new(
 			oklab.lightness.unwrap_or(0.0),
 			oklab.a.unwrap_or(0.0),
 			oklab.b.unwrap_or(0.0),
 		)
-			.with_alpha(oklab.alpha.unwrap_or(1.0))
-			.into_color()),
+		.with_alpha(oklab.alpha.unwrap_or(1.0))
+		.into_color()),
 		Color::Oklch(oklch) => Ok(Oklch::new(
 			oklch.lightness.unwrap_or(0.0),
 			oklch.chroma.unwrap_or(0.0),
 			oklch.hue.unwrap_or(0.0),
 		)
-			.with_alpha(oklch.alpha.unwrap_or(1.0))
-			.into_color()),
+		.with_alpha(oklch.alpha.unwrap_or(1.0))
+		.into_color()),
 		Color::ColorFunction(_) => Err(ParsingError::UnsupportedValue("format is not supported")),
 	}
 }

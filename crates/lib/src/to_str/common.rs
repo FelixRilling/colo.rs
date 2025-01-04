@@ -1,7 +1,7 @@
 use palette::Srgba;
 
-use crate::to_str::{ChannelUnit, OmitAlphaChannel};
 use crate::to_str::css_types::format_alpha_value;
+use crate::to_str::{ChannelUnit, OmitAlphaChannel};
 use crate::util::is_opaque;
 
 // TODO: allow any `Alpha` type

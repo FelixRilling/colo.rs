@@ -1,8 +1,8 @@
 use palette::{Hwba, IntoColor};
 
-use crate::to_str::{ChannelUnit, OmitAlphaChannel};
 use crate::to_str::common::format_alpha_value_conditionally;
 use crate::to_str::css_types::{format_hue, format_percentage};
+use crate::to_str::{ChannelUnit, OmitAlphaChannel};
 
 /// Creates a CSS-style HWB function string for this color.
 /// For details see the [CSS color specification](https://www.w3.org/TR/css-color-4/#the-hwb-notation).
@@ -21,21 +21,11 @@ pub fn to_hwb_function_str(
 	);
 
 	alpha_str_opt.map_or_else(
-		|| {
-			format!(
-				"hwb({} {} {})",
-				&hue_str,
-				&whiteness_str,
-				&blackness_str
-			)
-		},
+		|| format!("hwb({} {} {})", &hue_str, &whiteness_str, &blackness_str),
 		|alpha_str| {
 			format!(
 				"hwb({} {} {} / {})",
-				&hue_str,
-				&whiteness_str,
-				&blackness_str,
-				&alpha_str
+				&hue_str, &whiteness_str, &blackness_str, &alpha_str
 			)
 		},
 	)
@@ -69,8 +59,7 @@ mod tests {
 	fn to_hwb_function_str_omit_alpha_never() {
 		let color: Hwba = Hwba::new(RgbHue::from_degrees(180.0), 0.5, 0.75, 1.0);
 
-		let result =
-			to_hwb_function_str(&color, OmitAlphaChannel::Never, ChannelUnit::Percentage);
+		let result = to_hwb_function_str(&color, OmitAlphaChannel::Never, ChannelUnit::Percentage);
 		assert_eq!(result, "hwb(180deg 50% 75% / 100%)");
 	}
 
@@ -78,8 +67,7 @@ mod tests {
 	fn to_hwb_function_str_number_alpha_channel() {
 		let color: Hwba = Hwba::new(RgbHue::from_degrees(180.0), 0.5, 0.75, 1.0);
 
-		let result =
-			to_hwb_function_str(&color, OmitAlphaChannel::Never, ChannelUnit::Number);
+		let result = to_hwb_function_str(&color, OmitAlphaChannel::Never, ChannelUnit::Number);
 		assert_eq!(result, "hwb(180deg 50% 75% / 1)");
 	}
 
@@ -87,8 +75,7 @@ mod tests {
 	fn to_hwb_function_str_percentage_alpha_channel() {
 		let color: Hwba = Hwba::new(RgbHue::from_degrees(180.0), 0.5, 0.75, 1.0);
 
-		let result =
-			to_hwb_function_str(&color, OmitAlphaChannel::Never, ChannelUnit::Percentage);
+		let result = to_hwb_function_str(&color, OmitAlphaChannel::Never, ChannelUnit::Percentage);
 		assert_eq!(result, "hwb(180deg 50% 75% / 100%)");
 	}
 }

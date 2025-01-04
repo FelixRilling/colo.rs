@@ -1,13 +1,13 @@
 use std::io::Write;
 
-use palette::{IntoColor, WithAlpha};
 use palette::color_difference::Wcag21RelativeContrast;
 use palette::rgb::{Rgb, Rgba};
+use palette::{IntoColor, WithAlpha};
 use termcolor::{ColorSpec, StandardStream, WriteColor};
 
 use color_utils::to_str::{
-	ChannelUnit, LetterCase, OmitAlphaChannel, ShorthandNotation, to_hsl_function_str,
-	to_hwb_function_str, to_rgb_function_str, to_rgb_hex_str,
+	to_hsl_function_str, to_hwb_function_str, to_rgb_function_str, to_rgb_hex_str, ChannelUnit,
+	LetterCase, OmitAlphaChannel, ShorthandNotation,
 };
 
 use crate::color_format::ColorFormat;

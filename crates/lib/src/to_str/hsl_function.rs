@@ -1,8 +1,8 @@
 use palette::{Hsla, IntoColor};
 
-use crate::to_str::{ChannelUnit, OmitAlphaChannel};
 use crate::to_str::common::format_alpha_value_conditionally;
 use crate::to_str::css_types::{format_hue, format_percentage};
+use crate::to_str::{ChannelUnit, OmitAlphaChannel};
 
 /// Creates a CSS-style HSL function string for this color.
 /// For details see the [CSS color specification](https://www.w3.org/TR/css-color-4/#the-hsl-notation).
@@ -59,8 +59,7 @@ mod tests {
 	fn to_hsl_function_str_omit_alpha_never() {
 		let color: Hsla = Hsla::new(RgbHue::from_degrees(180.0), 0.5, 0.75, 1.0);
 
-		let result =
-			to_hsl_function_str(&color, OmitAlphaChannel::Never, ChannelUnit::Percentage);
+		let result = to_hsl_function_str(&color, OmitAlphaChannel::Never, ChannelUnit::Percentage);
 		assert_eq!(result, "hsl(180deg 50% 75% / 100%)");
 	}
 
@@ -76,8 +75,7 @@ mod tests {
 	fn to_hsl_function_str_percentage_alpha_channel() {
 		let color: Hsla = Hsla::new(RgbHue::from_degrees(180.0), 0.5, 0.75, 1.0);
 
-		let result =
-			to_hsl_function_str(&color, OmitAlphaChannel::Never, ChannelUnit::Percentage);
+		let result = to_hsl_function_str(&color, OmitAlphaChannel::Never, ChannelUnit::Percentage);
 		assert_eq!(result, "hsl(180deg 50% 75% / 100%)");
 	}
 }

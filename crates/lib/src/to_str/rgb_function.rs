@@ -1,8 +1,8 @@
 use palette::Srgba;
 
-use crate::to_str::{ChannelUnit, OmitAlphaChannel};
 use crate::to_str::common::format_alpha_value_conditionally;
 use crate::to_str::css_types::{format_number, format_percentage};
+use crate::to_str::{ChannelUnit, OmitAlphaChannel};
 
 fn format_color_channel(color_channel: f32, unit: ChannelUnit) -> String {
 	match unit {
@@ -22,11 +22,8 @@ pub fn to_rgb_function_str(
 	let red_str = format_color_channel(color.red, color_channel_unit);
 	let green_str = format_color_channel(color.green, color_channel_unit);
 	let blue_str = format_color_channel(color.blue, color_channel_unit);
-	let alpha_str_opt = format_alpha_value_conditionally(
-		color,
-		alpha_channel_unit,
-		omit_alpha_channel,
-	);
+	let alpha_str_opt =
+		format_alpha_value_conditionally(color, alpha_channel_unit, omit_alpha_channel);
 
 	alpha_str_opt.map_or_else(
 		|| format!("rgb({} {} {})", &red_str, &green_str, &blue_str),
