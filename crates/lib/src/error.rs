@@ -11,8 +11,6 @@ pub enum ParsingError<'a> {
 	InvalidSyntax(&'a str),
 
 	UnsupportedValue(&'a str),
-
-	NumberConversionFailed(Box<dyn Error>),
 }
 
 impl Display for ParsingError<'_> {
@@ -20,7 +18,6 @@ impl Display for ParsingError<'_> {
 		match self {
 			ParsingError::InvalidSyntax(details) => f.write_str(details),
 			ParsingError::UnsupportedValue(details) => f.write_str(details),
-			ParsingError::NumberConversionFailed(_) => f.write_str("Number conversion failed"),
 		}
 	}
 }
@@ -30,7 +27,6 @@ impl Error for ParsingError<'_> {
 		match self {
 			ParsingError::InvalidSyntax(_) => None,
 			ParsingError::UnsupportedValue(_) => None,
-			ParsingError::NumberConversionFailed(err) => Some(&**err),
 		}
 	}
 }
