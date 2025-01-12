@@ -79,13 +79,7 @@ fn print_contrast_ratio(
 	print_color(out, color_2, options.format)?;
 
 	let contrast_ratio = color_1.relative_contrast(**color_2);
-	let contrast_ratio_str = if options.verbosity == 0 {
-		// Usually only displaying the last 2 digits is enough.
-		format!("{:.2}", contrast_ratio)
-	} else {
-		contrast_ratio.to_string()
-	};
-	writeln!(out, " is {}.", contrast_ratio_str)
+	writeln!(out, " is {:.2}.", contrast_ratio)
 }
 
 fn print_contrast_levels_reached(

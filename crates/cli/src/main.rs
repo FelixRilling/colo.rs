@@ -2,9 +2,8 @@ extern crate palette;
 
 use clap::builder::{EnumValueParser, PossibleValue};
 use clap::{Arg, ArgAction, Command, ValueEnum};
-use log::LevelFilter;
-
 use color_format::ColorFormat;
+use log::LevelFilter;
 use options::Options;
 
 mod color_format;
@@ -41,12 +40,6 @@ impl ValueEnum for ColorFormat {
 
 fn main() {
 	let matches = Command::new("color-utils")
-		.arg(
-			Arg::new("v")
-				.short('v')
-				.action(ArgAction::Count)
-				.help("Increases message verbosity"),
-		)
 		.arg(
 			Arg::new("format")
 				.long("format")
@@ -89,22 +82,13 @@ fn main() {
 		)
 		.get_matches();
 
-	let verbosity = matches.get_count("v");
-	env_logger::builder()
-		.filter_level(match &verbosity {
-			0 => LevelFilter::Error,
-			1 => LevelFilter::Warn,
-			2 => LevelFilter::Info,
-			3 => LevelFilter::Debug,
-			_ => LevelFilter::Trace,
-		})
-		.init();
+	env_logger::builder().filter_level(LevelFilter::Info).init();
 
 	// Unwrapping should be safe as 'possible_values' only allows parseable values,
 	// and we either have a value or use a default.
 	let format: ColorFormat = *matches.get_one::<ColorFormat>("format").unwrap();
 
-	let options = Options { verbosity, format };
+	let options = Options { format };
 
 	match matches.subcommand() {
 		Some(("details", matches)) => {
