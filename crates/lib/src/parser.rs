@@ -2,8 +2,36 @@ use cssparser::{ParseError, ParseErrorKind, Parser, ParserInput};
 use cssparser_color::Color;
 use palette::rgb::{Rgb, Rgba};
 use palette::{Hsl, Hwb, IntoColor, Lab, Lch, Oklab, Oklch, WithAlpha};
+use std::error::Error;
+use std::fmt;
+use std::fmt::{Debug, Display, Formatter};
+use std::option::Option::None;
 
-use crate::error::ParsingError;
+/// Kinds of errors than may happen during color parsing.
+#[derive(Debug)]
+pub enum ParsingError<'a> {
+	InvalidSyntax(&'a str),
+
+	UnsupportedValue(&'a str),
+}
+
+impl Display for ParsingError<'_> {
+	fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+		match self {
+			ParsingError::InvalidSyntax(details) => f.write_str(details),
+			ParsingError::UnsupportedValue(details) => f.write_str(details),
+		}
+	}
+}
+
+impl Error for ParsingError<'_> {
+	fn source(&self) -> Option<&(dyn Error + 'static)> {
+		match self {
+			ParsingError::InvalidSyntax(_) => None,
+			ParsingError::UnsupportedValue(_) => None,
+		}
+	}
+}
 
 impl From<ParseError<'_, ()>> for ParsingError<'_> {
 	fn from(err: ParseError<'_, ()>) -> Self {
