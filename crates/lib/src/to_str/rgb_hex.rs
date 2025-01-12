@@ -32,7 +32,7 @@ fn shorthand_hexadecimal_channel(channel_hex_str: &str) -> String {
 }
 
 fn format_hex(channel: u8) -> String {
-	format!("{:02X}", channel)
+	format!("{channel:02X}")
 }
 
 /// Creates a CSS-style hex color notation string for this color.

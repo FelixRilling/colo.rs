@@ -1,13 +1,17 @@
 use clap::{Parser, Subcommand};
 use log::LevelFilter;
 use options::{ColorFormat, Options};
+use palette::Srgba;
 
-mod color_parsing;
 mod color_printing;
 mod command;
 mod options;
 
-const COLOR_ARG_HELP: &str = "CSS-like color value, e.g. #00FF11 or 'rgb(255 128 0)'";
+const COLOR_ARG_HELP: &str = "CSS-like color value, e.g. '#00FF11' or 'rgb(255 128 0)'";
+
+fn parse_color(color_str: &str) -> Result<Srgba, String> {
+	color_utils::parser::parse_color(color_str).map_err(|e| e.to_string())
+}
 
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
@@ -30,17 +34,17 @@ struct Cli {
 enum Commands {
 	#[command(about = "Prints the details of a color")]
 	Details {
-		#[arg(required = true, help = COLOR_ARG_HELP)]
-		color: String,
+		#[arg(required = true, help = COLOR_ARG_HELP, value_parser = parse_color)]
+		color: Srgba,
 	},
 
 	#[command(about = "Calculates the WCAG contrast of two colors")]
 	Contrast {
-		#[arg(required = true, help = COLOR_ARG_HELP)]
-		color: String,
+		#[arg(required = true, help = COLOR_ARG_HELP, value_parser = parse_color)]
+		color: Srgba,
 
-		#[arg(required = true, help = COLOR_ARG_HELP)]
-		other_color: String,
+		#[arg(required = true, help = COLOR_ARG_HELP, value_parser = parse_color)]
+		other_color: Srgba,
 	},
 }
 
@@ -54,22 +58,12 @@ fn main() {
 	};
 
 	match args.command {
-		Commands::Details { color: color_str } => match color_parsing::parse_color(&color_str) {
-			Err(e_1) => eprintln!("Could not parse color: {}.", e_1),
-			Ok(color) => {
-				command::print_details(&color, &options).expect("Could not print details.")
-			}
-		},
-		Commands::Contrast {
-			color: color_str,
-			other_color: other_color_str,
-		} => match color_parsing::parse_color(&color_str) {
-			Err(e_1) => eprintln!("Could not parse color: {}.", e_1),
-			Ok(color) => match color_parsing::parse_color(&other_color_str) {
-				Err(e_2) => eprintln!("Could not parse other color: {}.", e_2),
-				Ok(other_color) => command::print_contrast(&color, &other_color, &options)
-					.expect("Could not print contrast."),
-			},
-		},
+		Commands::Details { color } => {
+			command::print_details(&color, &options).expect("Could not print details.")
+		}
+		Commands::Contrast { color, other_color } => {
+			command::print_contrast(&color, &other_color, &options)
+				.expect("Could not print contrast.")
+		}
 	}
 }
