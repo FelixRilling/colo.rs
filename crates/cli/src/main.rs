@@ -1,119 +1,75 @@
-extern crate palette;
-
-use clap::builder::{EnumValueParser, PossibleValue};
-use clap::{Arg, ArgAction, Command, ValueEnum};
-use color_format::ColorFormat;
+use clap::{Parser, Subcommand};
 use log::LevelFilter;
-use options::Options;
+use options::{ColorFormat, Options};
 
-mod color_format;
 mod color_parsing;
 mod color_printing;
 mod command;
 mod options;
 
-const COLOR_ARG_HELP: &str = "CSS-like color value, e.g. #00FF11 or 'rgb(255 128 0)'.";
+const COLOR_ARG_HELP: &str = "CSS-like color value, e.g. #00FF11 or 'rgb(255 128 0)'";
 
-const COLOR_FORMAT_AUTO: &str = "auto";
+#[derive(Parser)]
+#[command(version, about, long_about = None)]
+#[command(propagate_version = true)]
+struct Cli {
+	#[arg(
+		long,
+		required = false,
+		default_value = "auto",
+		value_enum,
+		help = "Which color format to use for output"
+	)]
+	format: ColorFormat,
 
-impl ValueEnum for ColorFormat {
-	fn value_variants<'a>() -> &'a [Self] {
-		&[
-			ColorFormat::Auto,
-			ColorFormat::RgbHex,
-			ColorFormat::RgbFunction,
-			ColorFormat::HslFunction,
-			ColorFormat::HwbFunction,
-		]
-	}
+	#[command(subcommand)]
+	command: Commands,
+}
 
-	fn to_possible_value<'a>(&self) -> Option<PossibleValue> {
-		match self {
-			ColorFormat::Auto => Some(PossibleValue::new(COLOR_FORMAT_AUTO)),
-			ColorFormat::RgbHex => Some(PossibleValue::new("rgb-hex")),
-			ColorFormat::RgbFunction => Some(PossibleValue::new("rgb-function")),
-			ColorFormat::HslFunction => Some(PossibleValue::new("hsl-function")),
-			ColorFormat::HwbFunction => Some(PossibleValue::new("hwb-function")),
-		}
-	}
+#[derive(Subcommand)]
+enum Commands {
+	#[command(about = "Prints the details of a color")]
+	Details {
+		#[arg(required = true, help = COLOR_ARG_HELP)]
+		color: String,
+	},
+
+	#[command(about = "Calculates the WCAG contrast of two colors")]
+	Contrast {
+		#[arg(required = true, help = COLOR_ARG_HELP)]
+		color: String,
+
+		#[arg(required = true, help = COLOR_ARG_HELP)]
+		other_color: String,
+	},
 }
 
 fn main() {
-	let matches = Command::new("color-utils")
-		.arg(
-			Arg::new("format")
-				.long("format")
-				.value_name("format-name")
-				.required(false)
-				.num_args(1)
-				.action(ArgAction::Set)
-				.value_parser(EnumValueParser::<ColorFormat>::new())
-				.default_value(COLOR_FORMAT_AUTO)
-				.help("Which color format to use for output"),
-		)
-		.subcommand(
-			Command::new("details")
-				.about("Prints details for a color")
-				.arg(
-					Arg::new("color")
-						.required(true)
-						.num_args(1)
-						.action(ArgAction::Set)
-						.help(COLOR_ARG_HELP),
-				),
-		)
-		.subcommand(
-			Command::new("contrast")
-				.about("Calculates WCAG contrast of two colors")
-				.arg(
-					Arg::new("color")
-						.required(true)
-						.num_args(1)
-						.action(ArgAction::Set)
-						.help(COLOR_ARG_HELP),
-				)
-				.arg(
-					Arg::new("other-color")
-						.required(true)
-						.num_args(1)
-						.action(ArgAction::Set)
-						.help(COLOR_ARG_HELP),
-				),
-		)
-		.get_matches();
-
 	env_logger::builder().filter_level(LevelFilter::Info).init();
 
-	// Unwrapping should be safe as 'possible_values' only allows parseable values,
-	// and we either have a value or use a default.
-	let format: ColorFormat = *matches.get_one::<ColorFormat>("format").unwrap();
+	let args = Cli::parse();
 
-	let options = Options { format };
+	let options = Options {
+		format: args.format,
+	};
 
-	match matches.subcommand() {
-		Some(("details", matches)) => {
-			let color_str = matches.get_one::<String>("color").unwrap();
-
-			match color_parsing::parse_color(color_str) {
-				Err(e_1) => eprintln!("Could not parse color: {}.", e_1),
-				Ok(color) => {
-					command::print_details(&color, &options).expect("Could not print details.")
-				}
+	match args.command {
+		Commands::Details { color: color_str } => match color_parsing::parse_color(&color_str) {
+			Err(e_1) => eprintln!("Could not parse color: {}.", e_1),
+			Ok(color) => {
+				command::print_details(&color, &options).expect("Could not print details.")
 			}
-		}
-		Some(("contrast", matches)) => {
-			let color_str = matches.get_one::<String>("color").unwrap();
-			let other_color_str = matches.get_one::<String>("other-color").unwrap();
-
-			match color_parsing::parse_color(color_str) {
-				Err(e_1) => eprintln!("Could not parse color: {}.", e_1),
-				Ok(color) => match color_parsing::parse_color(other_color_str) {
-					Err(e_2) => eprintln!("Could not parse other color: {}.", e_2),
-					Ok(other_color) => command::print_contrast(&color, &other_color, &options)
-						.expect("Could not print contrast."),
-				},
-			}
-		}
-		_ => eprintln!("No subcommand provided. See --help."),
+		},
+		Commands::Contrast {
+			color: color_str,
+			other_color: other_color_str,
+		} => match color_parsing::parse_color(&color_str) {
+			Err(e_1) => eprintln!("Could not parse color: {}.", e_1),
+			Ok(color) => match color_parsing::parse_color(&other_color_str) {
+				Err(e_2) => eprintln!("Could not parse other color: {}.", e_2),
+				Ok(other_color) => command::print_contrast(&color, &other_color, &options)
+					.expect("Could not print contrast."),
+			},
+		},
 	}
 }

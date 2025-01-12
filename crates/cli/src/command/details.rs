@@ -5,9 +5,8 @@ use termcolor::{ColorChoice, StandardStream};
 
 use color_utils::util::is_opaque;
 
-use crate::color_format::ColorFormat;
 use crate::color_printing::print_color;
-use crate::options::Options;
+use crate::options::{ColorFormat, Options};
 
 pub fn print_details(color: &Rgba, options: &Options) -> std::io::Result<()> {
 	let mut out = StandardStream::stdout(ColorChoice::Auto);

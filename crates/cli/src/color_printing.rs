@@ -10,7 +10,7 @@ use color_utils::to_str::{
 	LetterCase, OmitAlphaChannel, ShorthandNotation,
 };
 
-use crate::color_format::ColorFormat;
+use crate::options::ColorFormat;
 
 fn rgb_as_term_color(color: Rgb) -> termcolor::Color {
 	let converted: Rgb<_, u8> = color.into_format();
