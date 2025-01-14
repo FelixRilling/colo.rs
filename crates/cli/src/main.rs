@@ -3,6 +3,7 @@ use log::LevelFilter;
 use options::{ColorFormat, Options};
 use palette::Srgba;
 
+mod color_parser;
 mod color_printing;
 mod command;
 mod options;
@@ -10,7 +11,7 @@ mod options;
 const COLOR_ARG_HELP: &str = "CSS-like color value, e.g. '#00FF11' or 'rgb(255 128 0)'";
 
 fn parse_color(color_str: &str) -> Result<Srgba, String> {
-	color_utils::parser::parse_color(color_str).map_err(|e| e.to_string())
+	color_parser::parse_color(color_str).map_err(|e| e.to_string())
 }
 
 #[derive(Parser)]

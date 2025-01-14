@@ -21,6 +21,8 @@ log = "0.4.22"
 env_logger = "0.11.5"
 clap = { version = "4.5.11", features = ["derive"] }
 termcolor = "1.4.1"
+cssparser = "0.34.0"
+cssparser-color = "0.2.0"
 
 [dependencies.palette]
 version = "0.7.6"
