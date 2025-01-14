@@ -23,6 +23,7 @@ clap = { version = "4.5.11", features = ["derive"] }
 termcolor = "1.4.1"
 cssparser = "0.34.0"
 cssparser-color = "0.2.0"
+anyhow = "1.0.95"
 
 [dependencies.palette]
 version = "0.7.6"

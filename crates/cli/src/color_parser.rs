@@ -1,50 +1,19 @@
+use anyhow::{anyhow, Error, Result};
 use cssparser::{ParseError, ParseErrorKind, Parser, ParserInput};
 use cssparser_color::Color;
 use palette::rgb::{Rgb, Rgba};
 use palette::{Hsl, Hwb, IntoColor, Lab, Lch, Oklab, Oklch, WithAlpha};
-use std::error::Error;
-use std::fmt;
-use std::fmt::{Debug, Display, Formatter};
-use std::option::Option::None;
 
-/// Kinds of errors than may happen during color parsing.
-#[derive(Debug)]
-pub enum ParsingError {
-	InvalidSyntax(String),
-
-	UnsupportedValue(String),
-}
-
-impl Display for ParsingError {
-	fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-		match self {
-			ParsingError::InvalidSyntax(details) => f.write_str(details),
-			ParsingError::UnsupportedValue(details) => f.write_str(details),
-		}
-	}
-}
-
-impl Error for ParsingError {
-	fn source(&self) -> Option<&(dyn Error + 'static)> {
-		match self {
-			ParsingError::InvalidSyntax(_) => None,
-			ParsingError::UnsupportedValue(_) => None,
-		}
-	}
-}
-
-impl From<ParseError<'_, ()>> for ParsingError {
-	fn from(err: ParseError<'_, ()>) -> Self {
-		ParsingError::InvalidSyntax(format!(
-			"{} at L{}:{}",
-			match err.kind {
-				ParseErrorKind::Basic(kind) => kind.to_string(),
-				ParseErrorKind::Custom(_) => "Unknown error".to_string(),
-			},
-			err.location.line,
-			err.location.column
-		))
-	}
+fn map_parse_error<'i>(err: ParseError<'i, ()>) -> Error {
+	anyhow!(
+		"{} at L{}:{}.",
+		match err.kind {
+			ParseErrorKind::Basic(kind) => kind.to_string(),
+			ParseErrorKind::Custom(_) => "Unknown error".to_string(),
+		},
+		err.location.line,
+		err.location.column
+	)
 }
 
 /// Parses CSS color string.
@@ -52,18 +21,14 @@ impl From<ParseError<'_, ()>> for ParsingError {
 /// # Errors
 /// - If color is keyword 'currentcolor'.
 /// - All other errors: See `cssparser` `Color::parse`.
-pub fn parse_color(seq: &str) -> Result<Rgba, ParsingError> {
+pub fn parse_color(seq: &str) -> Result<Rgba> {
 	let mut input = ParserInput::new(seq);
-	let color = Color::parse(&mut Parser::new(&mut input))?;
+	let color = Color::parse(&mut Parser::new(&mut input)).map_err(map_parse_error)?;
 
 	match color {
-		Color::ColorFunction(_) => Err(ParsingError::UnsupportedValue(
-			"Format is not supported.".to_string(),
-		)),
+		Color::ColorFunction(_) => Err(anyhow!("Format is not supported.")),
 
-		Color::CurrentColor => Err(ParsingError::UnsupportedValue(
-			"currentcolor is not supported in this context.".to_string(),
-		)),
+		Color::CurrentColor => Err(anyhow!("currentcolor is not supported in this context.",)),
 
 		Color::Rgba(rgba) => Ok(Rgb::new(rgba.red, rgba.green, rgba.blue)
 			.with_alpha(rgba.alpha)
