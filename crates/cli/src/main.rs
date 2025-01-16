@@ -1,4 +1,5 @@
 use clap::{Parser, Subcommand};
+use color_parser::parse_color;
 use log::LevelFilter;
 use options::{ColorFormat, Options};
 use palette::Srgba;
@@ -9,10 +10,6 @@ mod command;
 mod options;
 
 const COLOR_ARG_HELP: &str = "CSS-like color value, e.g. '#00FF11' or 'rgb(255 128 0)'";
-
-fn parse_color(color_str: &str) -> Result<Srgba, String> {
-	color_parser::parse_color(color_str).map_err(|e| e.to_string())
-}
 
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
