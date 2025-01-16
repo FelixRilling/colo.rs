@@ -68,6 +68,10 @@ fn format_color(color: &Rgba, format: ColorFormat) -> String {
 	}
 }
 
+const BLACK: Rgb = Rgb::new(0.0, 0.0, 0.0);
+const WHITE: Rgb = Rgb::new(1.0, 1.0, 1.0);
+const FOREGROUND_COLOR_OPTIONS: [palette::rgb::Rgb; 2] = [BLACK, WHITE];
+
 /// Prints colored color value to stream. Stream color is reset afterward.
 pub fn print_color(
 	stdout: &mut StandardStream,
@@ -76,10 +80,7 @@ pub fn print_color(
 ) -> std::io::Result<()> {
 	let opaque_color = color.without_alpha();
 
-	let black = Rgb::from_components((0.0, 0.0, 0.0));
-	let white = Rgb::from_components((1.0, 1.0, 1.0));
-	let foreground_color_options = [black, white];
-	let foreground_color = get_best_contrast(&opaque_color, &foreground_color_options);
+	let foreground_color = get_best_contrast(&opaque_color, &FOREGROUND_COLOR_OPTIONS);
 
 	stdout.set_color(
 		ColorSpec::new()
@@ -102,10 +103,10 @@ mod tests {
 
 		let bright_color = Rgb::from_components((0.9, 0.85, 1.0));
 		let bright_color_best_contrast_actual = get_best_contrast(&bright_color, &options);
-		assert_eq!(*bright_color_best_contrast_actual, black);
+		assert_eq!(*bright_color_best_contrast_actual, BLACK);
 
 		let dark_color = Rgb::from_components((0.0, 0.1, 0.25));
 		let dark_color_best_contrast_actual = get_best_contrast(&dark_color, &options);
-		assert_eq!(*dark_color_best_contrast_actual, white);
+		assert_eq!(*dark_color_best_contrast_actual, WHITE);
 	}
 }
