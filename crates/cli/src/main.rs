@@ -46,7 +46,7 @@ enum Commands {
 	},
 }
 
-fn main() {
+fn main() -> Result<(), std::io::Error> {
 	env_logger::builder().filter_level(LevelFilter::Info).init();
 
 	let args = Cli::parse();
@@ -56,12 +56,9 @@ fn main() {
 	};
 
 	match args.command {
-		Commands::Details { color } => {
-			command::print_details(&color, &options).expect("Could not print details.")
-		}
+		Commands::Details { color } => command::print_details(&color, &options),
 		Commands::Contrast { color, other_color } => {
 			command::print_contrast(&color, &other_color, &options)
-				.expect("Could not print contrast.")
 		}
 	}
 }
