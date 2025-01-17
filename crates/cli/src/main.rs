@@ -1,6 +1,5 @@
 use clap::{Parser, Subcommand};
 use color_parser::parse_color;
-use log::LevelFilter;
 use options::{ColorFormat, Options};
 use palette::Srgba;
 
@@ -47,8 +46,6 @@ enum Commands {
 }
 
 fn main() -> Result<(), std::io::Error> {
-	env_logger::builder().filter_level(LevelFilter::Info).init();
-
 	let args = Cli::parse();
 
 	let options = Options {
